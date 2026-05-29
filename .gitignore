@@ -1,0 +1,23 @@
+# Env — jangan pernah commit file ini
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+dist/
+backend/tmp/
+
+# Frontend
+frontend/.next/
+frontend/node_modules/
+frontend/out/
+
+# Go
+backend/vendor/
+*.test
+coverage.out
+coverage.html
+
+# OS
+.DS_Store
+Thumbs.db
