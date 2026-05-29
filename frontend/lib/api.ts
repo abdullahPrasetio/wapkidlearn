@@ -121,9 +121,9 @@ export const watchSessions = {
       body: JSON.stringify({ video_id: videoId }),
     }),
   heartbeat: (sessionId: string, elapsed: number) =>
-    request<{ time_remaining_seconds: number }>(
+    request<{ remaining_seconds: number }>(
       `/child/watch-sessions/${sessionId}/heartbeat`,
-      { method: 'PATCH', body: JSON.stringify({ elapsed }) }
+      { method: 'PATCH', body: JSON.stringify({ elapsed_seconds: elapsed }) }
     ),
   end: (sessionId: string) =>
     request<void>(`/child/watch-sessions/${sessionId}`, { method: 'DELETE' }),
@@ -152,6 +152,15 @@ export const parent = {
     request<void>(`/parent/children/${childId}/lock`, { method: 'DELETE' }),
   getAnalytics: (childId: string) =>
     request<ChildAnalytics>(`/parent/children/${childId}/analytics`),
+  listVideos: (childId: string) =>
+    request<Video[]>(`/parent/children/${childId}/videos`),
+  addVideo: (childId: string, body: { title: string; url: string }) =>
+    request<Video>(`/parent/children/${childId}/videos`, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  deleteVideo: (childId: string, videoId: string) =>
+    request<void>(`/parent/children/${childId}/videos/${videoId}`, { method: 'DELETE' }),
   approveVideo: (id: string) =>
     request<void>(`/parent/videos/${id}/approve`, { method: 'PATCH' }),
   rejectVideo: (id: string, reason: string) =>
@@ -186,6 +195,11 @@ export const admin = {
     }),
   deleteVideo: (id: string) =>
     request<void>(`/admin/videos/${id}`, { method: 'DELETE' }),
+  addVideo: (body: { title: string; url: string; scope: string }) =>
+    request<Video>('/admin/videos', {
+      method: 'POST',
+      body: JSON.stringify(body),
+    }),
   listUsers: () => request<{ id: string; email: string; role: string; is_active: boolean }[]>('/admin/users'),
   toggleUser: (id: string) =>
     request<void>(`/admin/users/${id}/toggle`, { method: 'PATCH' }),

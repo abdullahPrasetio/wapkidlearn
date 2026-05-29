@@ -65,7 +65,7 @@ func (s *Service) AddVideo(ctx context.Context, submittedByUserID string, role s
 		return nil, errors.New("title and url are required")
 	}
 
-	videoType, processedURL, err := parseVideoURL(req.URL)
+	parsed, err := parseVideoURLFull(req.URL)
 	if err != nil {
 		return nil, err
 	}
@@ -94,14 +94,18 @@ func (s *Service) AddVideo(ctx context.Context, submittedByUserID string, role s
 		childUUID = cid
 	}
 
-	thumbnailURL := pgutil.PtrString(req.ThumbnailURL)
+	// Auto-generate thumbnail jika tidak diisi manual
+	thumbnail := req.ThumbnailURL
+	if thumbnail == "" {
+		thumbnail = parsed.thumbnailURL
+	}
 
 	v, err := s.q.CreateVideo(ctx, db.CreateVideoParams{
 		SubmittedBy:  submittedBy,
 		Title:        req.Title,
-		Url:          processedURL,
-		ThumbnailUrl: thumbnailURL,
-		VideoType:    &videoType,
+		Url:          parsed.embedURL,
+		ThumbnailUrl: pgutil.PtrString(thumbnail),
+		VideoType:    &parsed.videoType,
 		Scope:        &scope,
 		ChildID:      childUUID,
 		Status:       &status,
@@ -144,7 +148,25 @@ func (s *Service) DeleteVideo(ctx context.Context, videoID string) error {
 	if err != nil {
 		return errors.New("invalid video_id")
 	}
-	return s.q.DeleteVideo(ctx, vid)
+
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	// Hapus dependents dulu sebelum hapus video
+	if _, err := tx.Exec(ctx, `DELETE FROM watch_histories WHERE video_id = $1`, vid); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx, `DELETE FROM watch_sessions WHERE video_id = $1`, vid); err != nil {
+		return err
+	}
+	if _, err := tx.Exec(ctx, `DELETE FROM videos WHERE id = $1`, vid); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string) (*WatchSessionResponse, error) {
@@ -319,34 +341,64 @@ func (s *Service) TerminateSession(ctx context.Context, childID, sessionID strin
 }
 
 // parseVideoURL validates and normalises a video URL.
+type parsedVideo struct {
+	videoType    string
+	embedURL     string
+	thumbnailURL string
+}
+
 func parseVideoURL(rawURL string) (videoType, processedURL string, err error) {
+	p, e := parseVideoURLFull(rawURL)
+	if e != nil {
+		return "", "", e
+	}
+	return p.videoType, p.embedURL, nil
+}
+
+func parseVideoURLFull(rawURL string) (*parsedVideo, error) {
 	u, err := url.Parse(rawURL)
 	if err != nil || u.Host == "" {
-		return "", "", errors.New("invalid URL")
+		return nil, errors.New("invalid URL")
 	}
 	host := strings.ToLower(u.Host)
 
 	switch {
 	case host == "youtu.be":
 		videoID := strings.TrimPrefix(u.Path, "/")
-		return "youtube", "https://youtube.com/embed/" + videoID + "?autoplay=1", nil
+		// strip any extra path segments (e.g. /watch?v=...)
+		if idx := strings.Index(videoID, "/"); idx != -1 {
+			videoID = videoID[:idx]
+		}
+		return &parsedVideo{
+			videoType:    "youtube",
+			embedURL:     "https://youtube.com/embed/" + videoID + "?autoplay=1",
+			thumbnailURL: "https://img.youtube.com/vi/" + videoID + "/hqdefault.jpg",
+		}, nil
 
 	case host == "youtube.com" || host == "www.youtube.com":
 		videoID := u.Query().Get("v")
 		if videoID == "" {
-			return "", "", errors.New("invalid YouTube URL")
+			return nil, errors.New("invalid YouTube URL")
 		}
-		return "youtube", "https://youtube.com/embed/" + videoID + "?autoplay=1", nil
+		return &parsedVideo{
+			videoType:    "youtube",
+			embedURL:     "https://youtube.com/embed/" + videoID + "?autoplay=1",
+			thumbnailURL: "https://img.youtube.com/vi/" + videoID + "/hqdefault.jpg",
+		}, nil
 
 	case host == "vimeo.com" || host == "www.vimeo.com":
 		videoID := strings.TrimPrefix(u.Path, "/")
-		return "vimeo", "https://player.vimeo.com/video/" + videoID, nil
+		return &parsedVideo{
+			videoType:    "vimeo",
+			embedURL:     "https://player.vimeo.com/video/" + videoID,
+			thumbnailURL: "", // Vimeo thumbnail butuh API call, dikosongkan
+		}, nil
 
 	default:
 		if strings.HasSuffix(strings.ToLower(u.Path), ".mp4") {
-			return "mp4", rawURL, nil
+			return &parsedVideo{videoType: "mp4", embedURL: rawURL, thumbnailURL: ""}, nil
 		}
-		return "", "", errors.New("URL domain not allowed; use YouTube, Vimeo, or a direct .mp4 link")
+		return nil, errors.New("URL domain not allowed; use YouTube, Vimeo, or a direct .mp4 link")
 	}
 }
 

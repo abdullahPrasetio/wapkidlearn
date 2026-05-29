@@ -156,23 +156,10 @@ func (s *Service) CreateChild(ctx context.Context, parentID string, req CreateCh
 }
 
 func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, req SettingsRequest) (*db.ParentSetting, error) {
-	pid, err := pgutil.ParseUUID(parentID)
-	if err != nil {
-		return nil, errors.New("invalid parent_id")
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return nil, err
 	}
-	cid, err := pgutil.ParseUUID(childID)
-	if err != nil {
-		return nil, errors.New("invalid child_id")
-	}
-
-	// Verify ownership
-	child, err := s.q.GetChildByID(ctx, cid)
-	if err != nil {
-		return nil, errors.New("child not found")
-	}
-	if child.ParentID != pid {
-		return nil, errors.New("not authorized for this child")
-	}
+	cid, _ := pgutil.ParseUUID(childID)
 
 	allowedHours := []byte(req.AllowedHours)
 	if len(allowedHours) == 0 {
@@ -194,25 +181,10 @@ func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, 
 }
 
 func (s *Service) SetLock(ctx context.Context, parentID, childID string, locked bool) error {
-	pid, err := pgutil.ParseUUID(parentID)
-	if err != nil {
-		return errors.New("invalid parent_id")
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return err
 	}
-	cid, err := pgutil.ParseUUID(childID)
-	if err != nil {
-		return errors.New("invalid child_id")
-	}
-
-	// Verify ownership
-	child, err := s.q.GetChildByID(ctx, cid)
-	if err != nil {
-		return errors.New("child not found")
-	}
-	if child.ParentID != pid {
-		return errors.New("not authorized for this child")
-	}
-
-	// Set emergency lock in parent_settings
+	cid, _ := pgutil.ParseUUID(childID)
 	if err := s.q.SetEmergencyLock(ctx, db.SetEmergencyLockParams{
 		ChildID:       cid,
 		EmergencyLock: &locked,
@@ -225,25 +197,30 @@ func (s *Service) SetLock(ctx context.Context, parentID, childID string, locked 
 	})
 }
 
-func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*AnalyticsResponse, error) {
+func (s *Service) verifyOwnership(ctx context.Context, parentID, childID string) error {
 	pid, err := pgutil.ParseUUID(parentID)
 	if err != nil {
-		return nil, errors.New("invalid parent_id")
+		return errors.New("invalid parent_id")
 	}
 	cid, err := pgutil.ParseUUID(childID)
 	if err != nil {
-		return nil, errors.New("invalid child_id")
+		return errors.New("invalid child_id")
 	}
-
-	// Verify ownership
 	child, err := s.q.GetChildByID(ctx, cid)
 	if err != nil {
-		return nil, errors.New("child not found")
+		return errors.New("child not found")
 	}
 	if child.ParentID != pid {
-		return nil, errors.New("not authorized for this child")
+		return errors.New("not authorized for this child")
 	}
+	return nil
+}
 
+func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*AnalyticsResponse, error) {
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return nil, err
+	}
+	cid, _ := pgutil.ParseUUID(childID)
 	sessions, err := s.q.GetChildAnalytics(ctx, cid)
 	if err != nil {
 		return nil, err

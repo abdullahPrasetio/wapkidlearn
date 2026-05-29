@@ -54,7 +54,7 @@ func main() {
 	videosHandler := videos.NewHandler(videosSvc)
 
 	parentSvc := parent.NewService(pool)
-	parentHandler := parent.NewHandler(parentSvc)
+	parentHandler := parent.NewHandler(parentSvc, videosSvc)
 
 	adminSvc := admin.NewService(pool)
 	adminHandler := admin.NewHandler(adminSvc)
@@ -118,6 +118,7 @@ func main() {
 		}
 		return c.JSON(fiber.Map{"success": true, "data": vs})
 	})
+	adminGroup.Post("/videos", videosHandler.AddVideo)
 	adminGroup.Patch("/videos/:id/approve", videosHandler.ApproveVideo)
 	adminGroup.Patch("/videos/:id/reject", videosHandler.RejectVideo)
 	adminGroup.Delete("/videos/:id", videosHandler.DeleteVideo)

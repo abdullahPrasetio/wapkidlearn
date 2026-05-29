@@ -14,7 +14,7 @@ interface Props {
   onBack: () => void
 }
 
-const HEARTBEAT_INTERVAL = 30_000
+const HEARTBEAT_INTERVAL = 10_000
 
 export function VideoPlayer({
   sessionId,
@@ -30,6 +30,14 @@ export function VideoPlayer({
   const [expired, setExpired] = useState(false)
   const lastHeartbeat = useRef(Date.now())
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const flushHeartbeat = async () => {
+    const elapsed = Math.floor((Date.now() - lastHeartbeat.current) / 1000)
+    if (elapsed > 0) {
+      lastHeartbeat.current = Date.now()
+      await onHeartbeat(elapsed).catch(() => {})
+    }
+  }
 
   useEffect(() => {
     // Countdown every second
@@ -63,9 +71,10 @@ export function VideoPlayer({
   useEffect(() => {
     if (timeRemaining <= 0 && !expired) {
       setExpired(true)
-      onTimeExpired()
+      flushHeartbeat().then(() => onTimeExpired())
     }
-  }, [timeRemaining, expired, onTimeExpired])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRemaining, expired])
 
   // Handle tab visibility — reset heartbeat timer when tab becomes visible
   useEffect(() => {
@@ -98,7 +107,7 @@ export function VideoPlayer({
     <div className="min-h-screen bg-black flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between px-4 py-3 bg-black/80 text-white">
-        <button onClick={onBack} className="text-white/70 hover:text-white text-sm">✕ Keluar</button>
+        <button onClick={() => flushHeartbeat().then(onBack)} className="text-white/70 hover:text-white text-sm">✕ Keluar</button>
         <p className="text-white/60 text-sm truncate max-w-[50%]">{videoTitle}</p>
         <div className="flex items-center gap-2 bg-black/50 px-3 py-1 rounded-full text-sm">
           <span>⏱</span>

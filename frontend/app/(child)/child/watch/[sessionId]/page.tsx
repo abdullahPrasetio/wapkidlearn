@@ -1,6 +1,5 @@
 'use client'
 
-import { use } from 'react'
 import { VideoPlayer } from '@/components/video/VideoPlayer'
 import { watchSessions } from '@/lib/api'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -18,7 +17,7 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
   const handleHeartbeat = async (elapsed: number) => {
     try {
       const result = await watchSessions.heartbeat(sessionId, elapsed)
-      return result.time_remaining_seconds
+      return result.remaining_seconds
     } catch {
       return 0
     }
@@ -43,8 +42,8 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
   )
 }
 
-export default function WatchSessionPage({ params }: { params: Promise<{ sessionId: string }> }) {
-  const { sessionId } = use(params)
+export default function WatchSessionPage({ params }: { params: { sessionId: string } }) {
+  const { sessionId } = params
   return (
     <Suspense fallback={<div className="min-h-screen bg-black" />}>
       <WatchSessionContent sessionId={sessionId} />

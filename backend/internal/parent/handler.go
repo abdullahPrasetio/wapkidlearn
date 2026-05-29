@@ -1,6 +1,7 @@
 package parent
 
 import (
+	"wapkidlearn/internal/videos"
 	"wapkidlearn/pkg/response"
 	"wapkidlearn/pkg/validator"
 
@@ -8,11 +9,12 @@ import (
 )
 
 type Handler struct {
-	svc *Service
+	svc     *Service
+	videoSvc *videos.Service
 }
 
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(svc *Service, videoSvc *videos.Service) *Handler {
+	return &Handler{svc: svc, videoSvc: videoSvc}
 }
 
 func (h *Handler) Register(router fiber.Router) {
@@ -22,6 +24,11 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Post("/children/:id/lock", h.SetLock)
 	router.Delete("/children/:id/lock", h.Unlock)
 	router.Get("/children/:id/analytics", h.GetAnalytics)
+
+	// Video management per child
+	router.Get("/children/:id/videos", h.ListChildVideos)
+	router.Post("/children/:id/videos", h.AddChildVideo)
+	router.Delete("/children/:id/videos/:videoId", h.DeleteChildVideo)
 }
 
 func (h *Handler) GetChildren(c *fiber.Ctx) error {
@@ -76,6 +83,51 @@ func (h *Handler) Unlock(c *fiber.Ctx) error {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.OK(c, fiber.Map{"locked": false})
+}
+
+func (h *Handler) ListChildVideos(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	vs, err := h.videoSvc.ListVideos(c.Context(), childID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, vs)
+}
+
+func (h *Handler) AddChildVideo(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	var req videos.AddVideoRequest
+	if err := validator.BindAndValidate(c, &req); err != nil {
+		return response.BadRequest(c, "invalid request body")
+	}
+	req.ChildID = childID
+	req.Scope = "child_specific"
+	v, err := h.videoSvc.AddVideo(c.Context(), parentID, "parent", req)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.Created(c, v)
+}
+
+func (h *Handler) DeleteChildVideo(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	videoID := c.Params("videoId")
+	if err := h.videoSvc.DeleteVideo(c.Context(), videoID); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"message": "deleted"})
 }
 
 func (h *Handler) GetAnalytics(c *fiber.Ctx) error {

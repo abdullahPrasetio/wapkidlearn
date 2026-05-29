@@ -501,27 +501,27 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 ### Sprint 1 (Minggu 1–2): Foundation
 
 **Backend:**
-- [ ] Setup Go project + Chi router + pgx
-- [ ] Setup sqlc + migration files
-- [ ] `users` table + auth handler (register, login, refresh, logout)
-- [ ] JWT middleware + role guard
-- [ ] Child PIN login
-- [ ] Rate limiter in-memory (sederhana, cukup untuk 3 user)
-- [ ] `/health` endpoint
-- [ ] Dockerfile backend
+- [x] Setup Go project + Fiber v2 + pgx
+- [x] Setup sqlc + migration files (001–009)
+- [x] `users` table + auth handler (register, login, refresh, logout)
+- [x] JWT middleware + role guard
+- [x] Child PIN login
+- [x] Rate limiter in-memory (`pkg/ratelimit`)
+- [x] `/health` endpoint
+- [x] Dockerfile backend
 
 **Frontend:**
-- [ ] Setup Next.js 14 + Tailwind + shadcn/ui
-- [ ] PWA config (manifest.json + service worker basic)
-- [ ] Login page (email/password)
-- [ ] Child PIN pad login page
-- [ ] Route guard berdasarkan role
-- [ ] API client wrapper (`lib/api.ts`)
-- [ ] Dockerfile frontend
+- [x] Setup Next.js 14 + Tailwind + shadcn/ui
+- [ ] PWA config (manifest.json ada, tapi `sw.js` & icon-192/512.png belum ada)
+- [x] Login page (email/password)
+- [x] Child PIN pad login page
+- [x] Route guard berdasarkan role (middleware + layout per route group)
+- [x] API client wrapper (`lib/api.ts`)
+- [x] Dockerfile frontend
 
 **DevOps:**
-- [ ] docker-compose.prod.yml
-- [ ] `.env.example`
+- [x] docker-compose.prod.yml
+- [x] `.env.example`
 - [ ] Test deploy di STB
 - [ ] Cloudflare Tunnel config
 
@@ -532,22 +532,22 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 ### Sprint 2 (Minggu 3–4): Game Engine
 
 **Backend:**
-- [ ] `math_questions` CRUD (admin)
-- [ ] Seed 50 soal matematika kelas 1–3
-- [ ] `game_sessions`: start, get question, submit answer, end
-- [ ] Nonce generation + validation
-- [ ] Anti-cheat: minimum 2 detik server-side check
-- [ ] Scoring formula
-- [ ] Point wallet credit setelah jawaban benar
-- [ ] `streaks` update
-- [ ] Session summary endpoint
+- [x] `math_questions` CRUD (admin handler)
+- [ ] Seed 50 soal matematika kelas 1–3 (seed ada tapi soal belum 50, baru ~beberapa)
+- [x] `game_sessions`: start, get question, submit answer, end
+- [x] Nonce generation + validation
+- [x] Anti-cheat: minimum elapsed check server-side
+- [x] Scoring formula
+- [x] Point wallet credit setelah jawaban benar
+- [x] `streaks` update
+- [x] Session summary endpoint
 
 **Frontend:**
-- [ ] Child: Home screen (balance, streak, CTA main)
-- [ ] Child: Game screen (soal, pilihan, timer bar)
-- [ ] Child: Answer feedback (animasi benar/salah, poin earned)
-- [ ] Child: Session summary screen
-- [ ] Admin: Question management (CRUD)
+- [x] Child: Home screen (balance, streak, CTA main)
+- [x] Child: Game screen (soal, pilihan, timer bar)
+- [x] Child: Answer feedback (benar/salah + poin earned via `SessionSummaryCard`)
+- [x] Child: Session summary screen (inline di game page via `phase === 'ended'`)
+- [x] Admin: Question management (`admin/questions/page.tsx`)
 
 **Deliverable:** Anak bisa main game, poin masuk, streak update.
 
@@ -556,26 +556,26 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 ### Sprint 3 (Minggu 5–6): Point Economy + Video Reward
 
 **Backend:**
-- [ ] Point conversion endpoint + idempotency + row lock
-- [ ] Watch wallet management
-- [ ] Daily limit reset job (background goroutine)
-- [ ] `videos` CRUD: tambah URL, parse type, domain whitelist
-- [ ] `watch_sessions`: start, heartbeat deduction, terminate
-- [ ] Concurrent session prevention
-- [ ] Background job: auto-close stale sessions (> 90s no heartbeat)
-- [ ] Emergency lock enforcement
-- [ ] Allowed hours validation
-- [ ] Nonce cleanup job
+- [x] Point conversion endpoint + idempotency + row lock (SELECT FOR UPDATE)
+- [x] Watch wallet management
+- [x] Daily limit reset job (background goroutine, reset setiap 1 jam)
+- [x] `videos` CRUD: tambah URL, parse type, domain whitelist, auto-thumbnail YouTube
+- [x] `watch_sessions`: start, heartbeat deduction, terminate (dengan transaction)
+- [x] Concurrent session prevention
+- [x] Background job: auto-close stale sessions (`CloseStaleWatchSessions`)
+- [x] Emergency lock enforcement
+- [ ] Allowed hours validation (kolom ada, parsing JSON `TODO` belum diimplementasi)
+- [x] Nonce cleanup job (`DeleteExpiredNonces`)
 
 **Frontend:**
-- [ ] Child: Wallet screen + convert slider
-- [ ] Child: Video library (grid thumbnail)
-- [ ] Child: Video player (YouTube/MP4/Vimeo) + timer overlay
-- [ ] Child: "Waktu habis" screen
-- [ ] Child: Emergency lock screen
-- [ ] Parent: Settings form (rate, limit, jam)
-- [ ] Parent: Video management (tambah URL, approve/reject)
-- [ ] Parent: Emergency lock toggle
+- [x] Child: Wallet screen + convert slider (`child/rewards/page.tsx`)
+- [x] Child: Video library (grid thumbnail + fallback emoji)
+- [x] Child: Video player (YouTube iframe / MP4 video) + timer overlay
+- [x] Child: "Waktu habis" screen (expired state di `VideoPlayer`)
+- [ ] Child: Emergency lock screen (belum ada halaman khusus, hanya indikator di parent)
+- [ ] Parent: Settings form (halaman settings belum dibuat, hanya ada di `children/[id]/page.tsx` sebagian)
+- [x] Parent: Video management (`parent/children/[id]/videos/page.tsx`)
+- [x] Parent: Emergency lock toggle (`parent/children/[id]/page.tsx`)
 
 **Deliverable:** Full loop: belajar → poin → konversi → nonton → selesai.
 
@@ -584,19 +584,19 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 ### Sprint 4 (Minggu 7–8): Analytics + Polish
 
 **Backend:**
-- [ ] Analytics endpoint: poin per hari, watch time per hari, akurasi per topik
-- [ ] Watch history recording
-- [ ] Achievement check + award (5 achievements)
-- [ ] Admin: user list, toggle aktif/nonaktif
-- [ ] Admin: video moderation (approve global video)
+- [x] Analytics endpoint: watch session history per child (`GetChildAnalytics`)
+- [x] Watch history recording (otomatis saat `TerminateSession`)
+- [ ] Achievement check + award (model DB ada, tapi logic belum diimplementasi)
+- [ ] Admin: user list, toggle aktif/nonaktif (frontend ada, backend belum dicek penuh)
+- [x] Admin: video moderation (approve/reject global video)
 
 **Frontend:**
-- [ ] Parent: Analytics dashboard (chart poin/hari, watch time/hari)
+- [ ] Parent: Analytics dashboard — halaman ada (`analytics/page.tsx`) tapi perlu dicek isinya
 - [ ] Parent: Activity feed anak
-- [ ] Child: Achievements screen
-- [ ] Admin: Dashboard (user list, video queue)
-- [ ] PWA: offline fallback page
-- [ ] UI polish: loading states, empty states, error messages
+- [ ] Child: Achievements screen (belum dibuat)
+- [x] Admin: Dashboard (`admin/dashboard/page.tsx`)
+- [ ] PWA: offline fallback (`sw.js` belum ada, icon-192/512.png belum ada)
+- [ ] UI polish: loading states, empty states, error messages (sebagian ada)
 - [ ] Responsiveness semua screen (mobile + tablet)
 
 **Deliverable:** App lengkap, siap dipakai keluarga.

@@ -3,12 +3,24 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { admin } from '@/lib/api'
 import Link from 'next/link'
+import { useState } from 'react'
 
 export default function AdminVideosPage() {
   const qc = useQueryClient()
+  const [newVideo, setNewVideo] = useState({ title: '', url: '' })
+
   const { data: videos, isLoading } = useQuery({
     queryKey: ['admin-videos'],
     queryFn: admin.listVideos,
+  })
+
+  const addMut = useMutation({
+    mutationFn: (data: { title: string; url: string; scope: string }) => admin.addVideo(data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-videos'] })
+      setNewVideo({ title: '', url: '' })
+    },
+    onError: (err: any) => alert(err.message || 'Gagal menambah video'),
   })
 
   const approveMut = useMutation({
@@ -24,6 +36,12 @@ export default function AdminVideosPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-videos'] }),
   })
 
+  const handleAdd = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!newVideo.title || !newVideo.url) return
+    addMut.mutate({ ...newVideo, scope: 'global' })
+  }
+
   const statusColor: Record<string, string> = {
     pending: 'bg-yellow-100 text-yellow-700',
     active: 'bg-green-100 text-green-700',
@@ -31,11 +49,41 @@ export default function AdminVideosPage() {
   }
 
   return (
-    <div className="p-6 space-y-4">
+    <div className="p-6 space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/admin/dashboard" className="text-gray-400 text-sm">← Back</Link>
         <h1 className="text-xl font-bold text-gray-900">Video Global</h1>
       </div>
+
+      {/* Form Tambah Video */}
+      <form onSubmit={handleAdd} className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm space-y-3">
+        <h2 className="text-sm font-semibold text-gray-700">Tambah Video Baru</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <input
+            type="text"
+            placeholder="Judul Video"
+            value={newVideo.title}
+            onChange={e => setNewVideo({ ...newVideo, title: e.target.value })}
+            className="text-sm border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+          <input
+            type="url"
+            placeholder="URL YouTube/Vimeo"
+            value={newVideo.url}
+            onChange={e => setNewVideo({ ...newVideo, url: e.target.value })}
+            className="text-sm border rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+        <button
+          type="submit"
+          disabled={addMut.isPending}
+          className="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        >
+          {addMut.isPending ? 'Menambah...' : 'Tambah Video'}
+        </button>
+      </form>
 
       {isLoading && <p className="text-gray-400 text-sm text-center py-8">Memuat...</p>}
 
