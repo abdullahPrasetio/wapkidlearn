@@ -1,0 +1,9 @@
+DROP INDEX IF EXISTS idx_child_profiles_parent;
+DROP INDEX IF EXISTS idx_game_sessions_child;
+DROP INDEX IF EXISTS idx_game_answers_session;
+DROP INDEX IF EXISTS idx_math_questions_grade_topic;
+DROP INDEX IF EXISTS idx_point_wallets_child;
+DROP INDEX IF EXISTS idx_point_transactions_wallet;
+DROP INDEX IF EXISTS idx_watch_sessions_child_active;
+DROP INDEX IF EXISTS idx_videos_child;
+DROP INDEX IF EXISTS idx_nonces_expires;
