@@ -1,11 +1,13 @@
 package parent
 
 import (
+	"errors"
 	"wapkidlearn/internal/videos"
 	"wapkidlearn/pkg/response"
 	"wapkidlearn/pkg/validator"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/jackc/pgx/v5"
 )
 
 type Handler struct {
@@ -20,6 +22,7 @@ func NewHandler(svc *Service, videoSvc *videos.Service) *Handler {
 func (h *Handler) Register(router fiber.Router) {
 	router.Get("/children", h.GetChildren)
 	router.Post("/children", h.CreateChild)
+	router.Get("/children/:id/settings", h.GetSettings)
 	router.Put("/children/:id/settings", h.UpdateSettings)
 	router.Post("/children/:id/lock", h.SetLock)
 	router.Delete("/children/:id/lock", h.Unlock)
@@ -51,6 +54,19 @@ func (h *Handler) CreateChild(c *fiber.Ctx) error {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.Created(c, child)
+}
+
+func (h *Handler) GetSettings(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	settings, err := h.svc.GetSettings(c.Context(), parentID, childID)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return response.NotFound(c, "settings not found")
+		}
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, settings)
 }
 
 func (h *Handler) UpdateSettings(c *fiber.Ctx) error {
@@ -128,6 +144,33 @@ func (h *Handler) DeleteChildVideo(c *fiber.Ctx) error {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.OK(c, fiber.Map{"message": "deleted"})
+}
+
+func (h *Handler) ApproveChildVideo(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	videoID := c.Params("id")
+	if err := h.svc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	v, err := h.videoSvc.ApproveVideo(c.Context(), videoID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, v)
+}
+
+func (h *Handler) RejectChildVideo(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	videoID := c.Params("id")
+	if err := h.svc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	reason := c.Query("reason")
+	v, err := h.videoSvc.RejectVideo(c.Context(), videoID, reason)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, v)
 }
 
 func (h *Handler) GetAnalytics(c *fiber.Ctx) error {

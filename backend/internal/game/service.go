@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"log"
 	"math"
 	"time"
 	db "wapkidlearn/internal/database/queries"
@@ -279,7 +280,9 @@ func (s *Service) SubmitAnswer(ctx context.Context, childID, sessionID string, r
 
 	// Credit points
 	if isCorrect && pointsEarned > 0 {
-		_ = s.points.CreditPoints(ctx, childID, pointsEarned, sessionID+":"+req.Nonce)
+		if err := s.points.CreditPoints(ctx, childID, pointsEarned, sessionID+":"+req.Nonce); err != nil {
+			log.Printf("[game] CreditPoints failed child=%s session=%s: %v", childID, sessionID, err)
+		}
 	}
 
 	explanation := ""
@@ -310,7 +313,10 @@ func (s *Service) EndSession(ctx context.Context, childID, sessionID string) (*S
 		return nil, errors.New("session not found")
 	}
 
-	answers, _ := s.repo.GetSessionAnswers(ctx, sid)
+	answers, err := s.repo.GetSessionAnswers(ctx, sid)
+	if err != nil {
+		return nil, errors.New("failed to retrieve session answers")
+	}
 	var correctCount int32
 	var totalPoints int32
 	for _, a := range answers {
@@ -358,13 +364,8 @@ func (s *Service) EndSession(ctx context.Context, childID, sessionID string) (*S
 }
 
 func (s *Service) getChildGradeLevel(ctx context.Context, childID pgtype.UUID) (int32, error) {
-	// We need child profile — use auth queries via pool directly
-	// The Repository only holds game queries, so we'll use the points service's pool
-	// For simplicity, expose a method from points.Service or query directly.
-	// We'll query child_profiles via a raw query using the pool from repository.
-	row := s.repo.pool.QueryRow(ctx, "SELECT grade_level FROM child_profiles WHERE id = $1", childID)
-	var gradeLevel int32
-	if err := row.Scan(&gradeLevel); err != nil {
+	gradeLevel, err := s.repo.q.GetChildGradeLevel(ctx, childID)
+	if err != nil {
 		return 1, nil // default grade 1
 	}
 	return gradeLevel, nil

@@ -65,6 +65,12 @@ export interface Wallet {
   lifetime_earned: number
 }
 
+export interface CombinedWallet {
+  point: Wallet
+  watch: WatchWallet
+  is_locked: boolean
+}
+
 export interface WatchWallet {
   balance_seconds: number
   used_today_seconds: number
@@ -122,7 +128,8 @@ export interface ChildProfile {
 export interface ParentSettings {
   daily_watch_limit_minutes: number
   conversion_rate: number
-  allowed_hours: Record<string, { start: string; end: string }>
+  // keys are hour strings "0"–"23", value true = allowed
+  allowed_hours: Record<string, boolean>
   require_study_first: boolean
   min_study_minutes: number
   emergency_lock: boolean

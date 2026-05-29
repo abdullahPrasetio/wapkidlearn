@@ -78,6 +78,17 @@ func (q *Queries) GetChildByUserID(ctx context.Context, userID pgtype.UUID) (Chi
 	return i, err
 }
 
+const getChildGradeLevel = `-- name: GetChildGradeLevel :one
+SELECT grade_level FROM child_profiles WHERE id = $1
+`
+
+func (q *Queries) GetChildGradeLevel(ctx context.Context, id pgtype.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, getChildGradeLevel, id)
+	var grade_level int32
+	err := row.Scan(&grade_level)
+	return grade_level, err
+}
+
 const getParentSettings = `-- name: GetParentSettings :one
 SELECT id, child_id, daily_watch_limit_minutes, conversion_rate, allowed_hours, require_study_first, min_study_minutes, emergency_lock, updated_at FROM parent_settings WHERE child_id = $1
 `

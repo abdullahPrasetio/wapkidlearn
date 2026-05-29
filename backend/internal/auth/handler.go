@@ -2,6 +2,7 @@ package auth
 
 import (
 	"time"
+	"wapkidlearn/pkg/ratelimit"
 	"wapkidlearn/pkg/response"
 	"wapkidlearn/pkg/validator"
 
@@ -9,11 +10,12 @@ import (
 )
 
 type Handler struct {
-	svc *Service
+	svc         *Service
+	authLimiter *ratelimit.Limiter
 }
 
-func NewHandler(svc *Service) *Handler {
-	return &Handler{svc: svc}
+func NewHandler(svc *Service, authLimiter *ratelimit.Limiter) *Handler {
+	return &Handler{svc: svc, authLimiter: authLimiter}
 }
 
 func (h *Handler) Register(router fiber.Router) {
@@ -58,6 +60,10 @@ func (h *Handler) ChildLogin(c *fiber.Ctx) error {
 	}
 	if req.ChildID == "" || req.PIN == "" {
 		return response.BadRequest(c, "child_id and pin are required")
+	}
+
+	if !h.authLimiter.Allow("child_login:"+req.ChildID, 5, time.Minute) {
+		return response.TooManyRequests(c, "too many login attempts, try again later")
 	}
 
 	res, err := h.svc.ChildLogin(c.Context(), req.ChildID, req.PIN)

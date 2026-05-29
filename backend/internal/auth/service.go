@@ -81,9 +81,12 @@ func (s *Service) ChildLogin(ctx context.Context, childID, pin string) (*LoginRe
 		return nil, errors.New("invalid credentials")
 	}
 
-	// Fetch parent settings to check locks
+	// Fetch parent settings to check locks — safe-fail: jika gagal baca, anggap terkunci
 	settings, err := s.q.GetParentSettings(ctx, child.ID)
-	if err == nil && settings.EmergencyLock != nil && *settings.EmergencyLock {
+	if err != nil {
+		return nil, errors.New("account locked by parent")
+	}
+	if settings.EmergencyLock != nil && *settings.EmergencyLock {
 		return nil, errors.New("account locked by parent")
 	}
 	if child.IsLocked != nil && *child.IsLocked {
@@ -114,5 +117,25 @@ func (s *Service) Refresh(ctx context.Context, refreshToken string) (string, err
 	if err != nil {
 		return "", errors.New("invalid refresh token")
 	}
+
+	// [B3] Cek lock status untuk child — cegah bypass emergency lock via refresh
+	if claims.Role == "child" && claims.ChildID != nil {
+		childUUID, err := parseUUID(*claims.ChildID)
+		if err != nil {
+			return "", errors.New("invalid token claims")
+		}
+		child, err := s.q.GetChildByID(ctx, childUUID)
+		if err != nil {
+			return "", errors.New("account not found")
+		}
+		if child.IsLocked != nil && *child.IsLocked {
+			return "", errors.New("account is locked")
+		}
+		settings, err := s.q.GetParentSettings(ctx, child.ID)
+		if err == nil && settings.EmergencyLock != nil && *settings.EmergencyLock {
+			return "", errors.New("account locked by parent")
+		}
+	}
+
 	return pkgjwt.Generate(claims.UserID, claims.Role, claims.ChildID, s.jwtSecret, 15*time.Minute)
 }

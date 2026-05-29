@@ -564,7 +564,7 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] Concurrent session prevention
 - [x] Background job: auto-close stale sessions (`CloseStaleWatchSessions`)
 - [x] Emergency lock enforcement
-- [ ] Allowed hours validation (kolom ada, parsing JSON `TODO` belum diimplementasi)
+- [x] Allowed hours validation — migration 010 normalisasi data lama ke format boolean; parser sudah pakai `Asia/Jakarta` timezone
 - [x] Nonce cleanup job (`DeleteExpiredNonces`)
 
 **Frontend:**
@@ -572,7 +572,7 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] Child: Video library (grid thumbnail + fallback emoji)
 - [x] Child: Video player (YouTube iframe / MP4 video) + timer overlay
 - [x] Child: "Waktu habis" screen (expired state di `VideoPlayer`)
-- [ ] Child: Emergency lock screen (belum ada halaman khusus, hanya indikator di parent)
+- [ ] Child: Emergency lock screen (halaman `/child/locked` belum ada; guard sudah ada di `ChildLockGuard`)
 - [ ] Parent: Settings form (halaman settings belum dibuat, hanya ada di `children/[id]/page.tsx` sebagian)
 - [x] Parent: Video management (`parent/children/[id]/videos/page.tsx`)
 - [x] Parent: Emergency lock toggle (`parent/children/[id]/page.tsx`)

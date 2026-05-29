@@ -7,6 +7,7 @@ Platform belajar matematika untuk anak (Go + Next.js), didesain ringan untuk STB
 - `/wkl-dev` — konteks lengkap project: stack, struktur folder, business rules, konvensi kode
 - `/new-feature` — panduan scaffold fitur baru (handler, router, frontend, security checklist)
 - `/db-migration` — workflow buat migration database baru dengan aman
+- `/fix-findings` — perbaiki temuan security & reliability dari `docs/finding.md` tanpa merusak business logic
 
 ## Quick Commands
 

@@ -71,12 +71,76 @@
 
 ---
 
+## 2026-05-30 — Security Audit: 19/19 Temuan Diperbaiki
+
+Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
+
+### Backend
+
+#### [B1] JWT_SECRET wajib dari env
+- `main.go`: hapus fallback `"change-me-in-production"`, ganti ke `log.Fatal` jika env kosong
+
+#### [B2] Rate limiting child login
+- `pkg/response/response.go`: tambah `TooManyRequests()`
+- `auth/handler.go`: inject `*ratelimit.Limiter`, cek 5 req/menit per `child_id` sebelum proses login
+
+#### [B3] Lock check di token refresh
+- `auth/service.go`: saat refresh untuk role `child`, query DB — jika `is_locked` atau `emergency_lock` aktif, kembalikan error (emergency lock efektif ≤15 menit tanpa logout paksa)
+
+#### [B4] Log error CreditPoints
+- `game/service.go`: error dari `CreditPoints` di-log, tidak di-swallow diam-diam
+
+#### [B5] Ownership check approve/reject video
+- `parent/handler.go`: tambah `ApproveChildVideo` dan `RejectChildVideo` dengan ownership check
+- `parent/service.go`: tambah `VerifyVideoOwnership` — join `videos → child_profiles → parent_id`
+- `main.go`: route approve/reject dipindah ke `parentGroup` (auth parent)
+
+#### [B6] Safe-fail emergency lock
+- `auth/service.go`: jika `GetParentSettings` gagal saat child login, anggap locked (deny access)
+
+#### [B8] Fail-fast video fetch sebelum deduct balance
+- `videos/service.go`: fetch + validasi video sebelum `CreateWatchSession` — balance tidak terpotong untuk video yang tidak ada
+
+#### [B9] Log error TerminateSession
+- `videos/service.go`: error dari `TerminateSession` di-log, tidak hilang
+
+#### [B10] Hapus raw SQL getChildGradeLevel
+- `database/queries/auth.sql`: tambah named query `GetChildGradeLevel`
+- `game/service.go`: pakai `s.repo.q.GetChildGradeLevel()` dari sqlc, bukan raw pool query
+
+#### [B11] Propagate error GetSessionAnswers
+- `game/service.go`: return error jika `GetSessionAnswers` gagal, tidak silent continue
+
+#### [B12] Hapus resetDailyWatch saat startup
+- `main.go`: hapus panggilan `resetDailyWatch` saat startup — ticker 1 jam sudah cukup
+
+#### [A1] Safe-fail GetIsLocked
+- `points/service.go`: jika `GetIsLocked` error, default `isLocked = true`
+
+#### [A3] Fix timezone allowed hours
+- `videos/service.go`: ganti `time.Now()` ke `time.Now().In(loc)` dengan `loc = "Asia/Jakarta"`
+
+#### [A4] Bedakan 404 vs 500 di GetSettings
+- `parent/handler.go`: cek `pgx.ErrNoRows` → 404, selain itu → 500
+
+#### [A5] Migration normalisasi allowed_hours
+- `database/migrations/010_migrate_allowed_hours.up.sql`: reset data lama (format object) ke `{}` agar parser boolean berjalan benar
+
+### Frontend
+
+#### [A2 + B13] ChildLockGuard — skeleton loading
+- `components/child/ChildLockGuard.tsx`: tambah `isLoading` / `isError` dari `useWallet()`; tampilkan skeleton animasi saat loading, bukan blank screen
+
+#### [A6] emergency_lock non-optional
+- `lib/types.ts`: `ParentSettings.emergency_lock` dari `boolean?` → `boolean`
+
+---
+
 ## Sisa yang Belum Dikerjakan
 
 | Item | Prioritas |
 |------|-----------|
-| Allowed hours validation (parsing JSON di `videos/service.go`) | Medium |
-| Child: Emergency lock screen | Medium |
+| Child: Emergency lock screen (halaman khusus `/child/locked`) | Medium |
 | Parent: Settings form lengkap (allowed hours, conversion rate) | Medium |
 | Seed soal matematika diperbanyak ke ~50 soal | Low |
 | Achievement logic backend + screen anak | Low |

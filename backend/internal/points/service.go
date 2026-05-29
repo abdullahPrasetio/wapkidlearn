@@ -32,8 +32,9 @@ type WatchWalletResponse struct {
 }
 
 type CombinedWalletResponse struct {
-	Point *WalletResponse      `json:"point"`
-	Watch *WatchWalletResponse `json:"watch"`
+	Point    *WalletResponse      `json:"point"`
+	Watch    *WatchWalletResponse `json:"watch"`
+	IsLocked bool                 `json:"is_locked"`
 }
 
 type ConversionResult struct {
@@ -73,6 +74,11 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 		}
 	}
 
+	isLocked, err := s.repo.GetIsLocked(ctx, cid)
+	if err != nil {
+		isLocked = true // safe-fail: bila gagal cek, anggap locked
+	}
+
 	return &CombinedWalletResponse{
 		Point: &WalletResponse{
 			WalletID:       pgutil.UUIDToString(w.ID),
@@ -84,6 +90,7 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 			BalanceSeconds:   watchBal,
 			UsedTodaySeconds: watchUsed,
 		},
+		IsLocked: isLocked,
 	}, nil
 }
 

@@ -48,3 +48,14 @@ func (r *Repository) AddWatchTime(ctx context.Context, childID pgtype.UUID, seco
 func (r *Repository) ResetDailyWatch(ctx context.Context, childID pgtype.UUID) error {
 	return r.q.ResetDailyWatch(ctx, childID)
 }
+
+func (r *Repository) GetIsLocked(ctx context.Context, childID pgtype.UUID) (bool, error) {
+	child, err := r.q.GetChildByID(ctx, childID)
+	if err != nil {
+		return false, err
+	}
+	if child.IsLocked != nil {
+		return *child.IsLocked, nil
+	}
+	return false, nil
+}

@@ -1,7 +1,7 @@
 import type {
-  AnswerResult, ChildAnalytics, ChildProfile, ConvertResult,
+  AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
   GameSession, MathQuestion, ParentSettings, PointTransaction,
-  Question, SessionSummary, Video, WatchSession, Wallet, WatchWallet,
+  Question, SessionSummary, Video, WatchSession,
 } from './types'
 
 const BASE = '/api/v1'
@@ -96,7 +96,7 @@ export const game = {
 
 // ── Points ────────────────────────────────────────────────────────────────────
 export const points = {
-  getWallet: () => request<{ point: Wallet; watch: WatchWallet }>('/child/wallet'),
+  getWallet: () => request<CombinedWallet>('/child/wallet'),
   convert: (body: { points: number; idempotency_key: string }) =>
     request<ConvertResult>('/child/convert', {
       method: 'POST',
@@ -141,6 +141,8 @@ export const parent = {
       method: 'POST',
       body: JSON.stringify(body),
     }),
+  getSettings: (childId: string) =>
+    request<ParentSettings>(`/parent/children/${childId}/settings`),
   updateSettings: (childId: string, settings: Partial<ParentSettings>) =>
     request<void>(`/parent/children/${childId}/settings`, {
       method: 'PUT',

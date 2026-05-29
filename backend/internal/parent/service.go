@@ -155,6 +155,18 @@ func (s *Service) CreateChild(ctx context.Context, parentID string, req CreateCh
 	return &child, nil
 }
 
+func (s *Service) GetSettings(ctx context.Context, parentID, childID string) (*db.ParentSetting, error) {
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return nil, err
+	}
+	cid, _ := pgutil.ParseUUID(childID)
+	settings, err := s.q.GetParentSettings(ctx, cid)
+	if err != nil {
+		return nil, err
+	}
+	return &settings, nil
+}
+
 func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, req SettingsRequest) (*db.ParentSetting, error) {
 	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
 		return nil, err
@@ -212,6 +224,31 @@ func (s *Service) verifyOwnership(ctx context.Context, parentID, childID string)
 	}
 	if child.ParentID != pid {
 		return errors.New("not authorized for this child")
+	}
+	return nil
+}
+
+// VerifyVideoOwnership memastikan video dimiliki oleh child dari parent yang login.
+func (s *Service) VerifyVideoOwnership(ctx context.Context, parentID, videoID string) error {
+	pid, err := pgutil.ParseUUID(parentID)
+	if err != nil {
+		return errors.New("invalid parent_id")
+	}
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return errors.New("invalid video_id")
+	}
+	var childParentID pgtype.UUID
+	err = s.pool.QueryRow(ctx,
+		`SELECT cp.parent_id FROM videos v
+		 JOIN child_profiles cp ON cp.id = v.child_id
+		 WHERE v.id = $1`, vid,
+	).Scan(&childParentID)
+	if err != nil {
+		return errors.New("video not found")
+	}
+	if childParentID != pid {
+		return errors.New("not authorized for this video")
 	}
 	return nil
 }

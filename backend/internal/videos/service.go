@@ -2,8 +2,11 @@ package videos
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
+	"log"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	db "wapkidlearn/internal/database/queries"
@@ -226,6 +229,13 @@ func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string
 		}
 	}
 
+	// Fetch video details before creating session — rollback implicitly if fetch fails
+	var videoURL, videoTitle, videoType string
+	row := s.pool.QueryRow(ctx, `SELECT url, title, video_type FROM videos WHERE id = $1 AND status = 'active'`, vid)
+	if err := row.Scan(&videoURL, &videoTitle, &videoType); err != nil {
+		return nil, errors.New("video not found or not active")
+	}
+
 	session, err := s.q.CreateWatchSession(ctx, db.CreateWatchSessionParams{
 		ChildID:          cid,
 		VideoID:          vid,
@@ -234,11 +244,6 @@ func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string
 	if err != nil {
 		return nil, err
 	}
-
-	// Fetch video details to include URL in response
-	var videoURL, videoTitle, videoType string
-	row := s.pool.QueryRow(ctx, `SELECT url, title, video_type FROM videos WHERE id = $1`, vid)
-	_ = row.Scan(&videoURL, &videoTitle, &videoType)
 
 	return &WatchSessionResponse{
 		ID:               pgutil.UUIDToString(session.ID),
@@ -299,7 +304,9 @@ func (s *Service) Heartbeat(ctx context.Context, childID, sessionID string, elap
 	}
 
 	if remaining == 0 {
-		_ = s.TerminateSession(ctx, childID, sessionID, "completed")
+		if err := s.TerminateSession(ctx, childID, sessionID, "completed"); err != nil {
+			log.Printf("[heartbeat] TerminateSession failed session=%s: %v", sessionID, err)
+		}
 	}
 
 	return &HeartbeatResponse{
@@ -424,12 +431,14 @@ func (s *Service) getParentSettings(ctx context.Context, childID pgtype.UUID) (*
 }
 
 func isWithinAllowedHours(allowedHoursJSON []byte) bool {
-	// If allowed_hours is empty or {}, all hours are allowed
 	if len(allowedHoursJSON) == 0 || string(allowedHoursJSON) == "{}" || string(allowedHoursJSON) == "null" {
 		return true
 	}
-	hour := time.Now().Hour()
-	_ = hour
-	// TODO: parse allowed_hours JSON {"0": true, "1": true, ...} for full implementation
-	return true
+	var hours map[string]bool
+	if err := json.Unmarshal(allowedHoursJSON, &hours); err != nil || len(hours) == 0 {
+		return true
+	}
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+	hour := strconv.Itoa(time.Now().In(loc).Hour())
+	return hours[hour]
 }

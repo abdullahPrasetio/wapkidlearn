@@ -16,6 +16,7 @@ import (
 	"wapkidlearn/internal/parent"
 	"wapkidlearn/internal/points"
 	"wapkidlearn/internal/videos"
+	"wapkidlearn/pkg/ratelimit"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
@@ -31,7 +32,10 @@ func main() {
 	}
 
 	databaseURL := getEnv("DATABASE_URL", "postgres://postgres:postgres@localhost:5432/wapkidlearn?sslmode=disable")
-	jwtSecret := getEnv("JWT_SECRET", "change-me-in-production")
+	jwtSecret := os.Getenv("JWT_SECRET")
+	if jwtSecret == "" {
+		log.Fatal("JWT_SECRET environment variable is required")
+	}
 	frontendOrigin := getEnv("FRONTEND_ORIGIN", "http://localhost:3000")
 	port := getEnv("PORT", "8080")
 
@@ -39,8 +43,9 @@ func main() {
 	defer pool.Close()
 
 	// Wire dependencies
+	authLimiter := ratelimit.New()
 	authSvc := auth.NewService(pool, jwtSecret)
-	authHandler := auth.NewHandler(authSvc)
+	authHandler := auth.NewHandler(authSvc, authLimiter)
 
 	pointsRepo := points.NewRepository(pool)
 	pointsSvc := points.NewService(pointsRepo, pool)
@@ -105,8 +110,8 @@ func main() {
 	// Parent routes
 	parentGroup := app.Group("/api/v1/parent", requireAuth, requireParent)
 	parentHandler.Register(parentGroup)
-	parentGroup.Patch("/videos/:id/approve", videosHandler.ApproveVideo)
-	parentGroup.Patch("/videos/:id/reject", videosHandler.RejectVideo)
+	parentGroup.Patch("/videos/:id/approve", parentHandler.ApproveChildVideo)
+	parentGroup.Patch("/videos/:id/reject", parentHandler.RejectChildVideo)
 
 	// Admin routes
 	adminGroup := app.Group("/api/v1/admin", requireAuth, requireAdmin)
@@ -133,9 +138,6 @@ func main() {
 func runBackgroundTasks(pool *pgxpool.Pool) {
 	q := db.New(pool)
 	ctx := context.Background()
-
-	// Initial daily reset at startup
-	resetDailyWatch(ctx, pool)
 
 	ticker60s := time.NewTicker(60 * time.Second)
 	ticker1h := time.NewTicker(1 * time.Hour)

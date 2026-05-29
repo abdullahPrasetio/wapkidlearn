@@ -37,6 +37,10 @@ func Conflict(c *fiber.Ctx, msg string) error {
 	return c.Status(fiber.StatusConflict).JSON(Response{Success: false, Error: msg})
 }
 
+func TooManyRequests(c *fiber.Ctx, msg string) error {
+	return c.Status(fiber.StatusTooManyRequests).JSON(Response{Success: false, Error: msg})
+}
+
 func InternalError(c *fiber.Ctx, err error) error {
 	msg := "internal server error"
 	if err != nil {
