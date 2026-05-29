@@ -136,14 +136,63 @@ Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
 
 ---
 
+---
+
+## 2026-05-30 — Sprint 4: Achievement System, PWA, Seed 50 Soal
+
+### Backend
+
+#### Achievement System (full stack)
+- Buat `backend/internal/database/queries/achievements.sql` — 4 named queries: `GetAllAchievementsWithStatus`, `GetAchievementByCode`, `AwardAchievement`, `GetLifetimePoints`
+- Jalankan `sqlc-gen` → generate `achievements.sql.go` (types: `AwardAchievementParams`, `GetAllAchievementsWithStatusRow`)
+- Buat `backend/internal/achievement/service.go` — standalone package, 5 achievement codes: `first_step`, `hot_streak`, `diligent`, `century_points`, `first_watch`
+  - `GetAll(ctx, childID)` — list semua achievement + status unlocked per anak
+  - `CheckAndAward(ctx, params)` — cek 4 kondisi otomatis (langkah pertama, streak, rajin, 100 poin)
+  - `AwardFirstWatch(ctx, childID)` — trigger dari konversi poin ke watch time
+  - `award(ctx, childID, code, condition)` — internal helper, pakai ON CONFLICT DO NOTHING
+- Buat `backend/internal/achievement/handler.go` — `GET /api/v1/child/achievements` (auth child)
+- Wire ke `game/service.go`: goroutine async di `EndSession` setelah sesi selesai — cek streak + lifetime points
+- Wire ke `points/service.go`: goroutine async di `ConvertPoints` setelah commit — award `first_watch`
+- Wire ke `main.go`: `achievementSvc` diinit lebih awal, inject ke `points.NewService` dan `game.NewService`, route terdaftar di `childGroup`
+
+### Frontend
+
+#### Halaman `/child/achievements`
+- Buat `frontend/app/(child)/child/achievements/page.tsx`
+- Badge emoji map: `first_step=👣`, `hot_streak=🔥`, `diligent=📅`, `century_points=💯`, `first_watch=📺`
+- Card earned: background kuning, tanggal unlock
+- Card locked: opacity 50%, ikon 🔒
+- Stat card oranye di atas: jumlah badge diraih
+- Loading skeleton (3 baris), empty state dengan CTA
+- Back link ke `/child/home`
+- Tambah `Achievement` interface ke `lib/types.ts` (field: `id`, `code`, `title`, `description`, `unlocked`, `unlocked_at?`)
+- Tambah `achievements.list()` ke `lib/api.ts`
+
+### PWA Assets
+- Buat `frontend/public/sw.js`:
+  - Cache name: `wapkidlearn-v1`
+  - Precache: `/`, `/child/home`, `/manifest.json`
+  - Strategy: cache-first untuk navigasi & `/_next/static/`, network-only untuk `/api/*`
+  - Auto-cache static assets pada fetch pertama; fallback ke `/` saat offline
+- Generate `frontend/public/icon-192.png` dan `icon-512.png` (solid orange #FF6B35, Python stdlib)
+- Tambah SW registration inline script di `frontend/app/layout.tsx`
+
+### Seed 50 Soal
+- Tambah 24 soal baru ke `database/migrations/seed.sql`:
+  - Kelas 1: 3 penjumlahan (2+7, 1+9, 5+5), 3 pengurangan (10-3, 9-4, 8-3)
+  - Kelas 2: 4 perkalian (7×4, 8×3, 6×6, 2×9), 4 pembagian (20÷4, 18÷3, 24÷6, 30÷5)
+  - Kelas 3: 3 perkalian (7×8, 12×5, 11×7), 3 pembagian (81÷9, 64÷8, 90÷10), 2 soal tiga digit, 2 soal cerita difficulty 4
+- Total: 50 soal (kelas 1–3, difficulty 1–4)
+
+---
+
 ## Sisa yang Belum Dikerjakan
 
 | Item | Prioritas |
 |------|-----------|
 | Child: Emergency lock screen (halaman khusus `/child/locked`) | Medium |
 | Parent: Settings form lengkap (allowed hours, conversion rate) | Medium |
-| Seed soal matematika diperbanyak ke ~50 soal | Low |
-| Achievement logic backend + screen anak | Low |
-| `sw.js` + `icon-192.png` + `icon-512.png` (PWA install) | Low |
 | Parent analytics dashboard (cek & lengkapi) | Low |
+| UI polish: loading/error/empty states semua screen | Low |
+| Responsiveness audit (375px–1280px) | Low |
 | Deploy ke STB + Cloudflare Tunnel | —  |

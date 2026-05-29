@@ -1,5 +1,5 @@
 import type {
-  AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
+  Achievement, AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
   GameSession, MathQuestion, ParentSettings, PointTransaction,
   Question, SessionSummary, Video, WatchSession,
 } from './types'
@@ -205,6 +205,10 @@ export const admin = {
   listUsers: () => request<{ id: string; email: string; role: string; is_active: boolean }[]>('/admin/users'),
   toggleUser: (id: string) =>
     request<void>(`/admin/users/${id}/toggle`, { method: 'PATCH' }),
+}
+
+export const achievements = {
+  list: () => request<Achievement[]>('/child/achievements'),
 }
 
 export { ApiError }

@@ -512,7 +512,7 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 
 **Frontend:**
 - [x] Setup Next.js 14 + Tailwind + shadcn/ui
-- [ ] PWA config (manifest.json ada, tapi `sw.js` & icon-192/512.png belum ada)
+- [x] PWA config (manifest.json, `sw.js`, icon-192/512.png — selesai)
 - [x] Login page (email/password)
 - [x] Child PIN pad login page
 - [x] Route guard berdasarkan role (middleware + layout per route group)
@@ -533,7 +533,7 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 
 **Backend:**
 - [x] `math_questions` CRUD (admin handler)
-- [ ] Seed 50 soal matematika kelas 1–3 (seed ada tapi soal belum 50, baru ~beberapa)
+- [x] Seed 50 soal matematika kelas 1–3 (50 soal sudah ada di seed.sql)
 - [x] `game_sessions`: start, get question, submit answer, end
 - [x] Nonce generation + validation
 - [x] Anti-cheat: minimum elapsed check server-side
@@ -586,16 +586,16 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 **Backend:**
 - [x] Analytics endpoint: watch session history per child (`GetChildAnalytics`)
 - [x] Watch history recording (otomatis saat `TerminateSession`)
-- [ ] Achievement check + award (model DB ada, tapi logic belum diimplementasi)
+- [x] Achievement check + award (SQL queries, service, handler, route `/child/achievements` — selesai)
 - [ ] Admin: user list, toggle aktif/nonaktif (frontend ada, backend belum dicek penuh)
 - [x] Admin: video moderation (approve/reject global video)
 
 **Frontend:**
 - [ ] Parent: Analytics dashboard — halaman ada (`analytics/page.tsx`) tapi perlu dicek isinya
 - [ ] Parent: Activity feed anak
-- [ ] Child: Achievements screen (belum dibuat)
+- [x] Child: Achievements screen (`child/achievements/page.tsx` — badge earned/locked)
 - [x] Admin: Dashboard (`admin/dashboard/page.tsx`)
-- [ ] PWA: offline fallback (`sw.js` belum ada, icon-192/512.png belum ada)
+- [x] PWA: `sw.js` (cache-first + network-only untuk `/api/`), icon-192/512.png — selesai
 - [ ] UI polish: loading states, empty states, error messages (sebagian ada)
 - [ ] Responsiveness semua screen (mobile + tablet)
 

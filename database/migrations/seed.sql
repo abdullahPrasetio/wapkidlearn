@@ -134,5 +134,50 @@ INSERT INTO math_questions (grade_level, topic, difficulty, question_text, optio
 
   -- Kelas 3 — Penjumlahan tiga digit (difficulty 3)
   (3, 'penjumlahan', 3, '125 + 236 = ?','["359","360","361","362"]', '361','125 ditambah 236 = 361'),
-  (3, 'pengurangan', 3, '500 - 173 = ?','["325","326","327","328"]', '327','500 dikurangi 173 = 327')
+  (3, 'pengurangan', 3, '500 - 173 = ?','["325","326","327","328"]', '327','500 dikurangi 173 = 327'),
+
+  -- ── Tambahan agar total 50 soal ──────────────────────────────────────────────
+
+  -- Kelas 1 — Penjumlahan lanjutan (difficulty 1)
+  (1, 'penjumlahan', 1, '2 + 7 = ?',    '["7","8","9","10"]',       '9',  '2 ditambah 7 = 9'),
+  (1, 'penjumlahan', 1, '1 + 9 = ?',    '["8","9","10","11"]',      '10', '1 ditambah 9 = 10'),
+  (1, 'penjumlahan', 1, '5 + 5 = ?',    '["8","9","10","11"]',      '10', '5 ditambah 5 = 10'),
+
+  -- Kelas 1 — Pengurangan lanjutan (difficulty 1)
+  (1, 'pengurangan', 1, '10 - 3 = ?',   '["5","6","7","8"]',        '7',  '10 dikurangi 3 = 7'),
+  (1, 'pengurangan', 1, '9 - 4 = ?',    '["4","5","6","7"]',        '5',  '9 dikurangi 4 = 5'),
+  (1, 'pengurangan', 1, '8 - 3 = ?',    '["4","5","6","7"]',        '5',  '8 dikurangi 3 = 5'),
+
+  -- Kelas 2 — Perkalian lanjutan (difficulty 2)
+  (2, 'perkalian', 2, '7 × 4 = ?',      '["24","26","28","30"]',    '28', '7 dikali 4 = 28'),
+  (2, 'perkalian', 2, '8 × 3 = ?',      '["22","23","24","25"]',    '24', '8 dikali 3 = 24'),
+  (2, 'perkalian', 2, '6 × 6 = ?',      '["34","35","36","37"]',    '36', '6 dikali 6 = 36'),
+  (2, 'perkalian', 2, '2 × 9 = ?',      '["16","17","18","19"]',    '18', '2 dikali 9 = 18'),
+
+  -- Kelas 2 — Pembagian dasar (difficulty 2)
+  (2, 'pembagian', 2, '20 ÷ 4 = ?',     '["4","5","6","7"]',        '5',  '20 dibagi 4 = 5'),
+  (2, 'pembagian', 2, '18 ÷ 3 = ?',     '["5","6","7","8"]',        '6',  '18 dibagi 3 = 6'),
+  (2, 'pembagian', 2, '24 ÷ 6 = ?',     '["3","4","5","6"]',        '4',  '24 dibagi 6 = 4'),
+  (2, 'pembagian', 2, '30 ÷ 5 = ?',     '["5","6","7","8"]',        '6',  '30 dibagi 5 = 6'),
+
+  -- Kelas 3 — Perkalian lanjutan (difficulty 3)
+  (3, 'perkalian', 3, '7 × 8 = ?',      '["54","55","56","57"]',    '56', '7 dikali 8 = 56'),
+  (3, 'perkalian', 3, '12 × 5 = ?',     '["55","58","60","62"]',    '60', '12 dikali 5 = 60'),
+  (3, 'perkalian', 3, '11 × 7 = ?',     '["75","77","78","80"]',    '77', '11 dikali 7 = 77'),
+
+  -- Kelas 3 — Pembagian lanjutan (difficulty 3)
+  (3, 'pembagian', 3, '81 ÷ 9 = ?',     '["7","8","9","10"]',       '9',  '81 dibagi 9 = 9'),
+  (3, 'pembagian', 3, '64 ÷ 8 = ?',     '["6","7","8","9"]',        '8',  '64 dibagi 8 = 8'),
+  (3, 'pembagian', 3, '90 ÷ 10 = ?',    '["7","8","9","10"]',       '9',  '90 dibagi 10 = 9'),
+
+  -- Kelas 3 — Penjumlahan & Pengurangan tiga digit lanjutan (difficulty 3)
+  (3, 'penjumlahan', 3, '347 + 215 = ?','["560","561","562","563"]', '562','347 ditambah 215 = 562'),
+  (3, 'pengurangan', 3, '800 - 345 = ?','["453","454","455","456"]', '455','800 dikurangi 345 = 455'),
+
+  -- Kelas 3 — Soal cerita sederhana (difficulty 4)
+  (3, 'perkalian', 4, 'Ada 6 kotak, tiap kotak berisi 8 pensil. Berapa total pensil?',
+   '["42","46","48","50"]', '48', '6 × 8 = 48 pensil'),
+  (3, 'pembagian', 4, '42 kue dibagi rata ke 7 piring. Berapa kue per piring?',
+   '["5","6","7","8"]',     '6',  '42 ÷ 7 = 6 kue per piring')
+
 ON CONFLICT DO NOTHING;

@@ -4,10 +4,13 @@ import (
 	"context"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/joho/godotenv"
 
+	"wapkidlearn/internal/achievement"
 	"wapkidlearn/internal/admin"
 	"wapkidlearn/internal/auth"
 	"wapkidlearn/internal/database"
@@ -47,12 +50,15 @@ func main() {
 	authSvc := auth.NewService(pool, jwtSecret)
 	authHandler := auth.NewHandler(authSvc, authLimiter)
 
+	achievementSvc := achievement.NewService(pool)
+	achievementHandler := achievement.NewHandler(achievementSvc)
+
 	pointsRepo := points.NewRepository(pool)
-	pointsSvc := points.NewService(pointsRepo, pool)
+	pointsSvc := points.NewService(pointsRepo, pool, achievementSvc)
 	pointsHandler := points.NewHandler(pointsSvc)
 
 	gameRepo := game.NewRepository(pool)
-	gameSvc := game.NewService(gameRepo, pointsSvc)
+	gameSvc := game.NewService(gameRepo, pointsSvc, achievementSvc)
 	gameHandler := game.NewHandler(gameSvc)
 
 	videosSvc := videos.NewService(pool)
@@ -106,6 +112,7 @@ func main() {
 	gameHandler.Register(childGroup)
 	pointsHandler.Register(childGroup)
 	videosHandler.Register(childGroup)
+	achievementHandler.Register(childGroup)
 
 	// Parent routes
 	parentGroup := app.Group("/api/v1/parent", requireAuth, requireParent)
@@ -127,6 +134,15 @@ func main() {
 	adminGroup.Patch("/videos/:id/approve", videosHandler.ApproveVideo)
 	adminGroup.Patch("/videos/:id/reject", videosHandler.RejectVideo)
 	adminGroup.Delete("/videos/:id", videosHandler.DeleteVideo)
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		<-quit
+		log.Println("shutting down — waiting for background tasks...")
+		gameSvc.Wait()
+		_ = app.Shutdown()
+	}()
 
 	log.Printf("WapKidLearn API starting on :%s", port)
 	if err := app.Listen(":" + port); err != nil {

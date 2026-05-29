@@ -6,7 +6,9 @@ import (
 	"errors"
 	"log"
 	"math"
+	"sync"
 	"time"
+	"wapkidlearn/internal/achievement"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/internal/points"
 	"wapkidlearn/pkg/pgutil"
@@ -16,12 +18,19 @@ import (
 )
 
 type Service struct {
-	repo   *Repository
-	points *points.Service
+	repo         *Repository
+	points       *points.Service
+	achievements *achievement.Service
+	wg           sync.WaitGroup
 }
 
-func NewService(repo *Repository, pointsSvc *points.Service) *Service {
-	return &Service{repo: repo, points: pointsSvc}
+func NewService(repo *Repository, pointsSvc *points.Service, achievementSvc *achievement.Service) *Service {
+	return &Service{repo: repo, points: pointsSvc, achievements: achievementSvc}
+}
+
+// Wait blocks until all background achievement goroutines finish. Call on server shutdown.
+func (s *Service) Wait() {
+	s.wg.Wait()
 }
 
 // QuestionResponse is the question returned to the client (without correct_answer).
@@ -346,6 +355,29 @@ func (s *Service) EndSession(ctx context.Context, childID, sessionID string) (*S
 	if totalQuestions > 0 {
 		accuracy = float64(correctCount) / float64(totalQuestions) * 100
 	}
+
+	// Check and award achievements in background.
+	s.wg.Add(1)
+	go func() {
+		defer s.wg.Done()
+		bgCtx := context.Background()
+		streak, _ := s.repo.GetStreak(bgCtx, cid)
+		currentStreak := int32(0)
+		longestStreak := int32(0)
+		if streak.CurrentStreak != nil {
+			currentStreak = *streak.CurrentStreak
+		}
+		if streak.LongestStreak != nil {
+			longestStreak = *streak.LongestStreak
+		}
+		lifetimePoints, _ := s.repo.GetLifetimePoints(bgCtx, cid)
+		s.achievements.CheckAndAward(bgCtx, achievement.CheckParams{
+			ChildID:        cid,
+			CurrentStreak:  currentStreak,
+			LongestStreak:  longestStreak,
+			LifetimePoints: lifetimePoints,
+		})
+	}()
 
 	derefI32 := func(p *int32) int32 {
 		if p == nil {

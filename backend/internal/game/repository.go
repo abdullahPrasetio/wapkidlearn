@@ -70,5 +70,9 @@ func (r *Repository) UpsertStreak(ctx context.Context, params db.UpsertStreakPar
 	return r.q.UpsertStreak(ctx, params)
 }
 
+func (r *Repository) GetLifetimePoints(ctx context.Context, childID pgtype.UUID) (int32, error) {
+	return r.q.GetLifetimePoints(ctx, childID)
+}
+
 // NonceExpiry is how long a question nonce is valid.
 const NonceExpiry = 60 * time.Second

@@ -158,6 +158,7 @@ export interface MathQuestion {
 
 export interface Achievement {
   id: string
+  code: string
   title: string
   description: string
   unlocked: boolean

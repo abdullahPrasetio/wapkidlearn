@@ -3,6 +3,7 @@ package points
 import (
 	"context"
 	"errors"
+	"wapkidlearn/internal/achievement"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/pkg/pgutil"
 
@@ -11,12 +12,13 @@ import (
 )
 
 type Service struct {
-	repo *Repository
-	pool *pgxpool.Pool
+	repo         *Repository
+	pool         *pgxpool.Pool
+	achievements *achievement.Service
 }
 
-func NewService(repo *Repository, pool *pgxpool.Pool) *Service {
-	return &Service{repo: repo, pool: pool}
+func NewService(repo *Repository, pool *pgxpool.Pool, achievementSvc *achievement.Service) *Service {
+	return &Service{repo: repo, pool: pool, achievements: achievementSvc}
 }
 
 type WalletResponse struct {
@@ -198,6 +200,8 @@ func (s *Service) ConvertPoints(ctx context.Context, childID string, points int3
 	if err := tx.Commit(ctx); err != nil {
 		return nil, err
 	}
+
+	go s.achievements.AwardFirstWatch(context.Background(), cid)
 
 	return &ConversionResult{
 		PointsDeducted: points,
