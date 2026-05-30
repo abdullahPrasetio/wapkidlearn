@@ -1,7 +1,8 @@
 import type {
   Achievement, ActivityItem, AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
   GameSession, MathQuestion, ParentSettings, PointTransaction,
-  Question, SessionSummary, Video, WatchSession,
+  Question, ReadingPassage, ReadingSubmitRequest, ReadingSubmitResponse,
+  SessionSummary, Video, WatchSession,
 } from './types'
 
 // Server-side (SSR/Server Components) pakai INTERNAL_API_URL via Docker network.
@@ -248,6 +249,13 @@ export const admin = {
 
 export const achievements = {
   list: () => request<Achievement[]>('/child/achievements'),
+}
+
+export const reading = {
+  getPassages: (gradeLevel: number) =>
+    request<ReadingPassage[]>(`/child/reading/passages?grade_level=${gradeLevel}`),
+  submit: (data: ReadingSubmitRequest) =>
+    request<ReadingSubmitResponse>('/child/reading/sessions', { method: 'POST', body: JSON.stringify(data) }),
 }
 
 export { ApiError }

@@ -18,6 +18,7 @@ import (
 	"wapkidlearn/internal/game"
 	"wapkidlearn/internal/parent"
 	"wapkidlearn/internal/points"
+	"wapkidlearn/internal/reading"
 	"wapkidlearn/internal/videos"
 	"wapkidlearn/pkg/ratelimit"
 
@@ -68,6 +69,9 @@ func main() {
 	parentSvc := parent.NewService(pool)
 	parentHandler := parent.NewHandler(parentSvc, videosSvc)
 
+	readingSvc := reading.NewService(pool, pointsSvc)
+	readingHandler := reading.NewHandler(readingSvc)
+
 	adminSvc := admin.NewService(pool)
 	adminHandler := admin.NewHandler(adminSvc)
 
@@ -114,6 +118,7 @@ func main() {
 	pointsHandler.Register(childGroup)
 	videosHandler.Register(childGroup)
 	achievementHandler.Register(childGroup)
+	readingHandler.Register(childGroup)
 
 	// Parent routes
 	parentGroup := app.Group("/api/v1/parent", requireAuth, requireParent)

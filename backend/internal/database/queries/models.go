@@ -122,6 +122,18 @@ type QuestionNonce struct {
 	Used       *bool              `json:"used"`
 }
 
+type ReadSession struct {
+	ID              pgtype.UUID        `json:"id"`
+	ChildID         pgtype.UUID        `json:"child_id"`
+	PassageID       string             `json:"passage_id"`
+	GradeLevel      int16              `json:"grade_level"`
+	Transcript      string             `json:"transcript"`
+	Accuracy        float64            `json:"accuracy"`
+	PointsEarned    int32              `json:"points_earned"`
+	DurationSeconds int32              `json:"duration_seconds"`
+	CreatedAt       pgtype.Timestamptz `json:"created_at"`
+}
+
 type Streak struct {
 	ID               pgtype.UUID `json:"id"`
 	ChildID          pgtype.UUID `json:"child_id"`

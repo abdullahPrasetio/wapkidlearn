@@ -93,19 +93,30 @@ export default function ChildHomePage() {
         </div>
       </div>
 
-      {/* 2x2 Card grid */}
+      {/* Menu cards */}
       <div className="px-5 pt-4 grid grid-cols-2 gap-4 pb-4">
+        {/* Belajar - full width, links to learn selection */}
         <Link
-          href="/child/game"
-          className="bg-orange-50 border border-orange-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
+          href="/child/learn"
+          className="col-span-2 bg-gradient-to-r from-orange-50 to-green-50 border border-orange-100 rounded-3xl p-5 hover:shadow-md transition active:scale-95"
         >
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-            <span className="text-3xl">🎮</span>
+          <div className="flex items-center gap-4">
+            <div className="flex gap-1">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                <span className="text-2xl">🎮</span>
+              </div>
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                <span className="text-2xl">📚</span>
+              </div>
+            </div>
+            <div className="flex-1">
+              <p className="font-extrabold text-gray-900 text-base">Belajar</p>
+              <p className="text-xs text-gray-500 mt-0.5">Menghitung atau Membaca</p>
+              <span className="inline-block bg-orange-100 text-orange-600 text-xs font-bold px-2.5 py-1 rounded-full mt-1.5">
+                Mulai Belajar →
+              </span>
+            </div>
           </div>
-          <p className="font-extrabold text-gray-900 text-center text-sm">Main Game</p>
-          <span className="bg-orange-100 text-orange-600 text-xs font-bold px-3 py-1 rounded-full">
-            +100 Poin
-          </span>
         </Link>
 
         <Link
@@ -117,7 +128,7 @@ export default function ChildHomePage() {
           </div>
           <p className="font-extrabold text-gray-900 text-center text-sm">Nonton Video</p>
           <span className="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1 rounded-full">
-            Baru!
+            Hadiah Belajar
           </span>
         </Link>
 
@@ -136,7 +147,7 @@ export default function ChildHomePage() {
 
         <Link
           href="/child/rewards"
-          className="bg-purple-50 border border-purple-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
+          className="col-span-2 bg-purple-50 border border-purple-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
         >
           <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
             <span className="text-3xl">🎁</span>

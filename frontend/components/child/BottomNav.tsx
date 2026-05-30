@@ -5,8 +5,19 @@ import { usePathname } from 'next/navigation'
 
 const NAV_ITEMS = [
   {
-    href: '/child/game',
+    href: '/child/home',
+    label: 'Home',
+    icon: (active: boolean) => (
+      <svg viewBox="0 0 24 24" fill={active ? '#F97316' : 'none'} stroke={active ? '#F97316' : '#9CA3AF'} strokeWidth={2} className="w-6 h-6">
+        <path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H5a1 1 0 01-1-1V9.5z" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M9 21V12h6v9" strokeLinecap="round" strokeLinejoin="round" stroke={active ? '#fff' : '#9CA3AF'} />
+      </svg>
+    ),
+  },
+  {
+    href: '/child/learn',
     label: 'Belajar',
+    matchPaths: ['/child/learn', '/child/game', '/child/read'],
     icon: (active: boolean) => (
       <svg viewBox="0 0 24 24" fill="none" stroke={active ? '#F97316' : '#9CA3AF'} strokeWidth={2} className="w-6 h-6">
         <path d="M12 2L2 7l10 5 10-5-10-5z" strokeLinecap="round" strokeLinejoin="round" />
@@ -37,11 +48,11 @@ const NAV_ITEMS = [
   },
   {
     href: '/child/rewards',
-    label: 'Profil',
+    label: 'Poin',
     icon: (active: boolean) => (
       <svg viewBox="0 0 24 24" fill="none" stroke={active ? '#F97316' : '#9CA3AF'} strokeWidth={2} className="w-6 h-6">
-        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" strokeLinecap="round" />
-        <circle cx="12" cy="7" r="4" />
+        <circle cx="12" cy="12" r="9" />
+        <path d="M12 6v6l4 2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     ),
   },
@@ -52,17 +63,19 @@ export function ChildBottomNav() {
 
   return (
     <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 shadow-lg z-40">
-      <div className="grid grid-cols-4 py-2">
+      <div className="grid grid-cols-5 py-1">
         {NAV_ITEMS.map((item) => {
-          const active = pathname.startsWith(item.href)
+          const active = item.matchPaths
+            ? item.matchPaths.some((p) => pathname.startsWith(p))
+            : pathname.startsWith(item.href)
           return (
             <Link
               key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-1 py-2"
+              className="flex flex-col items-center gap-0.5 py-2"
             >
               {item.icon(active)}
-              <span className={`text-xs font-medium ${active ? 'text-orange-500' : 'text-gray-400'}`}>
+              <span className={`text-[10px] font-semibold ${active ? 'text-orange-500' : 'text-gray-400'}`}>
                 {item.label}
               </span>
             </Link>

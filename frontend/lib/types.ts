@@ -174,6 +174,29 @@ export interface Achievement {
   unlocked_at?: string
 }
 
+// Reading
+export interface ReadingPassage {
+  id: string
+  grade_level: number
+  title: string
+  body: string
+  word_count: number
+}
+
+export interface ReadingSubmitRequest {
+  passage_id: string
+  transcript: string
+  accuracy: number
+  duration_seconds: number
+}
+
+export interface ReadingSubmitResponse {
+  session_id: string
+  accuracy: number
+  points_earned: number
+  duration_seconds: number
+}
+
 export interface ActivityItem {
   type: 'game' | 'watch'
   title: string
