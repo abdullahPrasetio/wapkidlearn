@@ -8,6 +8,7 @@ Platform belajar matematika untuk anak (Go + Next.js), didesain ringan untuk STB
 - `/new-feature` — panduan scaffold fitur baru (handler, router, frontend, security checklist)
 - `/db-migration` — workflow buat migration database baru dengan aman
 - `/fix-findings` — perbaiki temuan security & reliability dari `docs/finding.md` tanpa merusak business logic
+- `/implement-design` — implement screen dari folder `design/` ke frontend (mapping folder → path, responsive checklist)
 
 ## Quick Commands
 
