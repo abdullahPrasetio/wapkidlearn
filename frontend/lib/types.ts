@@ -164,3 +164,10 @@ export interface Achievement {
   unlocked: boolean
   unlocked_at?: string
 }
+
+export interface ActivityItem {
+  type: 'game' | 'watch'
+  title: string
+  detail: string
+  occurred_at: string
+}

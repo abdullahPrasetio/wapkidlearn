@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"math"
+	"sort"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/pkg/pgutil"
 
@@ -41,8 +44,38 @@ type SettingsRequest struct {
 	MinStudyMinutes        int32           `json:"min_study_minutes"`
 }
 
+type PointsPerDay struct {
+	Date   string `json:"date"`
+	Points int32  `json:"points"`
+}
+
+type WatchTimePerDay struct {
+	Date    string `json:"date"`
+	Minutes int32  `json:"minutes"`
+}
+
+type AccuracyPerTopic struct {
+	Topic    string  `json:"topic"`
+	Accuracy float64 `json:"accuracy"`
+}
+
 type AnalyticsResponse struct {
-	Sessions []db.GetChildAnalyticsRow `json:"sessions"`
+	PointsPerDay     []PointsPerDay     `json:"points_per_day"`
+	WatchTimePerDay  []WatchTimePerDay  `json:"watch_time_per_day"`
+	AccuracyPerTopic []AccuracyPerTopic `json:"accuracy_per_topic"`
+	CurrentStreak    int32              `json:"current_streak"`
+	LongestStreak    int32              `json:"longest_streak"`
+}
+
+type ActivityItem struct {
+	Type      string `json:"type"` // "game" | "watch"
+	Title     string `json:"title"`
+	Detail    string `json:"detail"`
+	OccuredAt string `json:"occurred_at"`
+}
+
+type ActivityFeedResponse struct {
+	Activities []ActivityItem `json:"activities"`
 }
 
 func (s *Service) GetChildren(ctx context.Context, parentID string) ([]ChildWithSettings, error) {
@@ -258,9 +291,119 @@ func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*
 		return nil, err
 	}
 	cid, _ := pgutil.ParseUUID(childID)
+
 	sessions, err := s.q.GetChildAnalytics(ctx, cid)
 	if err != nil {
 		return nil, err
 	}
-	return &AnalyticsResponse{Sessions: sessions}, nil
+
+	// points_per_day — aggregate by date
+	ppd := map[string]int32{}
+	for _, s := range sessions {
+		if s.StartedAt.Valid {
+			d := s.StartedAt.Time.Format("01/02")
+			if s.PointsEarned != nil {
+				ppd[d] += *s.PointsEarned
+			}
+		}
+	}
+	pointsPerDay := make([]PointsPerDay, 0, len(ppd))
+	for d, p := range ppd {
+		pointsPerDay = append(pointsPerDay, PointsPerDay{Date: d, Points: p})
+	}
+
+	// watch_time_per_day
+	watches, err := s.q.GetWatchHistoriesByChild(ctx, cid)
+	if err != nil {
+		watches = nil
+	}
+	wpd := map[string]int32{}
+	for _, w := range watches {
+		if w.WatchedAt.Valid {
+			d := w.WatchedAt.Time.Format("01/02")
+			wpd[d] += w.DurationSeconds / 60
+		}
+	}
+	watchPerDay := make([]WatchTimePerDay, 0, len(wpd))
+	for d, m := range wpd {
+		watchPerDay = append(watchPerDay, WatchTimePerDay{Date: d, Minutes: m})
+	}
+
+	// accuracy_per_topic
+	topicRows, err := s.q.GetChildAccuracyPerTopic(ctx, cid)
+	if err != nil {
+		topicRows = nil
+	}
+	accuracy := make([]AccuracyPerTopic, 0, len(topicRows))
+	for _, t := range topicRows {
+		if t.Total > 0 {
+			pct := float64(t.Correct) / float64(t.Total) * 100
+			accuracy = append(accuracy, AccuracyPerTopic{Topic: t.Topic, Accuracy: math.Round(pct)})
+		}
+	}
+
+	// streak
+	var currentStreak, longestStreak int32
+	streak, err := s.q.GetStreakByChild(ctx, cid)
+	if err == nil {
+		if streak.CurrentStreak != nil {
+			currentStreak = *streak.CurrentStreak
+		}
+		if streak.LongestStreak != nil {
+			longestStreak = *streak.LongestStreak
+		}
+	}
+
+	return &AnalyticsResponse{
+		PointsPerDay:     pointsPerDay,
+		WatchTimePerDay:  watchPerDay,
+		AccuracyPerTopic: accuracy,
+		CurrentStreak:    currentStreak,
+		LongestStreak:    longestStreak,
+	}, nil
+}
+
+func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string) (*ActivityFeedResponse, error) {
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return nil, err
+	}
+	cid, _ := pgutil.ParseUUID(childID)
+
+	items := []ActivityItem{}
+
+	sessions, _ := s.q.GetChildAnalytics(ctx, cid)
+	for _, gs := range sessions {
+		if !gs.StartedAt.Valid {
+			continue
+		}
+		detail := fmt.Sprintf("%d/%d benar, %d poin", gs.CorrectCount, gs.TotalQuestions, gs.PointsEarned)
+		items = append(items, ActivityItem{
+			Type:      "game",
+			Title:     "Main Game",
+			Detail:    detail,
+			OccuredAt: gs.StartedAt.Time.Format("2006-01-02T15:04:05Z"),
+		})
+	}
+
+	watches, _ := s.q.GetWatchHistoriesByChild(ctx, cid)
+	for _, w := range watches {
+		if !w.WatchedAt.Valid {
+			continue
+		}
+		mins := w.DurationSeconds / 60
+		detail := fmt.Sprintf("%d menit", mins)
+		items = append(items, ActivityItem{
+			Type:      "watch",
+			Title:     w.Title,
+			Detail:    detail,
+			OccuredAt: w.WatchedAt.Time.Format("2006-01-02T15:04:05Z"),
+		})
+	}
+
+	// sort by time descending
+	sort.Slice(items, func(i, j int) bool {
+		return items[i].OccuredAt > items[j].OccuredAt
+	})
+
+	return &ActivityFeedResponse{Activities: items}, nil
 }

@@ -193,10 +193,23 @@ func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string
 		}
 	}
 
-	// Check no active session
-	_, err = s.q.GetActiveWatchSession(ctx, cid)
+	// Check no active session — auto-terminate jika stale (heartbeat > 30s)
+	existing, err := s.q.GetActiveWatchSession(ctx, cid)
 	if err == nil {
-		return nil, errors.New("active watch session already exists")
+		staleThreshold := time.Now().Add(-30 * time.Second)
+		lastBeat := existing.LastHeartbeatAt
+		isStale := !lastBeat.Valid || lastBeat.Time.Before(staleThreshold)
+		if !isStale {
+			return nil, errors.New("active watch session already exists")
+		}
+		// Terminate sesi lama yang stale sebelum buat yang baru
+		st := "terminated"
+		if _, terr := s.q.TerminateWatchSession(ctx, db.TerminateWatchSessionParams{
+			ID:     existing.ID,
+			Status: &st,
+		}); terr != nil {
+			log.Printf("[watch] auto-terminate stale session=%s: %v", pgutil.UUIDToString(existing.ID), terr)
+		}
 	}
 
 	// Check watch wallet balance

@@ -3,7 +3,7 @@
 import { VideoPlayer } from '@/components/video/VideoPlayer'
 import { watchSessions } from '@/lib/api'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Suspense } from 'react'
+import { Suspense, useEffect, useRef } from 'react'
 
 function WatchSessionContent({ sessionId }: { sessionId: string }) {
   const router = useRouter()
@@ -23,10 +23,24 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
     }
   }
 
+  const ended = useRef(false)
+
   const handleEnd = async () => {
+    if (ended.current) return
+    ended.current = true
     await watchSessions.end(sessionId).catch(() => {})
     router.replace('/child/home')
   }
+
+  // Terminate session saat komponen unmount (cover kasus Back/reload)
+  useEffect(() => {
+    return () => {
+      if (!ended.current) {
+        watchSessions.end(sessionId).catch(() => {})
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <VideoPlayer

@@ -6,7 +6,30 @@ import { formatPoints, formatSeconds } from '@/lib/utils'
 import Link from 'next/link'
 
 export default function RewardsPage() {
-  const { data, isLoading, refetch } = useWallet()
+  const { data, isLoading, isError, refetch } = useWallet()
+
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-4 pt-10">
+        <div className="h-8 bg-gray-200 rounded-xl w-1/2 animate-pulse" />
+        <div className="grid grid-cols-2 gap-4">
+          <div className="h-24 bg-gray-200 rounded-2xl animate-pulse" />
+          <div className="h-24 bg-gray-200 rounded-2xl animate-pulse" />
+        </div>
+        <div className="h-40 bg-gray-200 rounded-2xl animate-pulse" />
+      </div>
+    )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+        <p className="text-5xl mb-4">😵</p>
+        <p className="text-gray-700 font-semibold">Gagal memuat data</p>
+        <p className="text-gray-400 text-sm mt-1">Periksa koneksi internet kamu</p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">

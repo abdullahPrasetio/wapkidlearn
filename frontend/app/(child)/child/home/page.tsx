@@ -5,7 +5,17 @@ import { useWallet } from '@/lib/hooks/useWallet'
 import { formatPoints, formatSeconds } from '@/lib/utils'
 
 export default function ChildHomePage() {
-  const { data, isLoading } = useWallet()
+  const { data, isLoading, isError } = useWallet()
+
+  if (isError) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+        <p className="text-5xl mb-4">😵</p>
+        <p className="text-gray-700 font-semibold">Gagal memuat data</p>
+        <p className="text-gray-400 text-sm mt-1">Periksa koneksi internet kamu</p>
+      </div>
+    )
+  }
 
   return (
     <div className="p-6 space-y-6">

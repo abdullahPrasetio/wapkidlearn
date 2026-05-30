@@ -10,7 +10,7 @@ import { formatSeconds } from '@/lib/utils'
 
 export default function WatchLibraryPage() {
   const router = useRouter()
-  const { data: videoList, isLoading } = useQuery({
+  const { data: videoList, isLoading, isError } = useQuery({
     queryKey: ['videos'],
     queryFn: videos.list,
   })
@@ -61,7 +61,13 @@ export default function WatchLibraryPage() {
         </div>
       )}
 
-      {isLoading ? (
+      {isError ? (
+        <div className="text-center py-16 text-gray-400">
+          <div className="text-5xl mb-4">⚠️</div>
+          <p className="font-medium text-gray-500">Gagal memuat video</p>
+          <p className="text-sm mt-1">Periksa koneksi internet kamu</p>
+        </div>
+      ) : isLoading ? (
         <div className="grid grid-cols-2 gap-4">
           {Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="bg-gray-100 rounded-2xl h-40 animate-pulse" />

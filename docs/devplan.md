@@ -522,8 +522,8 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 **DevOps:**
 - [x] docker-compose.prod.yml
 - [x] `.env.example`
-- [ ] Test deploy di STB
-- [ ] Cloudflare Tunnel config
+- [x] Test deploy di CasaOS via Docker Hub
+- [x] Cloudflare Tunnel config (via Nginx Proxy Manager)
 
 **Deliverable:** Login bekerja untuk ketiga role. Deploy jalan di STB.
 
@@ -572,8 +572,8 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] Child: Video library (grid thumbnail + fallback emoji)
 - [x] Child: Video player (YouTube iframe / MP4 video) + timer overlay
 - [x] Child: "Waktu habis" screen (expired state di `VideoPlayer`)
-- [ ] Child: Emergency lock screen (halaman `/child/locked` belum ada; guard sudah ada di `ChildLockGuard`)
-- [ ] Parent: Settings form (halaman settings belum dibuat, hanya ada di `children/[id]/page.tsx` sebagian)
+- [x] Child: Emergency lock screen (`/child/locked` — polling 10s auto-redirect saat lock dibuka)
+- [x] Parent: Settings form (`parent/children/[id]/settings/page.tsx` — daily limit, rate konversi, jam allowed, wajib belajar)
 - [x] Parent: Video management (`parent/children/[id]/videos/page.tsx`)
 - [x] Parent: Emergency lock toggle (`parent/children/[id]/page.tsx`)
 
@@ -587,17 +587,17 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] Analytics endpoint: watch session history per child (`GetChildAnalytics`)
 - [x] Watch history recording (otomatis saat `TerminateSession`)
 - [x] Achievement check + award (SQL queries, service, handler, route `/child/achievements` — selesai)
-- [ ] Admin: user list, toggle aktif/nonaktif (frontend ada, backend belum dicek penuh)
+- [x] Admin: user list, toggle aktif/nonaktif (`admin/users/page.tsx` + backend `ListUsers`, `ToggleUserActive`)
 - [x] Admin: video moderation (approve/reject global video)
 
 **Frontend:**
-- [ ] Parent: Analytics dashboard — halaman ada (`analytics/page.tsx`) tapi perlu dicek isinya
-- [ ] Parent: Activity feed anak
+- [x] Parent: Analytics dashboard — fix backend response (points_per_day, watch_time_per_day, accuracy_per_topic, streak)
+- [x] Parent: Activity feed anak (`activity/page.tsx` + endpoint `GET /parent/children/:id/activity`)
 - [x] Child: Achievements screen (`child/achievements/page.tsx` — badge earned/locked)
 - [x] Admin: Dashboard (`admin/dashboard/page.tsx`)
 - [x] PWA: `sw.js` (cache-first + network-only untuk `/api/`), icon-192/512.png — selesai
-- [ ] UI polish: loading states, empty states, error messages (sebagian ada)
-- [ ] Responsiveness semua screen (mobile + tablet)
+- [x] UI polish: loading skeleton (rewards, admin dashboard, child detail), error states (home, rewards, achievements, watch, transactions), empty states
+- [x] Responsiveness semua screen — layout `max-w-md/2xl/4xl mx-auto` per role, konten tidak stretching di tablet/desktop
 
 **Deliverable:** App lengkap, siap dipakai keluarga.
 

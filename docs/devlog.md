@@ -186,6 +186,68 @@ Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
 
 ---
 
+---
+
+## 2026-05-30 — DevOps: Docker Release Workflow + CasaOS Deploy
+
+### Docker Build & Release
+
+#### Makefile — Docker Release Targets
+- Tambah variabel `BACKEND_IMAGE`, `FRONTEND_IMAGE`, `TAG` ke Makefile
+- Target baru: `docker-build-backend`, `docker-build-frontend`, `docker-build-all`
+- Target baru: `docker-push-backend`, `docker-push-frontend`, `docker-push-all`, `docker-release`
+- `docker-build-frontend` otomatis pass `--build-arg NEXT_PUBLIC_API_URL` dan `INTERNAL_API_URL` saat build
+- Usage: `make docker-release TAG=v1.0.0 NEXT_PUBLIC_API_URL=https://...`
+
+#### Dockerfile — Port via ENV
+- `backend/Dockerfile`: tambah `ARG PORT=8080` → `ENV PORT` → `EXPOSE ${PORT}`
+- `frontend/Dockerfile`: tambah `ARG PORT=3000` → `ENV PORT` → `EXPOSE ${PORT}`, tambah `ARG NEXT_PUBLIC_API_URL` di builder stage sebelum `npm run build`
+
+### CasaOS Deploy
+
+#### docker-compose.casaos.yml
+- Compose khusus CasaOS, pakai image dari Docker Hub (bukan build lokal)
+- Database terpisah — hanya `app` (frontend) + `api` (backend)
+- Format port pakai `mode: ingress` (required oleh CasaOS UI)
+- Environment list format (`- KEY=VALUE`) sesuai format CasaOS
+- Tambah `x-casaos` block: icon, port_map, main service, store_app_id
+- `INTERNAL_API_URL=http://api:8085` untuk SSR server-side fetch
+- File masuk `.gitignore` karena berisi credentials production
+
+#### .env.casaos
+- Template env untuk deploy CasaOS, tidak di-commit
+
+#### scripts/casaos-deploy.sh
+- Script otomatis: pull image → update TAG di .env → `docker compose up -d`
+
+### Bug Fixes Deploy
+
+#### Fix `NEXT_PUBLIC_API_URL` tidak ter-bake
+- Root cause: `lib/api.ts` hardcode `const BASE = '/api/v1'`, tidak pakai env var
+- Fix: `const BASE = process.env.NEXT_PUBLIC_API_URL ?? '/api/v1'`
+- Verifikasi via `docker run --rm ... grep -rl "domain" /app/.next/static`
+
+#### Fix SSR fetch ke localhost
+- Next.js Server Components fetch dari dalam container, tidak bisa pakai domain publik
+- Fix `lib/api.ts`: server-side pakai `INTERNAL_API_URL`, client-side pakai `NEXT_PUBLIC_API_URL`
+- Fix `next.config.mjs`: default fallback rewrite dari `localhost:8080` → `localhost:8085`
+
+#### Fix sw.js 307 redirect
+- Root cause: `middleware.ts` tidak exclude `/sw.js` dari auth check → redirect ke `/login`
+- Fix: tambah `sw\\.js` ke matcher exclusion pattern
+
+#### Fix CORS — env var salah nama
+- Backend membaca `FRONTEND_ORIGIN`, bukan `ALLOWED_ORIGINS`
+- Fix: update `docker-compose.casaos.yml` dari `ALLOWED_ORIGINS` → `FRONTEND_ORIGIN`
+
+#### Fix cookie lintas subdomain
+- Cookie di-set oleh `wapkidlearn-be.temancode.my.id` tidak terbaca oleh `wapkidlearn.temancode.my.id`
+- Root cause: `SameSite: "Strict"` + tidak ada `Domain`
+- Fix `auth/handler.go`: ubah ke `SameSite: "None"`, `Secure: true`, `Domain: ".temancode.my.id"`
+- Berlaku untuk `setAuthCookies` dan cookie clear saat logout
+
+---
+
 ## Sisa yang Belum Dikerjakan
 
 | Item | Prioritas |
@@ -195,4 +257,48 @@ Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
 | Parent analytics dashboard (cek & lengkapi) | Low |
 | UI polish: loading/error/empty states semua screen | Low |
 | Responsiveness audit (375px–1280px) | Low |
-| Deploy ke STB + Cloudflare Tunnel | —  |
+
+---
+
+## 2026-05-30 — Sprint 3 & 4 Selesai
+
+### Sprint 3
+
+#### Child: Emergency Lock Screen
+- `/child/locked/page.tsx` upgrade dari placeholder statis ke polling aktif
+- Poll `wallet` API setiap 10s (`refetchInterval: 10_000`)
+- Auto-redirect ke `/child/home` saat `is_locked` jadi `false`
+- UI ramah anak: background oranye, emoji bounce, indikator pulse
+
+#### Parent: Settings Form
+- Sudah ada di `parent/children/[id]/settings/page.tsx` — di-tick di devplan
+
+### Sprint 4
+
+#### Backend: Fix GetAnalytics
+- `AnalyticsResponse` diubah dari raw sessions → `points_per_day`, `watch_time_per_day`, `accuracy_per_topic`, `current_streak`, `longest_streak`
+- Tambah 3 SQL queries: `GetWatchHistoriesByChild`, `GetChildAccuracyPerTopic`, `GetStreakByChild` — sqlc-gen dijalankan
+- Pointer dereference dari sqlc nullable types (`*int32`) ditangani explicit
+
+#### Backend: Activity Feed Endpoint
+- `GET /parent/children/:id/activity` — gabungan game sessions + watch histories
+- Sort descending by time, max 30 item masing-masing
+- Handler `GetActivityFeed` di `parent/handler.go`
+
+#### Frontend: Activity Feed Page
+- `parent/children/[id]/activity/page.tsx` — timeline dengan ikon 🎮/▶️ per tipe
+- Loading skeleton 6 baris, empty state dengan ilustrasi 📭
+- Link ditambah di halaman child detail (`[id]/page.tsx`)
+
+#### Frontend: Transactions Page
+- `/child/rewards/transactions/page.tsx` — riwayat transaksi poin
+- Loading skeleton, empty state, error state
+- Warna hijau untuk earn (+), oranye untuk spend (-)
+
+#### UI Polish & Error States
+- `home/page.tsx` — tambah `isError` guard dengan pesan ramah
+- `rewards/page.tsx` — loading skeleton full, error state
+- `achievements/page.tsx` — error state dengan ⚠️
+- `watch/page.tsx` — error state di atas loading/empty
+- `parent/children/[id]/page.tsx` — pisah loading skeleton vs not-found screen
+- `admin/dashboard/page.tsx` — loading skeleton per stat card

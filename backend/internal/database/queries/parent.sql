@@ -23,3 +23,24 @@ UPDATE child_profiles SET is_locked = $2 WHERE id = $1;
 -- name: GetChildAnalytics :many
 SELECT gs.started_at, gs.correct_count, gs.total_questions, gs.points_earned, gs.duration_seconds
 FROM game_sessions gs WHERE gs.child_id = $1 AND gs.ended_at IS NOT NULL ORDER BY gs.started_at DESC LIMIT 30;
+
+-- name: GetChildAccuracyPerTopic :many
+SELECT mq.topic,
+       COUNT(*) FILTER (WHERE ga.is_correct) AS correct,
+       COUNT(*) AS total
+FROM game_answers ga
+JOIN game_sessions gs ON gs.id = ga.session_id
+JOIN math_questions mq ON mq.id = ga.question_id
+WHERE gs.child_id = $1
+GROUP BY mq.topic
+ORDER BY mq.topic;
+
+-- name: GetWatchHistoriesByChild :many
+SELECT wh.watched_at, wh.duration_seconds, v.title, v.video_type
+FROM watch_histories wh
+JOIN videos v ON v.id = wh.video_id
+WHERE wh.child_id = $1
+ORDER BY wh.watched_at DESC LIMIT 30;
+
+-- name: GetStreakByChild :one
+SELECT current_streak, longest_streak FROM streaks WHERE child_id = $1;

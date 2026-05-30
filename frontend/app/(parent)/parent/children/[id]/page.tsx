@@ -9,7 +9,7 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
   const { id } = use(params)
   const qc = useQueryClient()
 
-  const { data: children } = useQuery({ queryKey: ['children'], queryFn: parent.listChildren })
+  const { data: children, isLoading } = useQuery({ queryKey: ['children'], queryFn: parent.listChildren })
   const child = children?.find((c) => c.id === id)
 
   const lockMutation = useMutation({
@@ -17,10 +17,26 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
     onSuccess: () => qc.invalidateQueries({ queryKey: ['children'] }),
   })
 
+  if (isLoading) {
+    return (
+      <div className="p-6 space-y-4 pt-10">
+        <div className="h-8 bg-gray-200 rounded-xl w-1/3 animate-pulse" />
+        <div className="h-24 bg-gray-200 rounded-2xl animate-pulse" />
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="h-16 bg-gray-200 rounded-2xl animate-pulse" />
+        ))}
+      </div>
+    )
+  }
+
   if (!child) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-gray-400">Memuat...</p>
+      <div className="flex flex-col items-center justify-center min-h-screen p-8 text-center">
+        <p className="text-5xl mb-4">🔍</p>
+        <p className="text-gray-700 font-semibold">Anak tidak ditemukan</p>
+        <Link href="/parent/dashboard" className="mt-4 text-orange-500 text-sm font-medium">
+          ← Kembali ke Dashboard
+        </Link>
       </div>
     )
   }
@@ -94,6 +110,20 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
             <div>
               <p className="font-bold text-gray-900">Laporan</p>
               <p className="text-gray-500 text-sm">Poin, nonton, akurasi</p>
+            </div>
+          </div>
+          <span className="text-gray-400">→</span>
+        </Link>
+
+        <Link
+          href={`/parent/children/${id}/activity`}
+          className="flex items-center justify-between bg-white rounded-2xl p-5 shadow-sm border border-gray-100"
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-xl">📋</span>
+            <div>
+              <p className="font-bold text-gray-900">Aktivitas Terakhir</p>
+              <p className="text-gray-500 text-sm">Riwayat belajar dan nonton</p>
             </div>
           </div>
           <span className="text-gray-400">→</span>

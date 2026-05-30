@@ -1,5 +1,5 @@
 import type {
-  Achievement, AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
+  Achievement, ActivityItem, AnswerResult, ChildAnalytics, ChildProfile, CombinedWallet, ConvertResult,
   GameSession, MathQuestion, ParentSettings, PointTransaction,
   Question, SessionSummary, Video, WatchSession,
 } from './types'
@@ -158,6 +158,8 @@ export const parent = {
     request<void>(`/parent/children/${childId}/lock`, { method: 'DELETE' }),
   getAnalytics: (childId: string) =>
     request<ChildAnalytics>(`/parent/children/${childId}/analytics`),
+  getActivityFeed: (childId: string) =>
+    request<{ activities: ActivityItem[] }>(`/parent/children/${childId}/activity`),
   listVideos: (childId: string) =>
     request<Video[]>(`/parent/children/${childId}/videos`),
   addVideo: (childId: string, body: { title: string; url: string }) =>

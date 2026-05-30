@@ -27,6 +27,7 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Post("/children/:id/lock", h.SetLock)
 	router.Delete("/children/:id/lock", h.Unlock)
 	router.Get("/children/:id/analytics", h.GetAnalytics)
+	router.Get("/children/:id/activity", h.GetActivityFeed)
 
 	// Video management per child
 	router.Get("/children/:id/videos", h.ListChildVideos)
@@ -181,4 +182,14 @@ func (h *Handler) GetAnalytics(c *fiber.Ctx) error {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.OK(c, analytics)
+}
+
+func (h *Handler) GetActivityFeed(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	feed, err := h.svc.GetActivityFeed(c.Context(), parentID, childID)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, feed)
 }

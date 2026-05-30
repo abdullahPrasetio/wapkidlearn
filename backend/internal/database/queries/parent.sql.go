@@ -67,6 +67,44 @@ func (q *Queries) CreateChildUser(ctx context.Context) (User, error) {
 	return i, err
 }
 
+const getChildAccuracyPerTopic = `-- name: GetChildAccuracyPerTopic :many
+SELECT mq.topic,
+       COUNT(*) FILTER (WHERE ga.is_correct) AS correct,
+       COUNT(*) AS total
+FROM game_answers ga
+JOIN game_sessions gs ON gs.id = ga.session_id
+JOIN math_questions mq ON mq.id = ga.question_id
+WHERE gs.child_id = $1
+GROUP BY mq.topic
+ORDER BY mq.topic
+`
+
+type GetChildAccuracyPerTopicRow struct {
+	Topic   string `json:"topic"`
+	Correct int64  `json:"correct"`
+	Total   int64  `json:"total"`
+}
+
+func (q *Queries) GetChildAccuracyPerTopic(ctx context.Context, childID pgtype.UUID) ([]GetChildAccuracyPerTopicRow, error) {
+	rows, err := q.db.Query(ctx, getChildAccuracyPerTopic, childID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetChildAccuracyPerTopicRow{}
+	for rows.Next() {
+		var i GetChildAccuracyPerTopicRow
+		if err := rows.Scan(&i.Topic, &i.Correct, &i.Total); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getChildAnalytics = `-- name: GetChildAnalytics :many
 SELECT gs.started_at, gs.correct_count, gs.total_questions, gs.points_earned, gs.duration_seconds
 FROM game_sessions gs WHERE gs.child_id = $1 AND gs.ended_at IS NOT NULL ORDER BY gs.started_at DESC LIMIT 30
@@ -145,6 +183,62 @@ func (q *Queries) GetChildrenByParentID(ctx context.Context, parentID pgtype.UUI
 			&i.Avatar,
 			&i.Email,
 			&i.IsActive,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getStreakByChild = `-- name: GetStreakByChild :one
+SELECT current_streak, longest_streak FROM streaks WHERE child_id = $1
+`
+
+type GetStreakByChildRow struct {
+	CurrentStreak *int32 `json:"current_streak"`
+	LongestStreak *int32 `json:"longest_streak"`
+}
+
+func (q *Queries) GetStreakByChild(ctx context.Context, childID pgtype.UUID) (GetStreakByChildRow, error) {
+	row := q.db.QueryRow(ctx, getStreakByChild, childID)
+	var i GetStreakByChildRow
+	err := row.Scan(&i.CurrentStreak, &i.LongestStreak)
+	return i, err
+}
+
+const getWatchHistoriesByChild = `-- name: GetWatchHistoriesByChild :many
+SELECT wh.watched_at, wh.duration_seconds, v.title, v.video_type
+FROM watch_histories wh
+JOIN videos v ON v.id = wh.video_id
+WHERE wh.child_id = $1
+ORDER BY wh.watched_at DESC LIMIT 30
+`
+
+type GetWatchHistoriesByChildRow struct {
+	WatchedAt       pgtype.Timestamptz `json:"watched_at"`
+	DurationSeconds int32              `json:"duration_seconds"`
+	Title           string             `json:"title"`
+	VideoType       *string            `json:"video_type"`
+}
+
+func (q *Queries) GetWatchHistoriesByChild(ctx context.Context, childID pgtype.UUID) ([]GetWatchHistoriesByChildRow, error) {
+	rows, err := q.db.Query(ctx, getWatchHistoriesByChild, childID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetWatchHistoriesByChildRow{}
+	for rows.Next() {
+		var i GetWatchHistoriesByChildRow
+		if err := rows.Scan(
+			&i.WatchedAt,
+			&i.DurationSeconds,
+			&i.Title,
+			&i.VideoType,
 		); err != nil {
 			return nil, err
 		}

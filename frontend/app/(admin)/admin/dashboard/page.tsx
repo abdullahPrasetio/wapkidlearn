@@ -8,9 +8,9 @@ import { useRouter } from 'next/navigation'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
-  const { data: questions } = useQuery({ queryKey: ['admin-questions'], queryFn: admin.listQuestions })
-  const { data: users } = useQuery({ queryKey: ['admin-users'], queryFn: admin.listUsers })
-  const { data: vids } = useQuery({ queryKey: ['admin-videos'], queryFn: admin.listVideos })
+  const { data: questions, isLoading: loadingQ } = useQuery({ queryKey: ['admin-questions'], queryFn: admin.listQuestions })
+  const { data: users, isLoading: loadingU } = useQuery({ queryKey: ['admin-users'], queryFn: admin.listUsers })
+  const { data: vids, isLoading: loadingV } = useQuery({ queryKey: ['admin-videos'], queryFn: admin.listVideos })
 
   const handleLogout = async () => {
     await auth.logout().catch(() => {})
@@ -33,15 +33,27 @@ export default function AdminDashboardPage() {
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3">
         <div className="bg-white rounded-2xl p-4 text-center border border-gray-100 shadow-sm">
-          <p className="text-2xl font-bold text-gray-900">{questions?.length ?? '...'}</p>
+          {loadingQ ? (
+            <div className="h-8 bg-gray-200 rounded animate-pulse mx-auto w-10 mb-1" />
+          ) : (
+            <p className="text-2xl font-bold text-gray-900">{questions?.length ?? 0}</p>
+          )}
           <p className="text-xs text-gray-500 mt-1">Soal</p>
         </div>
         <div className="bg-white rounded-2xl p-4 text-center border border-gray-100 shadow-sm">
-          <p className="text-2xl font-bold text-gray-900">{users?.length ?? '...'}</p>
+          {loadingU ? (
+            <div className="h-8 bg-gray-200 rounded animate-pulse mx-auto w-10 mb-1" />
+          ) : (
+            <p className="text-2xl font-bold text-gray-900">{users?.length ?? 0}</p>
+          )}
           <p className="text-xs text-gray-500 mt-1">User</p>
         </div>
         <div className={`rounded-2xl p-4 text-center border shadow-sm ${pendingVideos > 0 ? 'bg-yellow-50 border-yellow-200' : 'bg-white border-gray-100'}`}>
-          <p className="text-2xl font-bold text-gray-900">{pendingVideos}</p>
+          {loadingV ? (
+            <div className="h-8 bg-gray-200 rounded animate-pulse mx-auto w-10 mb-1" />
+          ) : (
+            <p className="text-2xl font-bold text-gray-900">{pendingVideos}</p>
+          )}
           <p className="text-xs text-gray-500 mt-1">Video Pending</p>
         </div>
       </div>

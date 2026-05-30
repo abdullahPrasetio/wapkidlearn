@@ -44,7 +44,7 @@ function AchievementCard({ item }: { item: Achievement }) {
 }
 
 export default function AchievementsPage() {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError } = useQuery({
     queryKey: ['achievements'],
     queryFn: api.list,
   })
@@ -67,6 +67,14 @@ export default function AchievementsPage() {
         </div>
         <span className="text-5xl">🏆</span>
       </div>
+
+      {isError && (
+        <div className="text-center py-12">
+          <p className="text-4xl mb-3">⚠️</p>
+          <p className="text-gray-500 font-medium">Gagal memuat pencapaian</p>
+          <p className="text-gray-400 text-sm mt-1">Coba lagi nanti</p>
+        </div>
+      )}
 
       {isLoading && (
         <div className="space-y-3">
