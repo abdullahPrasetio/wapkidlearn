@@ -25,6 +25,7 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Post("/child/login", h.ChildLogin)
 	router.Post("/refresh", h.Refresh)
 	router.Post("/logout", h.Logout)
+	router.Post("/change-password", RequireAuth(h.svc.jwtSecret), h.ChangePassword)
 }
 
 type loginRequest struct {
@@ -89,6 +90,29 @@ func (h *Handler) Refresh(c *fiber.Ctx) error {
 	}
 	h.setAuthCookies(c, accessToken, newRefreshToken)
 	return response.OK(c, fiber.Map{"message": "token refreshed"})
+}
+
+type changePasswordRequest struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+func (h *Handler) ChangePassword(c *fiber.Ctx) error {
+	userID, ok := c.Locals("userID").(string)
+	if !ok || userID == "" {
+		return response.Unauthorized(c, "unauthorized")
+	}
+	var req changePasswordRequest
+	if err := validator.BindAndValidate(c, &req); err != nil {
+		return response.BadRequest(c, "invalid request body")
+	}
+	if req.CurrentPassword == "" || req.NewPassword == "" {
+		return response.BadRequest(c, "current_password and new_password are required")
+	}
+	if err := h.svc.ChangePassword(c.Context(), userID, req.CurrentPassword, req.NewPassword); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"message": "password changed successfully"})
 }
 
 func (h *Handler) Logout(c *fiber.Ctx) error {

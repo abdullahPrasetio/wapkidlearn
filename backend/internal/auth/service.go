@@ -143,3 +143,33 @@ func (s *Service) Refresh(ctx context.Context, refreshToken string) (accessToken
 	}
 	return accessToken, newRefreshToken, nil
 }
+
+// ChangePassword verifies the current password then updates to the new one.
+func (s *Service) ChangePassword(ctx context.Context, userID, currentPassword, newPassword string) error {
+	uuid, err := parseUUID(userID)
+	if err != nil {
+		return errors.New("invalid user id")
+	}
+	user, err := s.q.GetUserByID(ctx, uuid)
+	if err != nil {
+		return errors.New("user not found")
+	}
+	if user.PasswordHash == nil {
+		return errors.New("account has no password set")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(*user.PasswordHash), []byte(currentPassword)); err != nil {
+		return errors.New("current password is incorrect")
+	}
+	if len(newPassword) < 8 {
+		return errors.New("new password must be at least 8 characters")
+	}
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	hashStr := string(hash)
+	return s.q.UpdateUserPassword(ctx, db.UpdateUserPasswordParams{
+		ID:           uuid,
+		PasswordHash: &hashStr,
+	})
+}

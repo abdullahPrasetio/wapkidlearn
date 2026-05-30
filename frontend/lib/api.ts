@@ -74,6 +74,11 @@ export const auth = {
       body: JSON.stringify({ username, pin }),
     }),
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
+  changePassword: (current_password: string, new_password: string) =>
+    request<{ message: string }>('/auth/change-password', {
+      method: 'POST',
+      body: JSON.stringify({ current_password, new_password }),
+    }),
 }
 
 // ── Game ──────────────────────────────────────────────────────────────────────

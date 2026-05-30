@@ -31,6 +31,7 @@ export default function AdminDashboardPage() {
     { href: '/admin/questions', icon: '📝', label: 'Bank Soal' },
     { href: '/admin/videos', icon: '🎬', label: 'Review Video' },
     { href: '/admin/users', icon: '👥', label: 'Kelola User' },
+    { href: '/admin/profile', icon: '🔑', label: 'Ganti Password' },
   ]
 
   return (
