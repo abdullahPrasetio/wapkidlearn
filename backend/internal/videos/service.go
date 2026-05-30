@@ -172,6 +172,75 @@ func (s *Service) DeleteVideo(ctx context.Context, videoID string) error {
 	return tx.Commit(ctx)
 }
 
+// UpdateVideo re-parses the URL (for new embed/thumbnail) then persists title + url changes.
+func (s *Service) UpdateVideo(ctx context.Context, videoID, title, rawURL string) (*db.Video, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return nil, errors.New("invalid video_id")
+	}
+	if title == "" || rawURL == "" {
+		return nil, errors.New("title and url are required")
+	}
+	parsed, err := parseVideoURLFull(rawURL)
+	if err != nil {
+		return nil, err
+	}
+	v, err := s.q.UpdateVideo(ctx, db.UpdateVideoParams{
+		ID:           vid,
+		Title:        title,
+		Url:          parsed.embedURL,
+		ThumbnailUrl: pgutil.PtrString(parsed.thumbnailURL),
+		VideoType:    pgutil.PtrString(parsed.videoType),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+// ListVideosByChildForParent returns all child-specific videos (any status) plus active global videos.
+func (s *Service) ListVideosByChildForParent(ctx context.Context, childID string) ([]db.Video, error) {
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return nil, errors.New("invalid child_id")
+	}
+	return s.q.GetVideosByChildAllStatuses(ctx, cid)
+}
+
+// ListGlobalVideos returns all approved global videos.
+func (s *Service) ListGlobalVideos(ctx context.Context) ([]db.Video, error) {
+	return s.q.GetGlobalActiveVideos(ctx)
+}
+
+// ListVideosByParent returns all videos submitted by a given user (parent role).
+func (s *Service) ListVideosBySubmitter(ctx context.Context, userID string) ([]db.Video, error) {
+	uid, err := pgutil.ParseUUID(userID)
+	if err != nil {
+		return nil, errors.New("invalid user_id")
+	}
+	return s.q.GetVideosBySubmitter(ctx, uid)
+}
+
+// VerifyVideoOwnership checks that a video was submitted by the given parent user.
+func (s *Service) VerifyVideoOwnership(ctx context.Context, parentUserID, videoID string) error {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return errors.New("invalid video_id")
+	}
+	v, err := s.q.GetVideoByID(ctx, vid)
+	if err != nil {
+		return errors.New("video not found")
+	}
+	uid, err := pgutil.ParseUUID(parentUserID)
+	if err != nil {
+		return errors.New("invalid user_id")
+	}
+	if v.SubmittedBy != uid {
+		return errors.New("forbidden")
+	}
+	return nil
+}
+
 func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string) (*WatchSessionResponse, error) {
 	cid, err := pgutil.ParseUUID(childID)
 	if err != nil {
@@ -426,20 +495,18 @@ type parentSettingsRow struct {
 	EmergencyLock          bool
 	AllowedHours           []byte
 	DailyWatchLimitMinutes int32
+	RequireStudyFirst      bool
+	MinStudyMinutes        int32
 }
 
 func (s *Service) getParentSettings(ctx context.Context, childID pgtype.UUID) (*parentSettingsRow, error) {
 	row := s.pool.QueryRow(ctx, `
-		SELECT emergency_lock, allowed_hours, daily_watch_limit_minutes
-		FROM parent_settings WHERE child_id = (
-			SELECT id FROM child_profiles WHERE id = $1
-		)`, childID)
+		SELECT emergency_lock, allowed_hours, daily_watch_limit_minutes, require_study_first, min_study_minutes
+		FROM parent_settings WHERE child_id = $1`, childID)
 	var ps parentSettingsRow
-	var allowedHoursJSON []byte
-	if err := row.Scan(&ps.EmergencyLock, &allowedHoursJSON, &ps.DailyWatchLimitMinutes); err != nil {
+	if err := row.Scan(&ps.EmergencyLock, &ps.AllowedHours, &ps.DailyWatchLimitMinutes, &ps.RequireStudyFirst, &ps.MinStudyMinutes); err != nil {
 		return nil, err
 	}
-	ps.AllowedHours = allowedHoursJSON
 	return &ps, nil
 }
 

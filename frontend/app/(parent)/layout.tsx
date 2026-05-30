@@ -7,6 +7,7 @@ import { clearStoredRole } from '@/lib/auth'
 
 const NAV_ITEMS = [
   { href: '/parent/dashboard', icon: 'group', label: 'Anak' },
+  { href: '/parent/videos', icon: 'video_library', label: 'Video' },
   { href: '/parent/profile', icon: 'account_circle', label: 'Profil' },
 ]
 

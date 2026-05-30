@@ -203,7 +203,19 @@ func (s *Service) CreateChild(ctx context.Context, parentID string, req CreateCh
 	return &child, nil
 }
 
-func (s *Service) GetSettings(ctx context.Context, parentID, childID string) (*db.ParentSetting, error) {
+type ParentSettingsResponse struct {
+	ID                     string          `json:"id"`
+	ChildID                string          `json:"child_id"`
+	DailyWatchLimitMinutes int32           `json:"daily_watch_limit_minutes"`
+	ConversionRate         int32           `json:"conversion_rate"`
+	AllowedHours           json.RawMessage `json:"allowed_hours"`
+	RequireStudyFirst      bool            `json:"require_study_first"`
+	MinStudyMinutes        int32           `json:"min_study_minutes"`
+	EmergencyLock          bool            `json:"emergency_lock"`
+	UpdatedAt              time.Time       `json:"updated_at"`
+}
+
+func (s *Service) GetSettings(ctx context.Context, parentID, childID string) (*ParentSettingsResponse, error) {
 	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
 		return nil, err
 	}
@@ -212,10 +224,10 @@ func (s *Service) GetSettings(ctx context.Context, parentID, childID string) (*d
 	if err != nil {
 		return nil, err
 	}
-	return &settings, nil
+	return mapSettingsToResponse(settings), nil
 }
 
-func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, req SettingsRequest) (*db.ParentSetting, error) {
+func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, req SettingsRequest) (*ParentSettingsResponse, error) {
 	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
 		return nil, err
 	}
@@ -237,7 +249,32 @@ func (s *Service) UpdateSettings(ctx context.Context, parentID, childID string, 
 	if err != nil {
 		return nil, err
 	}
-	return &settings, nil
+	return mapSettingsToResponse(settings), nil
+}
+
+func mapSettingsToResponse(s db.ParentSetting) *ParentSettingsResponse {
+	res := &ParentSettingsResponse{
+		ID:           pgutil.UUIDToString(s.ID),
+		ChildID:      pgutil.UUIDToString(s.ChildID),
+		AllowedHours: json.RawMessage(s.AllowedHours),
+		UpdatedAt:    s.UpdatedAt.Time,
+	}
+	if s.DailyWatchLimitMinutes != nil {
+		res.DailyWatchLimitMinutes = *s.DailyWatchLimitMinutes
+	}
+	if s.ConversionRate != nil {
+		res.ConversionRate = *s.ConversionRate
+	}
+	if s.RequireStudyFirst != nil {
+		res.RequireStudyFirst = *s.RequireStudyFirst
+	}
+	if s.MinStudyMinutes != nil {
+		res.MinStudyMinutes = *s.MinStudyMinutes
+	}
+	if s.EmergencyLock != nil {
+		res.EmergencyLock = *s.EmergencyLock
+	}
+	return res
 }
 
 func (s *Service) SetLock(ctx context.Context, parentID, childID string, locked bool) error {

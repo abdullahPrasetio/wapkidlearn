@@ -33,6 +33,12 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Get("/children/:id/videos", h.ListChildVideos)
 	router.Post("/children/:id/videos", h.AddChildVideo)
 	router.Delete("/children/:id/videos/:videoId", h.DeleteChildVideo)
+
+	// Parent video management (all videos submitted by this parent)
+	router.Get("/videos", h.ListMyVideos)
+	router.Post("/videos", h.AddGlobalVideo)
+	// Global video catalog for parent (assign to child)
+	router.Get("/videos/global", h.ListGlobalVideos)
 }
 
 func (h *Handler) GetChildren(c *fiber.Ctx) error {
@@ -108,7 +114,38 @@ func (h *Handler) ListChildVideos(c *fiber.Ctx) error {
 	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
 		return response.Forbidden(c, err.Error())
 	}
-	vs, err := h.videoSvc.ListVideos(c.Context(), childID)
+	vs, err := h.videoSvc.ListVideosByChildForParent(c.Context(), childID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, vs)
+}
+
+func (h *Handler) AddGlobalVideo(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	var req videos.AddVideoRequest
+	if err := validator.BindAndValidate(c, &req); err != nil || req.Title == "" || req.URL == "" {
+		return response.BadRequest(c, "title and url are required")
+	}
+	req.Scope = "global"
+	v, err := h.videoSvc.AddVideo(c.Context(), parentID, "parent", req)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.Created(c, v)
+}
+
+func (h *Handler) ListMyVideos(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	vs, err := h.videoSvc.ListVideosBySubmitter(c.Context(), parentID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, vs)
+}
+
+func (h *Handler) ListGlobalVideos(c *fiber.Ctx) error {
+	vs, err := h.videoSvc.ListGlobalVideos(c.Context())
 	if err != nil {
 		return response.InternalError(c, err)
 	}

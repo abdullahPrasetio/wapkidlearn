@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { videos, watchSessions } from '@/lib/api'
 import { useWallet } from '@/lib/hooks/useWallet'
 import { useRouter } from 'next/navigation'
@@ -74,6 +75,7 @@ function Skeleton() {
 
 export default function WatchLibraryPage() {
   const router = useRouter()
+  const [search, setSearch] = useState('')
   const { data: videoList, isLoading, isError } = useQuery({
     queryKey: ['videos'],
     queryFn: videos.list,
@@ -82,7 +84,8 @@ export default function WatchLibraryPage() {
 
   const balanceSecs = wallet?.watch.balance_seconds ?? 0
   const hasBalance = balanceSecs > 0
-  const activeVideos = videoList?.filter((v) => v.status === 'active') ?? []
+  const activeVideos = (videoList?.filter((v) => v.status === 'active') ?? [])
+    .filter((v) => !search || v.title.toLowerCase().includes(search.toLowerCase()))
 
   const handleWatch = async (video: Video) => {
     if (!hasBalance) return
@@ -117,6 +120,21 @@ export default function WatchLibraryPage() {
         </div>
       </div>
 
+      {/* Search */}
+      <div className="mx-5 mb-4 relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-lg">🔍</span>
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Cari video..."
+          className="w-full pl-9 pr-9 py-2.5 rounded-2xl border border-gray-200 bg-gray-50 text-sm font-nunito focus:outline-none focus:border-orange-400"
+        />
+        {search && (
+          <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-bold">✕</button>
+        )}
+      </div>
+
       {/* Watch time banner */}
       <div className="mx-5 mb-5 bg-blue-500 rounded-2xl px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2 text-white">
@@ -148,7 +166,9 @@ export default function WatchLibraryPage() {
                 ? [1, 2, 3].map((i) => <Skeleton key={i} />)
                 : activeVideos.length === 0
                 ? (
-                  <p className="text-gray-400 text-sm py-4 pl-1">Belum ada video tersedia</p>
+                  <p className="text-gray-400 text-sm py-4 pl-1">
+                    {search ? `Tidak ada video untuk "${search}"` : 'Belum ada video tersedia'}
+                  </p>
                 )
                 : activeVideos.slice(0, 6).map((v) => (
                   <VideoCardH key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance} />

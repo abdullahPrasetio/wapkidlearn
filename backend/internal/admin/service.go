@@ -140,6 +140,10 @@ func (s *Service) DeleteQuestion(ctx context.Context, questionID string) error {
 	return s.q.DeleteQuestion(ctx, qid)
 }
 
+func (s *Service) ListAllVideos(ctx context.Context) ([]db.Video, error) {
+	return s.q.GetAllVideos(ctx)
+}
+
 func (s *Service) ListPendingVideos(ctx context.Context) ([]db.Video, error) {
 	return s.q.ListPendingVideos(ctx)
 }

@@ -27,6 +27,7 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Delete("/questions/:id", h.DeleteQuestion)
 
 	// Videos
+	router.Get("/videos", h.ListAllVideos)
 	router.Get("/videos/pending", h.ListPendingVideos)
 }
 
@@ -86,6 +87,14 @@ func (h *Handler) DeleteQuestion(c *fiber.Ctx) error {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.OK(c, fiber.Map{"message": "question deactivated"})
+}
+
+func (h *Handler) ListAllVideos(c *fiber.Ctx) error {
+	videos, err := h.svc.ListAllVideos(c.Context())
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, videos)
 }
 
 func (h *Handler) ListPendingVideos(c *fiber.Ctx) error {

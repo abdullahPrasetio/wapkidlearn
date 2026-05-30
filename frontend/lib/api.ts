@@ -183,6 +183,17 @@ export const parent = {
       method: 'PATCH',
       body: JSON.stringify({ reason }),
     }),
+  editVideo: (id: string, body: { title: string; url: string }) =>
+    request<Video>(`/videos/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(body),
+    }),
+  listGlobalVideos: () => request<Video[]>('/parent/videos/global'),
+  listMyVideos: () => request<Video[]>('/parent/videos'),
+  addGlobalVideo: (body: { title: string; url: string }) =>
+    request<Video>('/parent/videos', { method: 'POST', body: JSON.stringify(body) }),
+  deleteMyVideo: (videoId: string) =>
+    request<void>(`/videos/${videoId}`, { method: 'DELETE' }),
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────────
@@ -200,7 +211,7 @@ export const admin = {
     }),
   deleteQuestion: (id: string) =>
     request<void>(`/admin/questions/${id}`, { method: 'DELETE' }),
-  listVideos: () => request<Video[]>('/admin/videos/all'),
+  listVideos: () => request<Video[]>('/admin/videos'),
   approveVideo: (id: string) =>
     request<void>(`/admin/videos/${id}/approve`, { method: 'PATCH' }),
   rejectVideo: (id: string, reason: string) =>
@@ -213,6 +224,11 @@ export const admin = {
   addVideo: (body: { title: string; url: string; scope: string }) =>
     request<Video>('/admin/videos', {
       method: 'POST',
+      body: JSON.stringify(body),
+    }),
+  editVideo: (id: string, body: { title: string; url: string }) =>
+    request<Video>(`/videos/${id}`, {
+      method: 'PATCH',
       body: JSON.stringify(body),
     }),
   listUsers: () => request<{ id: string; email: string; role: string; is_active: boolean }[]>('/admin/users'),

@@ -1,15 +1,18 @@
-const CACHE_NAME = 'wapkidlearn-v1'
-const OFFLINE_URL = '/offline'
+const CACHE_NAME = 'wapkidlearn-v2'
 
 const PRECACHE = [
-  '/',
-  '/child/home',
   '/manifest.json',
+  '/favicon-32.png',
+  '/icon-192.png',
+  '/icon-512.png',
+  '/logo.png',
 ]
 
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(PRECACHE)).then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(PRECACHE))
+      .then(() => self.skipWaiting())
   )
 })
 
@@ -22,30 +25,40 @@ self.addEventListener('activate', event => {
 })
 
 self.addEventListener('fetch', event => {
-  // Only handle GET requests for same-origin or next/static assets
   if (event.request.method !== 'GET') return
   const url = new URL(event.request.url)
 
-  // API calls: network-only, never cache
-  if (url.pathname.startsWith('/api/')) return
+  // Skip API calls and Next.js internal requests
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/data/')) return
 
+  // Navigation: Network First
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // If offline and not in cache, we don't have much to show
+          // unless we have an offline page. For now, try to find in cache
+          return caches.match(event.request)
+        })
+    )
+    return
+  }
+
+  // Static Assets & Others: Cache First
   event.respondWith(
     caches.match(event.request).then(cached => {
       if (cached) return cached
       return fetch(event.request).then(response => {
-        // Cache successful navigation responses and static assets
+        // Cache static assets and public images
         if (
-          response.ok &&
-          (event.request.mode === 'navigate' || url.pathname.startsWith('/_next/static/'))
+          response.ok && 
+          (url.pathname.startsWith('/_next/static/') || 
+           url.pathname.match(/\.(png|jpg|jpeg|gif|svg|ico)$/))
         ) {
           const clone = response.clone()
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone))
         }
         return response
-      }).catch(() => {
-        if (event.request.mode === 'navigate') {
-          return caches.match('/')
-        }
       })
     })
   )

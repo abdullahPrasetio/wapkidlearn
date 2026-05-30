@@ -19,6 +19,7 @@ func (h *Handler) Register(router fiber.Router) {
 	// Video endpoints
 	router.Get("/videos", h.ListVideos)
 	router.Post("/videos", h.AddVideo)
+	router.Patch("/videos/:id", h.EditVideo)
 	router.Delete("/videos/:id", h.DeleteVideo)
 	router.Patch("/videos/:id/approve", h.ApproveVideo)
 	router.Patch("/videos/:id/reject", h.RejectVideo)
@@ -81,6 +82,38 @@ func (h *Handler) RejectVideo(c *fiber.Ctx) error {
 	var req rejectRequest
 	_ = validator.BindAndValidate(c, &req)
 	v, err := h.svc.RejectVideo(c.Context(), videoID, req.Reason)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, v)
+}
+
+type editVideoRequest struct {
+	Title string `json:"title"`
+	URL   string `json:"url"`
+}
+
+func (h *Handler) EditVideo(c *fiber.Ctx) error {
+	videoID := c.Params("id")
+	userID, _ := c.Locals("userID").(string)
+	role, _ := c.Locals("role").(string)
+
+	var req editVideoRequest
+	if err := validator.BindAndValidate(c, &req); err != nil {
+		return response.BadRequest(c, "invalid request body")
+	}
+	if req.Title == "" || req.URL == "" {
+		return response.BadRequest(c, "title and url are required")
+	}
+
+	// parent hanya boleh edit video miliknya sendiri
+	if role == "parent" {
+		if err := h.svc.VerifyVideoOwnership(c.Context(), userID, videoID); err != nil {
+			return response.Forbidden(c, err.Error())
+		}
+	}
+
+	v, err := h.svc.UpdateVideo(c.Context(), videoID, req.Title, req.URL)
 	if err != nil {
 		return response.BadRequest(c, err.Error())
 	}

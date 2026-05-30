@@ -19,6 +19,18 @@ DELETE FROM videos WHERE id = $1;
 -- name: GetAllVideos :many
 SELECT * FROM videos ORDER BY created_at DESC;
 
+-- name: GetVideosBySubmitter :many
+SELECT * FROM videos WHERE submitted_by = $1 ORDER BY created_at DESC;
+
+-- name: GetVideosByChildAllStatuses :many
+SELECT * FROM videos WHERE child_id = $1 OR (scope = 'global' AND status = 'active') ORDER BY created_at DESC;
+
+-- name: GetGlobalActiveVideos :many
+SELECT * FROM videos WHERE scope = 'global' AND status = 'active' ORDER BY created_at DESC;
+
+-- name: UpdateVideo :one
+UPDATE videos SET title = $2, url = $3, thumbnail_url = $4, video_type = $5, updated_at = NOW() WHERE id = $1 RETURNING *;
+
 -- name: GetActiveWatchSession :one
 SELECT * FROM watch_sessions WHERE child_id = $1 AND status = 'active' LIMIT 1;
 

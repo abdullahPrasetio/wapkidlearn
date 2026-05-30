@@ -72,6 +72,7 @@ export interface CombinedWallet {
   display_name: string
   current_streak: number
   longest_streak: number
+  conversion_rate: number
 }
 
 export interface WatchWallet {

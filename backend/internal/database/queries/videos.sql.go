@@ -224,6 +224,42 @@ func (q *Queries) GetAllVideos(ctx context.Context) ([]Video, error) {
 	return items, nil
 }
 
+const getGlobalActiveVideos = `-- name: GetGlobalActiveVideos :many
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE scope = 'global' AND status = 'active' ORDER BY created_at DESC
+`
+
+func (q *Queries) GetGlobalActiveVideos(ctx context.Context) ([]Video, error) {
+	rows, err := q.db.Query(ctx, getGlobalActiveVideos)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Video{}
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.SubmittedBy,
+			&i.Title,
+			&i.Url,
+			&i.ThumbnailUrl,
+			&i.VideoType,
+			&i.Scope,
+			&i.ChildID,
+			&i.Status,
+			&i.RejectionReason,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getVideoByID = `-- name: GetVideoByID :one
 SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE id = $1
 `
@@ -253,6 +289,78 @@ SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id,
 
 func (q *Queries) GetVideosByChild(ctx context.Context, childID pgtype.UUID) ([]Video, error) {
 	rows, err := q.db.Query(ctx, getVideosByChild, childID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Video{}
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.SubmittedBy,
+			&i.Title,
+			&i.Url,
+			&i.ThumbnailUrl,
+			&i.VideoType,
+			&i.Scope,
+			&i.ChildID,
+			&i.Status,
+			&i.RejectionReason,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVideosByChildAllStatuses = `-- name: GetVideosByChildAllStatuses :many
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE child_id = $1 OR (scope = 'global' AND status = 'active') ORDER BY created_at DESC
+`
+
+func (q *Queries) GetVideosByChildAllStatuses(ctx context.Context, childID pgtype.UUID) ([]Video, error) {
+	rows, err := q.db.Query(ctx, getVideosByChildAllStatuses, childID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Video{}
+	for rows.Next() {
+		var i Video
+		if err := rows.Scan(
+			&i.ID,
+			&i.SubmittedBy,
+			&i.Title,
+			&i.Url,
+			&i.ThumbnailUrl,
+			&i.VideoType,
+			&i.Scope,
+			&i.ChildID,
+			&i.Status,
+			&i.RejectionReason,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getVideosBySubmitter = `-- name: GetVideosBySubmitter :many
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE submitted_by = $1 ORDER BY created_at DESC
+`
+
+func (q *Queries) GetVideosBySubmitter(ctx context.Context, submittedBy pgtype.UUID) ([]Video, error) {
+	rows, err := q.db.Query(ctx, getVideosBySubmitter, submittedBy)
 	if err != nil {
 		return nil, err
 	}
@@ -359,6 +467,43 @@ func (q *Queries) TerminateWatchSession(ctx context.Context, arg TerminateWatchS
 		&i.StartedAt,
 		&i.LastHeartbeatAt,
 		&i.EndedAt,
+	)
+	return i, err
+}
+
+const updateVideo = `-- name: UpdateVideo :one
+UPDATE videos SET title = $2, url = $3, thumbnail_url = $4, video_type = $5, updated_at = NOW() WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at
+`
+
+type UpdateVideoParams struct {
+	ID           pgtype.UUID `json:"id"`
+	Title        string      `json:"title"`
+	Url          string      `json:"url"`
+	ThumbnailUrl *string     `json:"thumbnail_url"`
+	VideoType    *string     `json:"video_type"`
+}
+
+func (q *Queries) UpdateVideo(ctx context.Context, arg UpdateVideoParams) (Video, error) {
+	row := q.db.QueryRow(ctx, updateVideo,
+		arg.ID,
+		arg.Title,
+		arg.Url,
+		arg.ThumbnailUrl,
+		arg.VideoType,
+	)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.SubmittedBy,
+		&i.Title,
+		&i.Url,
+		&i.ThumbnailUrl,
+		&i.VideoType,
+		&i.Scope,
+		&i.ChildID,
+		&i.Status,
+		&i.RejectionReason,
+		&i.CreatedAt,
 	)
 	return i, err
 }

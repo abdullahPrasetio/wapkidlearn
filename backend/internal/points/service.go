@@ -35,12 +35,13 @@ type WatchWalletResponse struct {
 }
 
 type CombinedWalletResponse struct {
-	Point         *WalletResponse      `json:"point"`
-	Watch         *WatchWalletResponse `json:"watch"`
-	IsLocked      bool                 `json:"is_locked"`
-	DisplayName   string               `json:"display_name"`
-	CurrentStreak int32                `json:"current_streak"`
-	LongestStreak int32                `json:"longest_streak"`
+	Point          *WalletResponse      `json:"point"`
+	Watch          *WatchWalletResponse `json:"watch"`
+	IsLocked       bool                 `json:"is_locked"`
+	DisplayName    string               `json:"display_name"`
+	CurrentStreak  int32                `json:"current_streak"`
+	LongestStreak  int32                `json:"longest_streak"`
+	ConversionRate int32                `json:"conversion_rate"`
 }
 
 type ConversionResult struct {
@@ -104,6 +105,11 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 		}
 	}
 
+	rate, _ := s.getConversionRate(ctx, cid)
+	if rate == 0 {
+		rate = 10
+	}
+
 	return &CombinedWalletResponse{
 		Point: &WalletResponse{
 			WalletID:       pgutil.UUIDToString(w.ID),
@@ -115,10 +121,11 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 			BalanceSeconds:   watchBal,
 			UsedTodaySeconds: watchUsed,
 		},
-		IsLocked:      isLocked,
-		DisplayName:   displayName,
-		CurrentStreak: currentStreak,
-		LongestStreak: longestStreak,
+		IsLocked:       isLocked,
+		DisplayName:    displayName,
+		CurrentStreak:  currentStreak,
+		LongestStreak:  longestStreak,
+		ConversionRate: rate,
 	}, nil
 }
 
@@ -180,12 +187,17 @@ func (s *Service) ConvertPoints(ctx context.Context, childID string, points int3
 		return &ConversionResult{PointsDeducted: existing.Amount}, nil
 	}
 
-	// Fetch conversion rate
+	// Fetch conversion rate (minutes per 100 points)
 	conversionRate, err := s.getConversionRate(ctx, cid)
 	if err != nil || conversionRate == 0 {
-		conversionRate = 10
+		conversionRate = 10 // default 10 mins per 100 points (10 pts = 1 min)
 	}
-	watchSeconds := (points / conversionRate) * 60
+	// watchSeconds = (points * minutesPer100Points * 60) / 100
+	watchSeconds := (int64(points) * int64(conversionRate) * 60) / 100
+	const maxWatchSeconds = int64(7 * 24 * 3600) // cap 7 hari untuk hindari int32 overflow
+	if watchSeconds > maxWatchSeconds {
+		watchSeconds = maxWatchSeconds
+	}
 
 	tx, err := s.pool.Begin(ctx)
 	if err != nil {
@@ -231,7 +243,7 @@ func (s *Service) ConvertPoints(ctx context.Context, childID string, points int3
 
 	return &ConversionResult{
 		PointsDeducted: points,
-		SecondsAdded:   watchSeconds,
+		SecondsAdded:   int32(watchSeconds),
 		NewBalance:     newBalance,
 		WatchBalance:   watchBalance,
 	}, nil

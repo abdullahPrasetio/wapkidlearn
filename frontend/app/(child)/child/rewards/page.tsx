@@ -21,7 +21,9 @@ export default function RewardsPage() {
     onSettled: () => router.replace('/child-login'),
   })
 
-  const conversionRate = 10
+  const balance = data?.point.balance ?? 0
+  const watchBalanceSecs = data?.watch.balance_seconds ?? 0
+  const conversionRate = data?.conversion_rate ?? 10
   const watchMinutes = Math.floor(selected / conversionRate)
 
   const mutation = useMutation({
@@ -32,13 +34,12 @@ export default function RewardsPage() {
       }),
     onSuccess: (result) => {
       refetch()
-      setSuccessMsg(`+${Math.floor(result.watch_time_added_seconds / 60)} menit ditambahkan!`)
+      const addedMins = Math.floor(result.seconds_added / 60)
+      setSuccessMsg(`+${addedMins} menit ditambahkan!`)
       setTimeout(() => setSuccessMsg(''), 3000)
     },
   })
 
-  const balance = data?.point.balance ?? 0
-  const watchBalanceSecs = data?.watch.balance_seconds ?? 0
   const canConvert = balance >= selected && !mutation.isPending
 
   return (
@@ -200,3 +201,5 @@ export default function RewardsPage() {
     </div>
   )
 }
+
+
