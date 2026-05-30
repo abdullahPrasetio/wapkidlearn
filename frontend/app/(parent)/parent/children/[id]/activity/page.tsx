@@ -50,7 +50,7 @@ export default function ChildActivityPage({ params }: { params: { id: string } }
   const { id } = params
   const router = useRouter()
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ['activity', id],
     queryFn: () => parent.getActivityFeed(id),
   })
@@ -62,7 +62,7 @@ export default function ChildActivityPage({ params }: { params: { id: string } }
     <div className="bg-wkl-background text-wkl-on-surface font-sans">
       <main className="px-4 py-6 md:px-8 md:py-8 max-w-2xl mx-auto w-full">
 
-          {isLoading ? (
+          {!data ? (
             <div className="space-y-3">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-wkl-surface-lowest border border-wkl-outline-variant rounded-xl h-16 animate-pulse" />

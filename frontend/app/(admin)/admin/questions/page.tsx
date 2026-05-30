@@ -29,7 +29,7 @@ const emptyForm = (): Omit<MathQuestion, 'id'> => ({
 
 export default function AdminQuestionsPage() {
   const qc = useQueryClient()
-  const { data: questions, isLoading } = useQuery({
+  const { data: questions } = useQuery({
     queryKey: ['admin-questions'],
     queryFn: admin.listQuestions,
   })
@@ -181,7 +181,7 @@ export default function AdminQuestionsPage() {
           )}
 
           {/* Question grid */}
-          {isLoading ? (
+          {!questions ? (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="h-40 bg-wkl-surface-lowest border border-wkl-outline-variant rounded-xl animate-pulse" />

@@ -42,20 +42,20 @@ ON CONFLICT (id) DO NOTHING;
 -- pin_hash '1234' = $2a$12$tAhOvJ/LY.S.zhyKm6UHPurZggDDYHC36M2iFxAJpVNcZYL9PDabW
 -- pin_hash '5678' = $2a$12$gfqRT2zVC1FR6xGXp5yASuUSy8q/ze72pqHq68OFhmJjguXyTu3Tm
 
-INSERT INTO child_profiles (id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, avatar) VALUES
+INSERT INTO child_profiles (id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, avatar, username) VALUES
   ('00000000-0000-0000-0002-000000000001',
    '00000000-0000-0000-0000-000000000010',
    '00000000-0000-0000-0000-000000000002',
    'Budi',
    '$2a$12$tAhOvJ/LY.S.zhyKm6UHPurZggDDYHC36M2iFxAJpVNcZYL9PDabW',
-   2, 1, 'fox'),
+   2, 1, 'fox', 'budi'),
 
   ('00000000-0000-0000-0002-000000000002',
    '00000000-0000-0000-0000-000000000011',
    '00000000-0000-0000-0000-000000000002',
-   'Sari',
+   'Hanin',
    '$2a$12$gfqRT2zVC1FR6xGXp5yASuUSy8q/ze72pqHq68OFhmJjguXyTu3Tm',
-   1, 1, 'bunny')
+   1, 1, 'bunny', 'hanin')
 
 ON CONFLICT (id) DO NOTHING;
 

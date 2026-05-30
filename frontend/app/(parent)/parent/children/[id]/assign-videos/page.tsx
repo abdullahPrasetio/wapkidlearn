@@ -51,7 +51,7 @@ export default function AssignVideosPage({ params }: { params: { id: string } })
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
 
-  const { data: globalVideos, isLoading, isError } = useQuery({
+  const { data: globalVideos, isError } = useQuery({
     queryKey: ['global-videos'],
     queryFn: parent.listGlobalVideos,
   })
@@ -97,7 +97,7 @@ export default function AssignVideosPage({ params }: { params: { id: string } })
           )}
         </div>
 
-        {isLoading ? (
+        {!globalVideos ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {[1, 2, 3, 4].map((i) => <div key={i} className="h-52 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
           </div>

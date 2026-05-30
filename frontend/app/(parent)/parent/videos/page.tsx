@@ -46,7 +46,7 @@ export default function ParentVideosPage() {
   const [editTitle, setEditTitle] = useState('')
   const [editUrl, setEditUrl] = useState('')
 
-  const { data: myVideos, isLoading } = useQuery({
+  const { data: myVideos } = useQuery({
     queryKey: ['parent-my-videos'],
     queryFn: parent.listMyVideos,
   })
@@ -175,7 +175,7 @@ export default function ParentVideosPage() {
         </div>
 
         {/* Grid */}
-        {isLoading ? (
+        {!myVideos ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => <div key={i} className="h-64 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
           </div>

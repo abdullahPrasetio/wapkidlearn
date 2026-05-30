@@ -12,7 +12,7 @@ import (
 )
 
 const approveVideo = `-- name: ApproveVideo :one
-UPDATE videos SET status = 'active' WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at
+UPDATE videos SET status = 'active' WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at
 `
 
 func (q *Queries) ApproveVideo(ctx context.Context, id pgtype.UUID) (Video, error) {
@@ -26,12 +26,28 @@ func (q *Queries) ApproveVideo(ctx context.Context, id pgtype.UUID) (Video, erro
 		&i.ThumbnailUrl,
 		&i.VideoType,
 		&i.Scope,
-		&i.ChildID,
 		&i.Status,
 		&i.RejectionReason,
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const assignVideoToChild = `-- name: AssignVideoToChild :exec
+INSERT INTO child_video_assignments (child_id, video_id, assigned_by)
+VALUES ($1, $2, $3)
+ON CONFLICT DO NOTHING
+`
+
+type AssignVideoToChildParams struct {
+	ChildID    pgtype.UUID `json:"child_id"`
+	VideoID    pgtype.UUID `json:"video_id"`
+	AssignedBy pgtype.UUID `json:"assigned_by"`
+}
+
+func (q *Queries) AssignVideoToChild(ctx context.Context, arg AssignVideoToChildParams) error {
+	_, err := q.db.Exec(ctx, assignVideoToChild, arg.ChildID, arg.VideoID, arg.AssignedBy)
+	return err
 }
 
 const closeStaleWatchSessions = `-- name: CloseStaleWatchSessions :exec
@@ -45,7 +61,8 @@ func (q *Queries) CloseStaleWatchSessions(ctx context.Context) error {
 }
 
 const createVideo = `-- name: CreateVideo :one
-INSERT INTO videos (submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at
+INSERT INTO videos (submitted_by, title, url, thumbnail_url, video_type, scope, status)
+VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at
 `
 
 type CreateVideoParams struct {
@@ -55,7 +72,6 @@ type CreateVideoParams struct {
 	ThumbnailUrl *string     `json:"thumbnail_url"`
 	VideoType    *string     `json:"video_type"`
 	Scope        *string     `json:"scope"`
-	ChildID      pgtype.UUID `json:"child_id"`
 	Status       *string     `json:"status"`
 }
 
@@ -67,7 +83,6 @@ func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video
 		arg.ThumbnailUrl,
 		arg.VideoType,
 		arg.Scope,
-		arg.ChildID,
 		arg.Status,
 	)
 	var i Video
@@ -79,7 +94,6 @@ func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video
 		&i.ThumbnailUrl,
 		&i.VideoType,
 		&i.Scope,
-		&i.ChildID,
 		&i.Status,
 		&i.RejectionReason,
 		&i.CreatedAt,
@@ -88,7 +102,8 @@ func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video
 }
 
 const createWatchHistory = `-- name: CreateWatchHistory :exec
-INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds) VALUES ($1, $2, $3, $4)
+INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds)
+VALUES ($1, $2, $3, $4)
 `
 
 type CreateWatchHistoryParams struct {
@@ -136,7 +151,10 @@ func (q *Queries) CreateWatchSession(ctx context.Context, arg CreateWatchSession
 }
 
 const deductWatchTime = `-- name: DeductWatchTime :one
-UPDATE watch_wallets SET balance_seconds = balance_seconds - $2, used_today_seconds = used_today_seconds + $2 WHERE child_id = $1 AND balance_seconds >= $2 RETURNING id, child_id, balance_seconds, used_today_seconds, last_reset_date, updated_at
+UPDATE watch_wallets
+SET balance_seconds = balance_seconds - $2, used_today_seconds = used_today_seconds + $2
+WHERE child_id = $1 AND balance_seconds >= $2
+RETURNING balance_seconds
 `
 
 type DeductWatchTimeParams struct {
@@ -144,18 +162,11 @@ type DeductWatchTimeParams struct {
 	BalanceSeconds *int32      `json:"balance_seconds"`
 }
 
-func (q *Queries) DeductWatchTime(ctx context.Context, arg DeductWatchTimeParams) (WatchWallet, error) {
+func (q *Queries) DeductWatchTime(ctx context.Context, arg DeductWatchTimeParams) (*int32, error) {
 	row := q.db.QueryRow(ctx, deductWatchTime, arg.ChildID, arg.BalanceSeconds)
-	var i WatchWallet
-	err := row.Scan(
-		&i.ID,
-		&i.ChildID,
-		&i.BalanceSeconds,
-		&i.UsedTodaySeconds,
-		&i.LastResetDate,
-		&i.UpdatedAt,
-	)
-	return i, err
+	var balance_seconds *int32
+	err := row.Scan(&balance_seconds)
+	return balance_seconds, err
 }
 
 const deleteVideo = `-- name: DeleteVideo :exec
@@ -189,7 +200,7 @@ func (q *Queries) GetActiveWatchSession(ctx context.Context, childID pgtype.UUID
 }
 
 const getAllVideos = `-- name: GetAllVideos :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos ORDER BY created_at DESC
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at FROM videos ORDER BY created_at DESC
 `
 
 func (q *Queries) GetAllVideos(ctx context.Context) ([]Video, error) {
@@ -209,7 +220,6 @@ func (q *Queries) GetAllVideos(ctx context.Context) ([]Video, error) {
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,
@@ -224,8 +234,32 @@ func (q *Queries) GetAllVideos(ctx context.Context) ([]Video, error) {
 	return items, nil
 }
 
+const getAssignedVideoIDs = `-- name: GetAssignedVideoIDs :many
+SELECT video_id FROM child_video_assignments WHERE child_id = $1
+`
+
+func (q *Queries) GetAssignedVideoIDs(ctx context.Context, childID pgtype.UUID) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, getAssignedVideoIDs, childID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.UUID{}
+	for rows.Next() {
+		var video_id pgtype.UUID
+		if err := rows.Scan(&video_id); err != nil {
+			return nil, err
+		}
+		items = append(items, video_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getGlobalActiveVideos = `-- name: GetGlobalActiveVideos :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE scope = 'global' AND status = 'active' ORDER BY created_at DESC
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at FROM videos WHERE scope = 'global' AND status = 'active' ORDER BY created_at DESC
 `
 
 func (q *Queries) GetGlobalActiveVideos(ctx context.Context) ([]Video, error) {
@@ -245,7 +279,6 @@ func (q *Queries) GetGlobalActiveVideos(ctx context.Context) ([]Video, error) {
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,
@@ -261,7 +294,7 @@ func (q *Queries) GetGlobalActiveVideos(ctx context.Context) ([]Video, error) {
 }
 
 const getVideoByID = `-- name: GetVideoByID :one
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE id = $1
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at FROM videos WHERE id = $1
 `
 
 func (q *Queries) GetVideoByID(ctx context.Context, id pgtype.UUID) (Video, error) {
@@ -275,7 +308,6 @@ func (q *Queries) GetVideoByID(ctx context.Context, id pgtype.UUID) (Video, erro
 		&i.ThumbnailUrl,
 		&i.VideoType,
 		&i.Scope,
-		&i.ChildID,
 		&i.Status,
 		&i.RejectionReason,
 		&i.CreatedAt,
@@ -284,7 +316,15 @@ func (q *Queries) GetVideoByID(ctx context.Context, id pgtype.UUID) (Video, erro
 }
 
 const getVideosByChild = `-- name: GetVideosByChild :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE (child_id = $1 OR scope = 'global') AND status = 'active' ORDER BY created_at DESC
+SELECT v.id, v.submitted_by, v.title, v.url, v.thumbnail_url, v.video_type, v.scope, v.status, v.rejection_reason, v.created_at FROM videos v
+WHERE v.status = 'active' AND (
+  v.scope = 'global'
+  OR EXISTS (
+    SELECT 1 FROM child_video_assignments a
+    WHERE a.video_id = v.id AND a.child_id = $1
+  )
+)
+ORDER BY v.created_at DESC
 `
 
 func (q *Queries) GetVideosByChild(ctx context.Context, childID pgtype.UUID) ([]Video, error) {
@@ -304,7 +344,6 @@ func (q *Queries) GetVideosByChild(ctx context.Context, childID pgtype.UUID) ([]
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,
@@ -320,7 +359,13 @@ func (q *Queries) GetVideosByChild(ctx context.Context, childID pgtype.UUID) ([]
 }
 
 const getVideosByChildAllStatuses = `-- name: GetVideosByChildAllStatuses :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE child_id = $1 OR (scope = 'global' AND status = 'active') ORDER BY created_at DESC
+SELECT v.id, v.submitted_by, v.title, v.url, v.thumbnail_url, v.video_type, v.scope, v.status, v.rejection_reason, v.created_at FROM videos v
+WHERE v.scope = 'global' AND v.status = 'active'
+   OR EXISTS (
+     SELECT 1 FROM child_video_assignments a
+     WHERE a.video_id = v.id AND a.child_id = $1
+   )
+ORDER BY v.created_at DESC
 `
 
 func (q *Queries) GetVideosByChildAllStatuses(ctx context.Context, childID pgtype.UUID) ([]Video, error) {
@@ -340,7 +385,6 @@ func (q *Queries) GetVideosByChildAllStatuses(ctx context.Context, childID pgtyp
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,
@@ -356,7 +400,7 @@ func (q *Queries) GetVideosByChildAllStatuses(ctx context.Context, childID pgtyp
 }
 
 const getVideosBySubmitter = `-- name: GetVideosBySubmitter :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE submitted_by = $1 ORDER BY created_at DESC
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at FROM videos WHERE submitted_by = $1 ORDER BY created_at DESC
 `
 
 func (q *Queries) GetVideosBySubmitter(ctx context.Context, submittedBy pgtype.UUID) ([]Video, error) {
@@ -376,7 +420,6 @@ func (q *Queries) GetVideosBySubmitter(ctx context.Context, submittedBy pgtype.U
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,
@@ -392,7 +435,8 @@ func (q *Queries) GetVideosBySubmitter(ctx context.Context, submittedBy pgtype.U
 }
 
 const heartbeatWatchSession = `-- name: HeartbeatWatchSession :one
-UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_heartbeat_at = NOW() WHERE id = $1 AND status = 'active' RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at
+UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_heartbeat_at = NOW()
+WHERE id = $1 AND status = 'active' RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at
 `
 
 type HeartbeatWatchSessionParams struct {
@@ -418,7 +462,7 @@ func (q *Queries) HeartbeatWatchSession(ctx context.Context, arg HeartbeatWatchS
 }
 
 const rejectVideo = `-- name: RejectVideo :one
-UPDATE videos SET status = 'rejected', rejection_reason = $2 WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at
+UPDATE videos SET status = 'rejected', rejection_reason = $2 WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at
 `
 
 type RejectVideoParams struct {
@@ -437,7 +481,33 @@ func (q *Queries) RejectVideo(ctx context.Context, arg RejectVideoParams) (Video
 		&i.ThumbnailUrl,
 		&i.VideoType,
 		&i.Scope,
-		&i.ChildID,
+		&i.Status,
+		&i.RejectionReason,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const setVideoScope = `-- name: SetVideoScope :one
+UPDATE videos SET scope = $2 WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at
+`
+
+type SetVideoScopeParams struct {
+	ID    pgtype.UUID `json:"id"`
+	Scope *string     `json:"scope"`
+}
+
+func (q *Queries) SetVideoScope(ctx context.Context, arg SetVideoScopeParams) (Video, error) {
+	row := q.db.QueryRow(ctx, setVideoScope, arg.ID, arg.Scope)
+	var i Video
+	err := row.Scan(
+		&i.ID,
+		&i.SubmittedBy,
+		&i.Title,
+		&i.Url,
+		&i.ThumbnailUrl,
+		&i.VideoType,
+		&i.Scope,
 		&i.Status,
 		&i.RejectionReason,
 		&i.CreatedAt,
@@ -471,8 +541,23 @@ func (q *Queries) TerminateWatchSession(ctx context.Context, arg TerminateWatchS
 	return i, err
 }
 
+const unassignVideoFromChild = `-- name: UnassignVideoFromChild :exec
+DELETE FROM child_video_assignments WHERE child_id = $1 AND video_id = $2
+`
+
+type UnassignVideoFromChildParams struct {
+	ChildID pgtype.UUID `json:"child_id"`
+	VideoID pgtype.UUID `json:"video_id"`
+}
+
+func (q *Queries) UnassignVideoFromChild(ctx context.Context, arg UnassignVideoFromChildParams) error {
+	_, err := q.db.Exec(ctx, unassignVideoFromChild, arg.ChildID, arg.VideoID)
+	return err
+}
+
 const updateVideo = `-- name: UpdateVideo :one
-UPDATE videos SET title = $2, url = $3, thumbnail_url = $4, video_type = $5, updated_at = NOW() WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at
+UPDATE videos SET title = $2, url = $3, thumbnail_url = $4, video_type = $5, updated_at = NOW()
+WHERE id = $1 RETURNING id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at
 `
 
 type UpdateVideoParams struct {
@@ -500,7 +585,6 @@ func (q *Queries) UpdateVideo(ctx context.Context, arg UpdateVideoParams) (Video
 		&i.ThumbnailUrl,
 		&i.VideoType,
 		&i.Scope,
-		&i.ChildID,
 		&i.Status,
 		&i.RejectionReason,
 		&i.CreatedAt,

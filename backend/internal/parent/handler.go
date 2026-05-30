@@ -29,15 +29,14 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Get("/children/:id/analytics", h.GetAnalytics)
 	router.Get("/children/:id/activity", h.GetActivityFeed)
 
-	// Video management per child
+	// Video management per child (assign/unassign)
 	router.Get("/children/:id/videos", h.ListChildVideos)
-	router.Post("/children/:id/videos", h.AddChildVideo)
-	router.Delete("/children/:id/videos/:videoId", h.DeleteChildVideo)
+	router.Post("/children/:id/videos/:videoId/assign", h.AssignVideoToChild)
+	router.Delete("/children/:id/videos/:videoId/assign", h.UnassignVideoFromChild)
 
-	// Parent video management (all videos submitted by this parent)
+	// Parent video management
 	router.Get("/videos", h.ListMyVideos)
-	router.Post("/videos", h.AddGlobalVideo)
-	// Global video catalog for parent (assign to child)
+	router.Post("/videos", h.AddVideo)
 	router.Get("/videos/global", h.ListGlobalVideos)
 }
 
@@ -121,18 +120,46 @@ func (h *Handler) ListChildVideos(c *fiber.Ctx) error {
 	return response.OK(c, vs)
 }
 
-func (h *Handler) AddGlobalVideo(c *fiber.Ctx) error {
+// AddVideo menambah video baru milik parent.
+// Jika request_global=true → status pending (tunggu admin approve jadi global).
+// Jika tidak → langsung active+private, siap di-assign ke anak sendiri.
+func (h *Handler) AddVideo(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	var req videos.AddVideoRequest
 	if err := validator.BindAndValidate(c, &req); err != nil || req.Title == "" || req.URL == "" {
 		return response.BadRequest(c, "title and url are required")
 	}
-	req.Scope = "global"
 	v, err := h.videoSvc.AddVideo(c.Context(), parentID, "parent", req)
 	if err != nil {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.Created(c, v)
+}
+
+func (h *Handler) AssignVideoToChild(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	videoID := c.Params("videoId")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	if err := h.videoSvc.AssignVideoToChild(c.Context(), parentID, childID, videoID); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"assigned": true})
+}
+
+func (h *Handler) UnassignVideoFromChild(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	videoID := c.Params("videoId")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	if err := h.videoSvc.UnassignVideoFromChild(c.Context(), childID, videoID); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"unassigned": true})
 }
 
 func (h *Handler) ListMyVideos(c *fiber.Ctx) error {
@@ -152,37 +179,6 @@ func (h *Handler) ListGlobalVideos(c *fiber.Ctx) error {
 	return response.OK(c, vs)
 }
 
-func (h *Handler) AddChildVideo(c *fiber.Ctx) error {
-	parentID := c.Locals("userID").(string)
-	childID := c.Params("id")
-	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
-		return response.Forbidden(c, err.Error())
-	}
-	var req videos.AddVideoRequest
-	if err := validator.BindAndValidate(c, &req); err != nil {
-		return response.BadRequest(c, "invalid request body")
-	}
-	req.ChildID = childID
-	req.Scope = "child_specific"
-	v, err := h.videoSvc.AddVideo(c.Context(), parentID, "parent", req)
-	if err != nil {
-		return response.BadRequest(c, err.Error())
-	}
-	return response.Created(c, v)
-}
-
-func (h *Handler) DeleteChildVideo(c *fiber.Ctx) error {
-	parentID := c.Locals("userID").(string)
-	childID := c.Params("id")
-	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
-		return response.Forbidden(c, err.Error())
-	}
-	videoID := c.Params("videoId")
-	if err := h.videoSvc.DeleteVideo(c.Context(), videoID); err != nil {
-		return response.BadRequest(c, err.Error())
-	}
-	return response.OK(c, fiber.Map{"message": "deleted"})
-}
 
 func (h *Handler) ApproveChildVideo(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)

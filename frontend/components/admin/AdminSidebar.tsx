@@ -1,7 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { auth } from '@/lib/api'
+import { clearStoredRole } from '@/lib/auth'
 
 const navItems = [
   { href: '/admin/dashboard', icon: 'dashboard', label: 'Dashboard' },
@@ -12,6 +14,13 @@ const navItems = [
 
 export function AdminSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+
+  const handleLogout = async () => {
+    await auth.logout().catch(() => {})
+    clearStoredRole()
+    router.replace('/login')
+  }
 
   return (
     <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 py-8 bg-wkl-surface-low border-r border-wkl-outline-variant w-60 z-40">
@@ -43,6 +52,16 @@ export function AdminSidebar() {
             </Link>
           )
         })}
+      </div>
+
+      <div className="px-2">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-4 px-4 py-2 rounded-lg text-sm text-wkl-error hover:bg-wkl-error-container transition-colors"
+        >
+          <span className="material-symbols-outlined text-xl">logout</span>
+          <span>Keluar</span>
+        </button>
       </div>
     </nav>
   )

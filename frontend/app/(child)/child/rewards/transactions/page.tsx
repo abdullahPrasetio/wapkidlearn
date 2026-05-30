@@ -50,7 +50,7 @@ function TxIcon({ type }: { type: 'earn' | 'spend' }) {
 
 export default function TransactionsPage() {
   const [filter, setFilter] = useState<Filter>('all')
-  const { data, isLoading, isError } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ['transactions'],
     queryFn: points.getTransactions,
   })
@@ -114,7 +114,7 @@ export default function TransactionsPage() {
         </div>
 
         {/* Loading */}
-        {isLoading && (
+        {!data && (
           <div className="space-y-3">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="h-16 bg-gray-100 rounded-2xl animate-pulse" />
@@ -131,7 +131,7 @@ export default function TransactionsPage() {
         )}
 
         {/* Empty */}
-        {!isLoading && !isError && filtered.length === 0 && (
+        {!!data && !isError && filtered.length === 0 && (
           <div className="text-center py-16">
             <p className="text-5xl mb-4">📭</p>
             <p className="text-gray-500 font-medium">Belum ada transaksi</p>
@@ -140,7 +140,7 @@ export default function TransactionsPage() {
         )}
 
         {/* Grouped list */}
-        {!isLoading && !isError && monthKeys.map((month) => (
+        {!!data && !isError && monthKeys.map((month) => (
           <div key={month}>
             <p className="text-xs font-extrabold text-gray-400 tracking-widest mb-3">{month}</p>
             <div className="space-y-2">

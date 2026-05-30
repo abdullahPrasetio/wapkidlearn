@@ -1,4 +1,4 @@
-const CACHE_NAME = 'wapkidlearn-v2'
+const CACHE_NAME = 'wapkidlearn-v3'
 
 const PRECACHE = [
   '/manifest.json',
@@ -28,8 +28,8 @@ self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return
   const url = new URL(event.request.url)
 
-  // Skip API calls and Next.js internal requests
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/data/')) return
+  // Skip API calls and all Next.js internal requests (JS bundles are content-hashed, browser cache handles them)
+  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/_next/')) return
 
   // Navigation: Network First
   if (event.request.mode === 'navigate') {

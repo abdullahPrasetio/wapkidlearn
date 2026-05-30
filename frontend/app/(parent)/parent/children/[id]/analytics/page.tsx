@@ -25,7 +25,7 @@ function BarChart({ data, color }: { data: { value: number; label: string }[]; c
 
 export default function ChildAnalyticsPage({ params }: { params: { id: string } }) {
   const { id } = params
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ['analytics', id],
     queryFn: () => parent.getAnalytics(id),
   })
@@ -52,7 +52,7 @@ export default function ChildAnalyticsPage({ params }: { params: { id: string } 
           <p className="text-sm text-wkl-on-surface-variant mt-1">Ringkasan performa belajar minggu ini</p>
         </div>
 
-        {isLoading ? (
+        {!data ? (
           <div className="space-y-4">
             {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="bg-wkl-surface-lowest border border-wkl-outline-variant rounded-lg h-48 animate-pulse" />

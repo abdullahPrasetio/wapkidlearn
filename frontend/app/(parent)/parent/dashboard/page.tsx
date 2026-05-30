@@ -6,7 +6,7 @@ import { avatarDisplay } from '@/lib/utils'
 import Link from 'next/link'
 
 export default function ParentDashboardPage() {
-  const { data: children, isLoading } = useQuery({
+  const { data: children } = useQuery({
     queryKey: ['children'],
     queryFn: parent.listChildren,
   })
@@ -19,7 +19,7 @@ export default function ParentDashboardPage() {
       </header>
 
       <main className="px-4 py-6 md:max-w-2xl md:mx-auto">
-        {isLoading ? (
+        {!children ? (
           <div className="space-y-3">
             {Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="bg-white rounded-xl h-24 animate-pulse border border-wkl-outline-variant" />

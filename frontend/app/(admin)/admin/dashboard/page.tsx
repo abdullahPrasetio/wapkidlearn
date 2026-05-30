@@ -9,9 +9,9 @@ import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
 export default function AdminDashboardPage() {
   const router = useRouter()
-  const { data: questions, isLoading: loadingQ } = useQuery({ queryKey: ['admin-questions'], queryFn: admin.listQuestions })
-  const { data: users, isLoading: loadingU } = useQuery({ queryKey: ['admin-users'], queryFn: admin.listUsers })
-  const { data: vids, isLoading: loadingV } = useQuery({ queryKey: ['admin-videos'], queryFn: admin.listVideos })
+  const { data: questions } = useQuery({ queryKey: ['admin-questions'], queryFn: admin.listQuestions })
+  const { data: users } = useQuery({ queryKey: ['admin-users'], queryFn: admin.listUsers })
+  const { data: vids } = useQuery({ queryKey: ['admin-videos'], queryFn: admin.listVideos })
 
   const handleLogout = async () => {
     await auth.logout().catch(() => {})
@@ -22,9 +22,9 @@ export default function AdminDashboardPage() {
   const pendingVideos = vids?.filter((v) => v.status === 'pending').length ?? 0
 
   const stats = [
-    { label: 'Total Soal', value: questions?.length ?? 0, loading: loadingQ, icon: 'library_books', iconColor: 'text-wkl-secondary', iconBg: 'bg-wkl-surface-low', accent: false },
-    { label: 'Total User', value: users?.length ?? 0, loading: loadingU, icon: 'group', iconColor: 'text-wkl-primary', iconBg: 'bg-wkl-surface-low', accent: false },
-    { label: 'Video Pending', value: pendingVideos, loading: loadingV, icon: 'movie', iconColor: 'text-wkl-error', iconBg: 'bg-wkl-error-container', accent: true },
+    { label: 'Total Soal', value: questions?.length ?? 0, loading: !questions, icon: 'library_books', iconColor: 'text-wkl-secondary', iconBg: 'bg-wkl-surface-low', accent: false },
+    { label: 'Total User', value: users?.length ?? 0, loading: !users, icon: 'group', iconColor: 'text-wkl-primary', iconBg: 'bg-wkl-surface-low', accent: false },
+    { label: 'Video Pending', value: pendingVideos, loading: !vids, icon: 'movie', iconColor: 'text-wkl-error', iconBg: 'bg-wkl-error-container', accent: true },
   ]
 
   const quickActions = [

@@ -35,6 +35,13 @@ type ChildProfile struct {
 	Username     string      `json:"username"`
 }
 
+type ChildVideoAssignment struct {
+	ChildID    pgtype.UUID        `json:"child_id"`
+	VideoID    pgtype.UUID        `json:"video_id"`
+	AssignedBy pgtype.UUID        `json:"assigned_by"`
+	AssignedAt pgtype.Timestamptz `json:"assigned_at"`
+}
+
 type GameAnswer struct {
 	ID               pgtype.UUID        `json:"id"`
 	SessionID        pgtype.UUID        `json:"session_id"`
@@ -141,7 +148,6 @@ type Video struct {
 	ThumbnailUrl    *string            `json:"thumbnail_url"`
 	VideoType       *string            `json:"video_type"`
 	Scope           *string            `json:"scope"`
-	ChildID         pgtype.UUID        `json:"child_id"`
 	Status          *string            `json:"status"`
 	RejectionReason *string            `json:"rejection_reason"`
 	CreatedAt       pgtype.Timestamptz `json:"created_at"`

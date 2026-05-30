@@ -11,7 +11,7 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
   const router = useRouter()
   const qc = useQueryClient()
 
-  const { data: children, isLoading } = useQuery({ queryKey: ['children'], queryFn: parent.listChildren })
+  const { data: children } = useQuery({ queryKey: ['children'], queryFn: parent.listChildren })
   const child = children?.find((c) => c.id === id)
 
   const { data: analytics } = useQuery({
@@ -25,7 +25,7 @@ export default function ChildDetailPage({ params }: { params: { id: string } }) 
     onSuccess: () => qc.invalidateQueries({ queryKey: ['children'] }),
   })
 
-  if (isLoading) {
+  if (!children) {
     return (
       <div className="min-h-screen bg-wkl-background">
         <div className="h-14 bg-wkl-surface-lowest border-b border-wkl-outline-variant animate-pulse" />

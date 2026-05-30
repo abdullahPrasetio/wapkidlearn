@@ -25,11 +25,10 @@ var allowedDomains = map[string]bool{
 }
 
 type AddVideoRequest struct {
-	Title        string  `json:"title"`
-	URL          string  `json:"url"`
-	ThumbnailURL string  `json:"thumbnail_url"`
-	Scope        string  `json:"scope"` // "global" or "child_specific"
-	ChildID      string  `json:"child_id"`
+	Title        string `json:"title"`
+	URL          string `json:"url"`
+	ThumbnailURL string `json:"thumbnail_url"`
+	RequestGlobal bool  `json:"request_global"` // true = ajukan ke admin untuk jadi global
 }
 
 type WatchSessionResponse struct {
@@ -78,26 +77,22 @@ func (s *Service) AddVideo(ctx context.Context, submittedByUserID string, role s
 		return nil, errors.New("invalid user_id")
 	}
 
-	status := "pending"
-	if role == "super_admin" {
+	// super_admin → langsung active+global
+	// parent + request_global → pending (tunggu admin approve jadi global)
+	// parent biasa → langsung active+private (bisa langsung assign ke anak sendiri)
+	var status, scope string
+	switch {
+	case role == "super_admin":
 		status = "active"
+		scope = "global"
+	case req.RequestGlobal:
+		status = "pending"
+		scope = "private"
+	default:
+		status = "active"
+		scope = "private"
 	}
 
-	scope := req.Scope
-	if scope == "" {
-		scope = "child_specific"
-	}
-
-	var childUUID pgtype.UUID
-	if req.ChildID != "" {
-		cid, err := pgutil.ParseUUID(req.ChildID)
-		if err != nil {
-			return nil, errors.New("invalid child_id")
-		}
-		childUUID = cid
-	}
-
-	// Auto-generate thumbnail jika tidak diisi manual
 	thumbnail := req.ThumbnailURL
 	if thumbnail == "" {
 		thumbnail = parsed.thumbnailURL
@@ -110,7 +105,6 @@ func (s *Service) AddVideo(ctx context.Context, submittedByUserID string, role s
 		ThumbnailUrl: pgutil.PtrString(thumbnail),
 		VideoType:    &parsed.videoType,
 		Scope:        &scope,
-		ChildID:      childUUID,
 		Status:       &status,
 	})
 	if err != nil {
@@ -198,7 +192,51 @@ func (s *Service) UpdateVideo(ctx context.Context, videoID, title, rawURL string
 	return &v, nil
 }
 
-// ListVideosByChildForParent returns all child-specific videos (any status) plus active global videos.
+// AssignVideoToChild meng-assign video ke child via pivot table.
+func (s *Service) AssignVideoToChild(ctx context.Context, parentUserID, childID, videoID string) error {
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return errors.New("invalid child_id")
+	}
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return errors.New("invalid video_id")
+	}
+	uid, err := pgutil.ParseUUID(parentUserID)
+	if err != nil {
+		return errors.New("invalid user_id")
+	}
+	// Pastikan video active
+	v, err := s.q.GetVideoByID(ctx, vid)
+	if err != nil || v.Status == nil || *v.Status != "active" {
+		return errors.New("video not found or not active")
+	}
+	return s.q.AssignVideoToChild(ctx, db.AssignVideoToChildParams{
+		ChildID:    cid,
+		VideoID:    vid,
+		AssignedBy: uid,
+	})
+}
+
+// UnassignVideoFromChild menghapus assignment video dari child.
+func (s *Service) UnassignVideoFromChild(ctx context.Context, childID, videoID string) error {
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return errors.New("invalid child_id")
+	}
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return errors.New("invalid video_id")
+	}
+	return s.q.UnassignVideoFromChild(ctx, db.UnassignVideoFromChildParams{
+		ChildID: cid,
+		VideoID: vid,
+	})
+}
+
+// PromoteToGlobal digunakan admin untuk menjadikan video sebagai global.
+
+// ListVideosByChildForParent returns all assigned videos (any status) plus active global videos for a child.
 func (s *Service) ListVideosByChildForParent(ctx context.Context, childID string) ([]db.Video, error) {
 	cid, err := pgutil.ParseUUID(childID)
 	if err != nil {

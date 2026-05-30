@@ -53,7 +53,7 @@ function BadgeCard({ item }: { item: Achievement }) {
 }
 
 export default function AchievementsPage() {
-  const { data, isLoading, isError } = useQuery({
+  const { data, isError } = useQuery({
     queryKey: ['achievements'],
     queryFn: api.list,
   })
@@ -80,7 +80,7 @@ export default function AchievementsPage() {
 
       <div className="px-5 pb-6 space-y-5">
         {/* Banner */}
-        {!isLoading && unlocked.length > 0 && (
+        {!!data && unlocked.length > 0 && (
           <div className="bg-yellow-400 rounded-2xl px-4 py-3 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/30 rounded-xl flex items-center justify-center text-xl">
@@ -108,7 +108,7 @@ export default function AchievementsPage() {
         )}
 
         {/* Loading skeleton */}
-        {isLoading && (
+        {!data && (
           <div>
             <div className="h-5 bg-gray-200 rounded w-32 mb-3 animate-pulse" />
             <div className="grid grid-cols-2 gap-3">
@@ -120,7 +120,7 @@ export default function AchievementsPage() {
         )}
 
         {/* Unlocked section */}
-        {!isLoading && unlocked.length > 0 && (
+        {!!data && unlocked.length > 0 && (
           <div>
             <p className="text-sm font-extrabold text-gray-700 mb-3">✨ Koleksi Kamu</p>
             <div className="grid grid-cols-2 gap-3">
@@ -132,7 +132,7 @@ export default function AchievementsPage() {
         )}
 
         {/* Locked section */}
-        {!isLoading && locked.length > 0 && (
+        {!!data && locked.length > 0 && (
           <div>
             <p className="text-sm font-extrabold text-gray-400 mb-3 flex items-center gap-2">
               <span>🔒</span> Belum Dibuka
@@ -146,7 +146,7 @@ export default function AchievementsPage() {
         )}
 
         {/* Empty state */}
-        {!isLoading && data?.length === 0 && (
+        {!!data && data?.length === 0 && (
           <div className="text-center py-16">
             <p className="text-5xl mb-4">🎯</p>
             <p className="text-gray-500 font-bold">Mulai belajar untuk raih badge!</p>

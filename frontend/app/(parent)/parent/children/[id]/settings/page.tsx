@@ -48,7 +48,7 @@ export default function ChildSettingsPage({ params }: { params: { id: string } }
   const router = useRouter()
   const qc = useQueryClient()
 
-  const { data, isLoading } = useQuery({
+  const { data } = useQuery({
     queryKey: ['settings', id],
     queryFn: () => parent.getSettings(id),
   })
@@ -120,7 +120,7 @@ export default function ChildSettingsPage({ params }: { params: { id: string } }
     lockMutation.mutate(checked)
   }
 
-  if (isLoading) {
+  if (!data) {
     return (
       <div className="min-h-screen bg-wkl-background">
         <div className="h-14 bg-wkl-surface-lowest border-b border-wkl-outline-variant animate-pulse" />

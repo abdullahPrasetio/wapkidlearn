@@ -38,7 +38,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       credentials: 'include',
     })
     if (!refreshed.ok) {
-      window.location.href = '/login'
+      if (typeof window !== 'undefined') window.location.href = '/login'
       throw new ApiError(401, 'Session expired')
     }
     const retry = await fetch(`${BASE}${path}`, {
@@ -213,12 +213,14 @@ export const admin = {
     request<void>(`/admin/questions/${id}`, { method: 'DELETE' }),
   listVideos: () => request<Video[]>('/admin/videos'),
   approveVideo: (id: string) =>
-    request<void>(`/admin/videos/${id}/approve`, { method: 'PATCH' }),
+    request<Video>(`/admin/videos/${id}/approve`, { method: 'POST' }),
   rejectVideo: (id: string, reason: string) =>
-    request<void>(`/admin/videos/${id}/reject`, {
-      method: 'PATCH',
+    request<Video>(`/admin/videos/${id}/reject`, {
+      method: 'POST',
       body: JSON.stringify({ reason }),
     }),
+  promoteVideoGlobal: (id: string) =>
+    request<Video>(`/admin/videos/${id}/promote-global`, { method: 'POST' }),
   deleteVideo: (id: string) =>
     request<void>(`/admin/videos/${id}`, { method: 'DELETE' }),
   addVideo: (body: { title: string; url: string; scope: string }) =>

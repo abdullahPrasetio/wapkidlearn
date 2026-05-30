@@ -2,10 +2,9 @@
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { admin } from '@/lib/api'
-import { useState, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { AdminSidebar } from '@/components/admin/AdminSidebar'
+import { useState } from 'react'
 import type { VideoStatus, Video } from '@/lib/types'
+import { AdminSidebar } from '@/components/admin/AdminSidebar'
 
 type Tab = VideoStatus
 
@@ -34,27 +33,22 @@ function VideoThumbnail({ video }: { video: Video }) {
   )
 }
 
-function AdminVideosContent() {
+export default function AdminVideosPage() {
   const qc = useQueryClient()
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const tabParam = searchParams.get('tab') as Tab | null
-  const [tab, setTab] = useState<Tab>(tabParam && ['active', 'pending', 'rejected'].includes(tabParam) ? tabParam : 'pending')
+  const [tab, setTab] = useState<Tab>('pending')
   const [search, setSearch] = useState('')
-
-  const handleTabChange = (t: Tab) => {
-    setTab(t)
-    router.replace(`?tab=${t}`, { scroll: false })
-  }
   const [showForm, setShowForm] = useState(false)
   const [newVideo, setNewVideo] = useState({ title: '', url: '' })
-
-  // Edit state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editUrl, setEditUrl] = useState('')
 
-  const { data: videos, isLoading } = useQuery({
+  const handleTabChange = (t: Tab) => {
+    setTab(t)
+    window.history.replaceState(null, '', `?tab=${t}`)
+  }
+
+  const { data: videos } = useQuery({
     queryKey: ['admin-videos'],
     queryFn: admin.listVideos,
   })
@@ -91,6 +85,11 @@ function AdminVideosContent() {
   const deleteMut = useMutation({
     mutationFn: admin.deleteVideo,
     onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-videos'] }),
+  })
+  const promoteGlobalMut = useMutation({
+    mutationFn: admin.promoteVideoGlobal,
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-videos'] }),
+    onError: (err: unknown) => alert((err as Error).message || 'Gagal promote ke global'),
   })
 
   const filtered = (videos ?? [])
@@ -133,7 +132,6 @@ function AdminVideosContent() {
             </button>
           </div>
 
-          {/* Add form */}
           {showForm && (
             <div className="bg-wkl-surface-lowest border border-wkl-outline-variant rounded-xl p-5 mb-6 space-y-4">
               <h2 className="font-semibold text-wkl-on-surface">Tambah Video Global Baru</h2>
@@ -162,7 +160,6 @@ function AdminVideosContent() {
             </div>
           )}
 
-          {/* Search */}
           <div className="relative mb-4">
             <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-wkl-on-surface-variant text-[20px]">search</span>
             <input
@@ -179,7 +176,6 @@ function AdminVideosContent() {
             )}
           </div>
 
-          {/* Tabs */}
           <div className="flex gap-1 mb-5 bg-wkl-surface-container rounded-xl p-1">
             {TABS.map((t) => (
               <button
@@ -197,8 +193,7 @@ function AdminVideosContent() {
             ))}
           </div>
 
-          {/* Grid */}
-          {isLoading ? (
+          {!videos ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => <div key={i} className="h-64 bg-wkl-surface-lowest border border-wkl-surface-variant rounded-xl animate-pulse" />)}
             </div>
@@ -287,6 +282,23 @@ function AdminVideosContent() {
                               </button>
                             </div>
                           )}
+                          {v.status === 'active' && v.scope !== 'global' && (
+                            <button
+                              onClick={() => {
+                                if (confirm('Jadikan video ini global? Semua anak akan bisa mengaksesnya.'))
+                                  promoteGlobalMut.mutate(v.id)
+                              }}
+                              disabled={promoteGlobalMut.isPending}
+                              className="w-full mt-1 bg-blue-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+                            >
+                              🌐 Jadikan Global
+                            </button>
+                          )}
+                          {v.status === 'active' && v.scope === 'global' && (
+                            <div className="mt-1 text-center text-xs font-bold text-blue-600 py-1.5 bg-blue-50 rounded-lg">
+                              🌐 Video Global
+                            </div>
+                          )}
                           {v.status === 'rejected' && (
                             <button
                               onClick={() => approveMut.mutate(v.id)}
@@ -307,13 +319,5 @@ function AdminVideosContent() {
         </main>
       </div>
     </div>
-  )
-}
-
-export default function AdminVideosPage() {
-  return (
-    <Suspense fallback={<div className="flex bg-wkl-background min-h-screen"><AdminSidebar /><div className="flex-1 md:ml-60 flex items-center justify-center"><span className="text-wkl-on-surface-variant">Memuat...</span></div></div>}>
-      <AdminVideosContent />
-    </Suspense>
   )
 }

@@ -127,7 +127,7 @@ func (q *Queries) ListAllUsers(ctx context.Context) ([]User, error) {
 }
 
 const listPendingVideos = `-- name: ListPendingVideos :many
-SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, child_id, status, rejection_reason, created_at FROM videos WHERE status = 'pending' ORDER BY created_at
+SELECT id, submitted_by, title, url, thumbnail_url, video_type, scope, status, rejection_reason, created_at FROM videos WHERE status = 'pending' ORDER BY created_at
 `
 
 func (q *Queries) ListPendingVideos(ctx context.Context) ([]Video, error) {
@@ -147,7 +147,6 @@ func (q *Queries) ListPendingVideos(ctx context.Context) ([]Video, error) {
 			&i.ThumbnailUrl,
 			&i.VideoType,
 			&i.Scope,
-			&i.ChildID,
 			&i.Status,
 			&i.RejectionReason,
 			&i.CreatedAt,

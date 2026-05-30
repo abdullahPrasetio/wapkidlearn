@@ -19,7 +19,7 @@ export default function AdminUsersPage() {
   const qc = useQueryClient()
   const [search, setSearch] = useState('')
 
-  const { data: users, isLoading } = useQuery({
+  const { data: users } = useQuery({
     queryKey: ['admin-users'],
     queryFn: admin.listUsers,
   })
@@ -65,7 +65,7 @@ export default function AdminUsersPage() {
         </div>
 
         {/* User list */}
-        {isLoading ? (
+        {!users ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <div key={i} className="h-20 bg-wkl-surface-lowest border border-[#E5E7EB] rounded-lg animate-pulse" />

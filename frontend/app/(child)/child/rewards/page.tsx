@@ -12,7 +12,7 @@ const PRESETS = [10, 20, 50, 100]
 
 export default function RewardsPage() {
   const router = useRouter()
-  const { data, isLoading, isError, refetch } = useWallet()
+  const { data, isError, refetch } = useWallet()
   const [selected, setSelected] = useState(PRESETS[0])
   const [successMsg, setSuccessMsg] = useState('')
 
@@ -70,7 +70,7 @@ export default function RewardsPage() {
         {/* Balance cards */}
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-            {isLoading ? (
+            {!data ? (
               <div className="h-12 bg-gray-200 rounded animate-pulse" />
             ) : (
               <>
@@ -81,7 +81,7 @@ export default function RewardsPage() {
             )}
           </div>
           <div className="bg-gray-50 border border-gray-100 rounded-2xl p-4">
-            {isLoading ? (
+            {!data ? (
               <div className="h-12 bg-gray-200 rounded animate-pulse" />
             ) : (
               <>
@@ -143,7 +143,7 @@ export default function RewardsPage() {
         {/* CTA button */}
         <button
           onClick={() => mutation.mutate()}
-          disabled={!canConvert || isLoading || isError}
+          disabled={!canConvert || !data || isError}
           className="w-full bg-orange-500 text-white font-extrabold py-4 rounded-2xl text-lg hover:bg-orange-600 active:scale-95 transition disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {mutation.isPending ? (
@@ -156,7 +156,7 @@ export default function RewardsPage() {
           )}
         </button>
 
-        {balance < selected && !isLoading && (
+        {balance < selected && !!data && (
           <p className="text-center text-gray-400 text-sm">
             Poin tidak cukup. Kumpulkan {selected - balance} poin lagi!
           </p>

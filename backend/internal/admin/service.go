@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"strings"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/pkg/pgutil"
 
@@ -146,4 +147,83 @@ func (s *Service) ListAllVideos(ctx context.Context) ([]db.Video, error) {
 
 func (s *Service) ListPendingVideos(ctx context.Context) ([]db.Video, error) {
 	return s.q.ListPendingVideos(ctx)
+}
+
+func (s *Service) ApproveVideo(ctx context.Context, videoID string) (*db.Video, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return nil, errors.New("invalid video_id")
+	}
+	v, err := s.q.ApproveVideo(ctx, vid)
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (s *Service) RejectVideo(ctx context.Context, videoID, reason string) (*db.Video, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return nil, errors.New("invalid video_id")
+	}
+	v, err := s.q.RejectVideo(ctx, db.RejectVideoParams{
+		ID:              vid,
+		RejectionReason: pgutil.PtrString(reason),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (s *Service) AddGlobalVideo(ctx context.Context, adminUserID, title, url string) (*db.Video, error) {
+	submittedBy, err := pgutil.ParseUUID(adminUserID)
+	if err != nil {
+		return nil, errors.New("invalid user_id")
+	}
+	status := "active"
+	scope := "global"
+	videoType := "youtube"
+	if strings.Contains(url, "vimeo") {
+		videoType = "vimeo"
+	} else if !strings.Contains(url, "youtube") && !strings.Contains(url, "youtu.be") {
+		videoType = "mp4"
+	}
+	v, err := s.q.CreateVideo(ctx, db.CreateVideoParams{
+		SubmittedBy: submittedBy,
+		Title:       title,
+		Url:         url,
+		VideoType:   &videoType,
+		Scope:       &scope,
+		Status:      &status,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &v, nil
+}
+
+func (s *Service) DeleteVideo(ctx context.Context, videoID string) error {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return errors.New("invalid video_id")
+	}
+	return s.q.DeleteVideo(ctx, vid)
+}
+
+func (s *Service) PromoteToGlobal(ctx context.Context, videoID string) (*db.Video, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return nil, errors.New("invalid video_id")
+	}
+	scope := "global"
+	v, err := s.q.SetVideoScope(ctx, db.SetVideoScopeParams{ID: vid, Scope: &scope})
+	if err != nil {
+		return nil, err
+	}
+	v2, err := s.q.ApproveVideo(ctx, v.ID)
+	if err != nil {
+		return nil, err
+	}
+	return &v2, nil
 }

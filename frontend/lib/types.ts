@@ -82,9 +82,10 @@ export interface WatchWallet {
 }
 
 export interface ConvertResult {
-  points_spent: number
-  watch_time_added_seconds: number
-  watch_balance_seconds: number
+  points_deducted: number
+  seconds_added: number
+  new_balance: number
+  watch_balance: number
 }
 
 export interface PointTransaction {
@@ -106,7 +107,7 @@ export interface Video {
   thumbnail_url?: string
   video_type: VideoType
   status: VideoStatus
-  scope: 'global' | 'child_specific'
+  scope: 'global' | 'private'
   duration_seconds?: number
   required_points?: number
 }

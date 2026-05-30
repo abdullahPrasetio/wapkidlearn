@@ -12,7 +12,7 @@ function formatWatchMins(secs: number) {
 }
 
 export default function ChildHomePage() {
-  const { data, isLoading } = useWallet()
+  const { data } = useWallet()
   const { data: achData } = useQuery({
     queryKey: ['achievements'],
     queryFn: achievementsApi.list,
@@ -58,7 +58,7 @@ export default function ChildHomePage() {
           <div>
             <p className="text-xs text-orange-400 font-semibold">Poin Saya</p>
             <p className="text-lg font-extrabold text-orange-500">
-              {isLoading ? '…' : formatPoints(data?.point.balance ?? 0)}
+              {!data ? '…' :formatPoints(data?.point.balance ?? 0)}
             </p>
           </div>
         </div>
@@ -69,7 +69,7 @@ export default function ChildHomePage() {
           <div>
             <p className="text-xs text-red-400 font-semibold">Nonton</p>
             <p className="text-lg font-extrabold text-red-500">
-              {isLoading ? '…' : formatWatchMins(data?.watch.balance_seconds ?? 0)}
+              {!data ? '…' :formatWatchMins(data?.watch.balance_seconds ?? 0)}
             </p>
           </div>
         </div>
@@ -79,7 +79,7 @@ export default function ChildHomePage() {
       <div className="mx-5 mt-4 bg-orange-50 border border-orange-100 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-bold text-gray-800">
-            🔥 Streak {isLoading ? '…' : data?.current_streak ?? 0} hari!
+            🔥 Streak {!data ? '…' :data?.current_streak ?? 0} hari!
           </span>
           <span className="text-xs text-orange-500 font-semibold">Terus semangat!</span>
         </div>

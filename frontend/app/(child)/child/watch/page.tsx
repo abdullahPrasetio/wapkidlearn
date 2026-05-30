@@ -76,7 +76,7 @@ function Skeleton() {
 export default function WatchLibraryPage() {
   const router = useRouter()
   const [search, setSearch] = useState('')
-  const { data: videoList, isLoading, isError } = useQuery({
+  const { data: videoList, isError } = useQuery({
     queryKey: ['videos'],
     queryFn: videos.list,
   })
@@ -162,7 +162,7 @@ export default function WatchLibraryPage() {
               <button className="text-orange-500 text-xs font-bold">Lihat Semua</button>
             </div>
             <div className="pl-5 flex gap-3 overflow-x-auto pb-1">
-              {isLoading
+              {!videoList
                 ? [1, 2, 3].map((i) => <Skeleton key={i} />)
                 : activeVideos.length === 0
                 ? (
@@ -182,7 +182,7 @@ export default function WatchLibraryPage() {
             <div className="px-5">
               <h2 className="font-extrabold text-gray-900 mb-3">Lanjutkan Menonton 🎬</h2>
               <div className="space-y-4">
-                {isLoading
+                {!videoList
                   ? [1, 2].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />)
                   : activeVideos.slice(0, 3).map((v) => (
                     <VideoCardV key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance} balanceSecs={balanceSecs} />
@@ -192,7 +192,7 @@ export default function WatchLibraryPage() {
           )}
 
           {/* No balance locked CTA */}
-          {!hasBalance && !isLoading && activeVideos.length > 0 && (
+          {!hasBalance && videoList && activeVideos.length > 0 && (
             <div className="mx-5 bg-orange-500 rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
