@@ -67,13 +67,9 @@ func (s *Service) Login(ctx context.Context, email, password string) (*LoginResp
 	}, nil
 }
 
-// ChildLogin authenticates a child using child_id + PIN.
-func (s *Service) ChildLogin(ctx context.Context, childID, pin string) (*LoginResponse, error) {
-	childUUID, err := parseUUID(childID)
-	if err != nil {
-		return nil, errors.New("invalid child_id")
-	}
-	child, err := s.q.GetChildByID(ctx, childUUID)
+// ChildLogin authenticates a child using username + PIN.
+func (s *Service) ChildLogin(ctx context.Context, username, pin string) (*LoginResponse, error) {
+	child, err := s.q.GetChildByUsername(ctx, username)
 	if err != nil {
 		return nil, errors.New("invalid credentials")
 	}

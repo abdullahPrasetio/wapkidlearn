@@ -1,6 +1,5 @@
 'use client'
 
-import { use } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import { useRouter } from 'next/navigation'
@@ -47,8 +46,8 @@ const typeConfig: Record<string, { icon: string; bg: string; detail: (a: Activit
   },
 }
 
-export default function ChildActivityPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function ChildActivityPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const router = useRouter()
 
   const { data, isLoading } = useQuery({
@@ -60,29 +59,8 @@ export default function ChildActivityPage({ params }: { params: Promise<{ id: st
   const grouped = groupByDay(activities)
 
   return (
-    <div className="bg-wkl-surface text-wkl-on-surface font-sans min-h-screen flex flex-col">
-      {/* Mobile header */}
-      <header className="bg-wkl-surface-lowest border-b border-wkl-outline-variant sticky top-0 z-40 flex justify-between items-center w-full px-4 py-4 md:hidden">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="text-wkl-on-surface-variant hover:opacity-80 transition-opacity flex items-center justify-center w-11 h-11"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-base font-semibold text-wkl-on-surface">Aktivitas</h1>
-        </div>
-      </header>
-
-      <div className="flex flex-1 w-full max-w-[1440px] mx-auto">
-        <main className="flex-1 px-4 py-6 md:px-8 md:py-8 bg-wkl-background max-w-3xl">
-          {/* Desktop header */}
-          <div className="hidden md:flex items-center gap-4 mb-8">
-            <button onClick={() => router.back()} className="text-wkl-on-surface-variant hover:opacity-80 flex items-center justify-center">
-              <span className="material-symbols-outlined">arrow_back</span>
-            </button>
-            <h1 className="text-2xl font-bold text-wkl-on-background">Aktivitas</h1>
-          </div>
+    <div className="bg-wkl-background text-wkl-on-surface font-sans">
+      <main className="px-4 py-6 md:px-8 md:py-8 max-w-2xl mx-auto w-full">
 
           {isLoading ? (
             <div className="space-y-3">
@@ -135,8 +113,7 @@ export default function ChildActivityPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
           )}
-        </main>
-      </div>
+      </main>
     </div>
   )
 }

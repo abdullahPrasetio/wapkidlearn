@@ -1,0 +1,2 @@
+-- Tidak ada rollback otomatis — username yang diganti tidak bisa dikembalikan ke nilai lama.
+-- Jalankan hanya jika 012 up belum diapply ke production.

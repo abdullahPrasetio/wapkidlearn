@@ -124,6 +124,7 @@ export interface ChildProfile {
   id: string
   user_id: string
   display_name: string
+  username: string
   grade_level: number
   current_level: number
   is_locked: boolean

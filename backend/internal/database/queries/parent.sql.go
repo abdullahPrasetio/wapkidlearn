@@ -12,13 +12,14 @@ import (
 )
 
 const createChildProfile = `-- name: CreateChildProfile :one
-INSERT INTO child_profiles (user_id, parent_id, display_name, pin_hash, grade_level, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar
+INSERT INTO child_profiles (user_id, parent_id, display_name, username, pin_hash, grade_level, avatar) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar, username
 `
 
 type CreateChildProfileParams struct {
 	UserID      pgtype.UUID `json:"user_id"`
 	ParentID    pgtype.UUID `json:"parent_id"`
 	DisplayName string      `json:"display_name"`
+	Username    string      `json:"username"`
 	PinHash     string      `json:"pin_hash"`
 	GradeLevel  int32       `json:"grade_level"`
 	Avatar      *string     `json:"avatar"`
@@ -29,6 +30,7 @@ func (q *Queries) CreateChildProfile(ctx context.Context, arg CreateChildProfile
 		arg.UserID,
 		arg.ParentID,
 		arg.DisplayName,
+		arg.Username,
 		arg.PinHash,
 		arg.GradeLevel,
 		arg.Avatar,
@@ -44,6 +46,7 @@ func (q *Queries) CreateChildProfile(ctx context.Context, arg CreateChildProfile
 		&i.CurrentLevel,
 		&i.IsLocked,
 		&i.Avatar,
+		&i.Username,
 	)
 	return i, err
 }
@@ -145,7 +148,7 @@ func (q *Queries) GetChildAnalytics(ctx context.Context, childID pgtype.UUID) ([
 }
 
 const getChildrenByParentID = `-- name: GetChildrenByParentID :many
-SELECT cp.id, cp.user_id, cp.parent_id, cp.display_name, cp.pin_hash, cp.grade_level, cp.current_level, cp.is_locked, cp.avatar, u.email, u.is_active FROM child_profiles cp JOIN users u ON u.id = cp.user_id WHERE cp.parent_id = $1
+SELECT cp.id, cp.user_id, cp.parent_id, cp.display_name, cp.pin_hash, cp.grade_level, cp.current_level, cp.is_locked, cp.avatar, cp.username, u.email, u.is_active FROM child_profiles cp JOIN users u ON u.id = cp.user_id WHERE cp.parent_id = $1
 `
 
 type GetChildrenByParentIDRow struct {
@@ -158,6 +161,7 @@ type GetChildrenByParentIDRow struct {
 	CurrentLevel *int32      `json:"current_level"`
 	IsLocked     *bool       `json:"is_locked"`
 	Avatar       *string     `json:"avatar"`
+	Username     string      `json:"username"`
 	Email        *string     `json:"email"`
 	IsActive     *bool       `json:"is_active"`
 }
@@ -181,6 +185,7 @@ func (q *Queries) GetChildrenByParentID(ctx context.Context, parentID pgtype.UUI
 			&i.CurrentLevel,
 			&i.IsLocked,
 			&i.Avatar,
+			&i.Username,
 			&i.Email,
 			&i.IsActive,
 		); err != nil {

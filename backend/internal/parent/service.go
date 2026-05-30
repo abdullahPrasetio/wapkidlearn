@@ -6,14 +6,20 @@ import (
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"sort"
+	"strings"
+	"time"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/pkg/pgutil"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var usernameRe = regexp.MustCompile(`^[a-z0-9_]{3,30}$`)
 
 type Service struct {
 	q    *db.Queries
@@ -30,10 +36,11 @@ type ChildWithSettings struct {
 }
 
 type CreateChildRequest struct {
-	DisplayName  string `json:"display_name"`
-	PIN          string `json:"pin"`
-	GradeLevel   int32  `json:"grade_level"`
-	Avatar       string `json:"avatar"`
+	DisplayName string `json:"display_name"`
+	Username    string `json:"username"`
+	PIN         string `json:"pin"`
+	GradeLevel  int32  `json:"grade_level"`
+	Avatar      string `json:"avatar"`
 }
 
 type SettingsRequest struct {
@@ -101,14 +108,18 @@ func (s *Service) GetChildren(ctx context.Context, parentID string) ([]ChildWith
 }
 
 func (s *Service) CreateChild(ctx context.Context, parentID string, req CreateChildRequest) (*db.ChildProfile, error) {
-	if req.DisplayName == "" || req.PIN == "" {
-		return nil, errors.New("display_name and pin are required")
+	if req.DisplayName == "" || req.PIN == "" || req.Username == "" {
+		return nil, errors.New("display_name, username, and pin are required")
 	}
 	if req.GradeLevel < 1 || req.GradeLevel > 6 {
 		return nil, errors.New("grade_level must be between 1 and 6")
 	}
 	if len(req.PIN) != 4 {
 		return nil, errors.New("pin must be 4 digits")
+	}
+	req.Username = strings.ToLower(strings.TrimSpace(req.Username))
+	if !usernameRe.MatchString(req.Username) {
+		return nil, errors.New("username hanya boleh huruf kecil, angka, dan underscore (3–30 karakter)")
 	}
 
 	pid, err := pgutil.ParseUUID(parentID)
@@ -144,12 +155,16 @@ func (s *Service) CreateChild(ctx context.Context, parentID string, req CreateCh
 	// Create child profile
 	var child db.ChildProfile
 	err = tx.QueryRow(ctx,
-		`INSERT INTO child_profiles (user_id, parent_id, display_name, pin_hash, grade_level, avatar)
-		 VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar`,
-		childUserID, pid, req.DisplayName, string(pinHash), req.GradeLevel, avatar,
+		`INSERT INTO child_profiles (user_id, parent_id, display_name, username, pin_hash, grade_level, avatar)
+		 VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar, username`,
+		childUserID, pid, req.DisplayName, req.Username, string(pinHash), req.GradeLevel, avatar,
 	).Scan(&child.ID, &child.UserID, &child.ParentID, &child.DisplayName, &child.PinHash,
-		&child.GradeLevel, &child.CurrentLevel, &child.IsLocked, &child.Avatar)
+		&child.GradeLevel, &child.CurrentLevel, &child.IsLocked, &child.Avatar, &child.Username)
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
+			return nil, errors.New("username sudah digunakan, coba yang lain")
+		}
 		return nil, err
 	}
 
@@ -381,16 +396,29 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 	if err != nil {
 		return nil, fmt.Errorf("GetActivityFeed sessions: %w", err)
 	}
+	wib := time.FixedZone("WIB", 7*3600)
 	for _, gs := range sessions {
 		if !gs.StartedAt.Valid {
 			continue
 		}
-		detail := fmt.Sprintf("%d/%d benar, %d poin", gs.CorrectCount, gs.TotalQuestions, gs.PointsEarned)
+		correct := int32(0)
+		total := int32(0)
+		points := int32(0)
+		if gs.CorrectCount != nil {
+			correct = *gs.CorrectCount
+		}
+		if gs.TotalQuestions != nil {
+			total = *gs.TotalQuestions
+		}
+		if gs.PointsEarned != nil {
+			points = *gs.PointsEarned
+		}
+		detail := fmt.Sprintf("%d/%d benar, %d poin", correct, total, points)
 		items = append(items, ActivityItem{
-			Type:      "game",
-			Title:     "Main Game",
-			Detail:    detail,
-			OccurredAt: gs.StartedAt.Time.Format("2006-01-02T15:04:05Z"),
+			Type:       "game",
+			Title:      "Main Game",
+			Detail:     detail,
+			OccurredAt: gs.StartedAt.Time.In(wib).Format("2006-01-02T15:04:05+07:00"),
 		})
 	}
 
@@ -405,10 +433,10 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 		mins := w.DurationSeconds / 60
 		detail := fmt.Sprintf("%d menit", mins)
 		items = append(items, ActivityItem{
-			Type:      "watch",
-			Title:     w.Title,
-			Detail:    detail,
-			OccurredAt: w.WatchedAt.Time.Format("2006-01-02T15:04:05Z"),
+			Type:       "watch",
+			Title:      w.Title,
+			Detail:     detail,
+			OccurredAt: w.WatchedAt.Time.In(wib).Format("2006-01-02T15:04:05+07:00"),
 		})
 	}
 

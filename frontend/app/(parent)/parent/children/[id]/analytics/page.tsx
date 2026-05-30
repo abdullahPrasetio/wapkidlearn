@@ -1,6 +1,5 @@
 'use client'
 
-import { use } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import Link from 'next/link'
@@ -24,8 +23,8 @@ function BarChart({ data, color }: { data: { value: number; label: string }[]; c
   )
 }
 
-export default function ChildAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function ChildAnalyticsPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const { data, isLoading } = useQuery({
     queryKey: ['analytics', id],
     queryFn: () => parent.getAnalytics(id),
@@ -45,19 +44,8 @@ export default function ChildAnalyticsPage({ params }: { params: Promise<{ id: s
   const avgWatch = watchData.length ? Math.round(watchData.reduce((s, d) => s + d.value, 0) / watchData.length) : 0
 
   return (
-    <div className="min-h-screen bg-wkl-surface text-wkl-on-surface pb-16 md:pb-0">
-      {/* Header */}
-      <header className="bg-wkl-surface border-b border-wkl-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40">
-        <div className="flex items-center gap-2">
-          <Link href={`/parent/children/${id}`} className="flex items-center gap-1 text-wkl-on-surface-variant">
-            <span className="material-symbols-outlined">arrow_back</span>
-          </Link>
-          <span className="text-base font-bold text-wkl-on-surface">WapKidLearn</span>
-        </div>
-        <span className="material-symbols-outlined text-wkl-primary text-2xl">account_circle</span>
-      </header>
-
-      <main className="max-w-3xl mx-auto px-4 md:px-0 md:mt-4">
+    <div className="bg-wkl-background text-wkl-on-surface pb-16 md:pb-0">
+      <main className="max-w-2xl mx-auto px-4 md:px-0 mt-4">
         {/* Section header */}
         <div className="py-6">
           <h1 className="text-2xl font-bold text-wkl-on-surface">Analitik</h1>

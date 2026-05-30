@@ -21,3 +21,6 @@ SELECT * FROM parent_settings WHERE child_id = $1;
 
 -- name: GetChildGradeLevel :one
 SELECT grade_level FROM child_profiles WHERE id = $1;
+
+-- name: GetChildByUsername :one
+SELECT * FROM child_profiles WHERE username = $1;

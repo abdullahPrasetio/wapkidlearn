@@ -32,6 +32,7 @@ type ChildProfile struct {
 	CurrentLevel *int32      `json:"current_level"`
 	IsLocked     *bool       `json:"is_locked"`
 	Avatar       *string     `json:"avatar"`
+	Username     string      `json:"username"`
 }
 
 type GameAnswer struct {

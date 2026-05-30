@@ -18,3 +18,8 @@ export function formatPoints(n: number): string {
 export function calcWatchMinutes(points: number, rate: number): number {
   return Math.floor(points / rate)
 }
+
+export function avatarDisplay(av?: string | null): string {
+  if (!av) return '🦊'
+  return /^\p{Emoji}/u.test(av) ? av : '🦊'
+}

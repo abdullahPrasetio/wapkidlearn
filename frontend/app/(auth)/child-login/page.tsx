@@ -11,7 +11,7 @@ const AVATARS = ['🦊', '🐱', '🐻', '🐼', '🐸', '🦁']
 
 export default function ChildLoginPage() {
   const router = useRouter()
-  const [childId, setChildId] = useState('')
+  const [username, setUsername] = useState('')
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
@@ -35,7 +35,7 @@ export default function ChildLoginPage() {
     setError('')
     setLoading(true)
     try {
-      await auth.childLogin(childId, pinValue)
+      await auth.childLogin(username, pinValue)
       setStoredRole('child')
       router.replace('/child/home')
     } catch (err) {
@@ -107,16 +107,16 @@ export default function ChildLoginPage() {
         <div className="w-full max-w-xs space-y-3">
           <input
             type="text"
-            value={childId}
-            onChange={(e) => setChildId(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter' && childId) setStep('pin') }}
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter' && username) setStep('pin') }}
             className="w-full bg-white/20 border-2 border-white/40 text-white placeholder-white/60 rounded-2xl px-4 py-3 text-center text-lg font-bold focus:outline-none focus:border-white"
-            placeholder="Masukkan ID kamu"
+            placeholder="Masukkan Username kamu"
             autoComplete="off"
           />
           <button
             onClick={() => setStep('pin')}
-            disabled={!childId.trim()}
+            disabled={!username.trim()}
             className="w-full bg-white text-orange-500 font-extrabold py-3.5 rounded-2xl text-lg shadow-lg hover:bg-orange-50 transition disabled:opacity-50 active:scale-95"
           >
             Lanjut →
@@ -140,12 +140,12 @@ export default function ChildLoginPage() {
         <div className="w-12" />
       </div>
 
-      {/* Avatar */}
+      {/* Username display */}
       <div className="flex flex-col items-center py-6">
         <div className="w-20 h-20 bg-white/30 rounded-full flex items-center justify-center text-4xl mb-2">
-          {AVATARS[selectedAvatar]}
+          🦉
         </div>
-        <span className="text-white font-bold text-lg">{childId}</span>
+        <span className="text-white font-bold text-lg">@{username}</span>
       </div>
 
       {/* PIN dots */}

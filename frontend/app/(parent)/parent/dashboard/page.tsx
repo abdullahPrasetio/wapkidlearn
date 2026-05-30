@@ -1,35 +1,21 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
-import { parent, auth } from '@/lib/api'
-import { clearStoredRole } from '@/lib/auth'
-import { useRouter } from 'next/navigation'
+import { parent } from '@/lib/api'
+import { avatarDisplay } from '@/lib/utils'
 import Link from 'next/link'
 
 export default function ParentDashboardPage() {
-  const router = useRouter()
   const { data: children, isLoading } = useQuery({
     queryKey: ['children'],
     queryFn: parent.listChildren,
   })
 
-  const handleLogout = async () => {
-    await auth.logout().catch(() => {})
-    clearStoredRole()
-    router.replace('/login')
-  }
-
   return (
     <div className="min-h-screen bg-wkl-background pb-8">
       {/* Header */}
-      <header className="bg-wkl-surface-lowest border-b border-wkl-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-50">
+      <header className="bg-wkl-surface-lowest border-b border-wkl-outline-variant flex items-center w-full px-6 py-4 sticky top-0 z-40">
         <h1 className="text-xl font-bold text-wkl-on-surface">Anak Saya 👨‍👩‍👧</h1>
-        <button
-          onClick={handleLogout}
-          className="text-wkl-on-surface-variant hover:text-wkl-error transition-colors flex items-center gap-1"
-        >
-          <span className="material-symbols-outlined text-2xl">logout</span>
-        </button>
       </header>
 
       <main className="px-4 py-6 md:max-w-2xl md:mx-auto">
@@ -60,12 +46,13 @@ export default function ParentDashboardPage() {
               >
                 {/* Avatar */}
                 <div className={`w-16 h-16 rounded-full flex items-center justify-center text-2xl border-2 shrink-0 ${child.is_locked ? 'bg-wkl-surface-variant border-wkl-outline-variant grayscale' : 'bg-wkl-surface-container border-wkl-secondary-fixed'}`}>
-                  {child.is_locked ? '🔒' : '🦊'}
+                  {child.is_locked ? '🔒' : avatarDisplay(child.avatar)}
                 </div>
 
                 <div className="flex-1 min-w-0">
                   <div className="flex justify-between items-start mb-2">
                     <h2 className="text-base font-semibold text-wkl-on-surface">{child.display_name}</h2>
+                    <p className="text-xs text-wkl-on-surface-variant font-mono">@{child.username}</p>
                     <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${child.is_locked ? 'bg-wkl-error text-wkl-on-error' : 'bg-wkl-surface-container text-wkl-secondary'}`}>
                       <span className="material-symbols-outlined text-[14px]">
                         {child.is_locked ? 'lock' : 'check_circle'}

@@ -68,10 +68,10 @@ export const auth = {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     }),
-  childLogin: (childId: string, pin: string) =>
+  childLogin: (username: string, pin: string) =>
     request<{ role: string; user_id: string }>('/auth/child/login', {
       method: 'POST',
-      body: JSON.stringify({ child_id: childId, pin }),
+      body: JSON.stringify({ username, pin }),
     }),
   logout: () => request<void>('/auth/logout', { method: 'POST' }),
 }
@@ -138,8 +138,10 @@ export const parent = {
   listChildren: () => request<ChildProfile[]>('/parent/children'),
   addChild: (body: {
     display_name: string
+    username: string
     pin: string
     grade_level: number
+    avatar?: string
   }) =>
     request<ChildProfile>('/parent/children', {
       method: 'POST',

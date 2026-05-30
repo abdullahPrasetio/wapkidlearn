@@ -37,7 +37,7 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 }
 
 const getChildByID = `-- name: GetChildByID :one
-SELECT id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar FROM child_profiles WHERE id = $1
+SELECT id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar, username FROM child_profiles WHERE id = $1
 `
 
 func (q *Queries) GetChildByID(ctx context.Context, id pgtype.UUID) (ChildProfile, error) {
@@ -53,12 +53,13 @@ func (q *Queries) GetChildByID(ctx context.Context, id pgtype.UUID) (ChildProfil
 		&i.CurrentLevel,
 		&i.IsLocked,
 		&i.Avatar,
+		&i.Username,
 	)
 	return i, err
 }
 
 const getChildByUserID = `-- name: GetChildByUserID :one
-SELECT id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar FROM child_profiles WHERE user_id = $1
+SELECT id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar, username FROM child_profiles WHERE user_id = $1
 `
 
 func (q *Queries) GetChildByUserID(ctx context.Context, userID pgtype.UUID) (ChildProfile, error) {
@@ -74,6 +75,29 @@ func (q *Queries) GetChildByUserID(ctx context.Context, userID pgtype.UUID) (Chi
 		&i.CurrentLevel,
 		&i.IsLocked,
 		&i.Avatar,
+		&i.Username,
+	)
+	return i, err
+}
+
+const getChildByUsername = `-- name: GetChildByUsername :one
+SELECT id, user_id, parent_id, display_name, pin_hash, grade_level, current_level, is_locked, avatar, username FROM child_profiles WHERE username = $1
+`
+
+func (q *Queries) GetChildByUsername(ctx context.Context, username string) (ChildProfile, error) {
+	row := q.db.QueryRow(ctx, getChildByUsername, username)
+	var i ChildProfile
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.ParentID,
+		&i.DisplayName,
+		&i.PinHash,
+		&i.GradeLevel,
+		&i.CurrentLevel,
+		&i.IsLocked,
+		&i.Avatar,
+		&i.Username,
 	)
 	return i, err
 }

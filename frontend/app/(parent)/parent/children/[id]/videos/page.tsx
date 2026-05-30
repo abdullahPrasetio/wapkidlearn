@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import type { VideoStatus } from '@/lib/types'
@@ -20,8 +20,8 @@ const STATUS_BADGE: Record<VideoStatus, { label: string; className: string }> = 
   rejected: { label: 'Ditolak', className: 'bg-[#FEE2E2] text-[#991B1B]' },
 }
 
-export default function ParentVideoPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id: childId } = use(params)
+export default function ParentVideoPage({ params }: { params: { id: string } }) {
+  const { id: childId } = params
   const router = useRouter()
   const qc = useQueryClient()
 
@@ -64,19 +64,8 @@ export default function ParentVideoPage({ params }: { params: Promise<{ id: stri
   const filtered = videoList?.filter((v) => v.status === TABS.find((t) => t.key === tab)?.status) ?? []
 
   return (
-    <div className="min-h-screen bg-wkl-background text-wkl-on-background pb-24 md:pb-0">
-      {/* Header */}
-      <header className="bg-wkl-surface border-b border-wkl-outline-variant flex justify-between items-center w-full px-6 py-4 sticky z-40 top-0">
-        <div className="flex items-center gap-2">
-          <button onClick={() => router.back()} className="md:hidden p-2 text-wkl-on-surface-variant">
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <h1 className="text-xl font-bold text-wkl-primary">WapKidLearn</h1>
-        </div>
-        <span className="material-symbols-outlined text-wkl-on-surface-variant text-2xl">account_circle</span>
-      </header>
-
-      <main className="max-w-5xl mx-auto px-4 py-6 md:px-6 md:py-8">
+    <div className="bg-wkl-background text-wkl-on-background pb-24 md:pb-0">
+      <main className="max-w-2xl mx-auto px-4 py-6 md:px-6 md:py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
           <div>
             <h1 className="text-2xl font-bold text-wkl-on-background mb-1">Kelola Video</h1>

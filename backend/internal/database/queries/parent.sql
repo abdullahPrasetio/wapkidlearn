@@ -5,7 +5,7 @@ SELECT cp.*, u.email, u.is_active FROM child_profiles cp JOIN users u ON u.id = 
 INSERT INTO users (role) VALUES ('child') RETURNING *;
 
 -- name: CreateChildProfile :one
-INSERT INTO child_profiles (user_id, parent_id, display_name, pin_hash, grade_level, avatar) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
+INSERT INTO child_profiles (user_id, parent_id, display_name, username, pin_hash, grade_level, avatar) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
 
 -- name: UpdateParentSettings :one
 INSERT INTO parent_settings (child_id, daily_watch_limit_minutes, conversion_rate, allowed_hours, require_study_first, min_study_minutes)

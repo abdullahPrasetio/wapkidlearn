@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"strings"
 	"time"
 	"wapkidlearn/pkg/ratelimit"
 	"wapkidlearn/pkg/response"
@@ -50,8 +51,8 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 }
 
 type childLoginRequest struct {
-	ChildID string `json:"child_id"`
-	PIN     string `json:"pin"`
+	Username string `json:"username"`
+	PIN      string `json:"pin"`
 }
 
 func (h *Handler) ChildLogin(c *fiber.Ctx) error {
@@ -59,15 +60,16 @@ func (h *Handler) ChildLogin(c *fiber.Ctx) error {
 	if err := validator.BindAndValidate(c, &req); err != nil {
 		return response.BadRequest(c, "invalid request body")
 	}
-	if req.ChildID == "" || req.PIN == "" {
-		return response.BadRequest(c, "child_id and pin are required")
+	if req.Username == "" || req.PIN == "" {
+		return response.BadRequest(c, "username and pin are required")
 	}
+	req.Username = strings.ToLower(strings.TrimSpace(req.Username))
 
-	if !h.authLimiter.Allow("child_login:"+req.ChildID, 5, time.Minute) {
+	if !h.authLimiter.Allow("child_login:"+req.Username, 5, time.Minute) {
 		return response.TooManyRequests(c, "too many login attempts, try again later")
 	}
 
-	res, err := h.svc.ChildLogin(c.Context(), req.ChildID, req.PIN)
+	res, err := h.svc.ChildLogin(c.Context(), req.Username, req.PIN)
 	if err != nil {
 		return response.Unauthorized(c, err.Error())
 	}

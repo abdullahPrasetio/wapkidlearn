@@ -1,13 +1,13 @@
 'use client'
 
-import { use } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
+import { avatarDisplay } from '@/lib/utils'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-export default function ChildDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function ChildDetailPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const router = useRouter()
   const qc = useQueryClient()
 
@@ -65,27 +65,12 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="min-h-screen bg-wkl-background pb-6">
-      {/* Mobile Header */}
-      <header className="flex justify-between items-center w-full px-6 py-4 bg-wkl-surface border-b border-wkl-outline-variant sticky top-0 z-40 md:hidden">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.back()}>
-          <span className="material-symbols-outlined text-wkl-primary">arrow_back</span>
-          <span className="text-xl font-bold text-wkl-primary">{child.display_name}</span>
-        </div>
-        <span className="material-symbols-outlined text-wkl-primary text-[28px]">account_circle</span>
-      </header>
-
-      <main className="flex-1 md:ml-0 pb-6 px-4 md:px-8 max-w-4xl mx-auto w-full">
-        {/* Desktop back */}
-        <div className="hidden md:flex items-center gap-2 mb-6 mt-6 cursor-pointer hover:text-wkl-primary transition-colors w-fit" onClick={() => router.back()}>
-          <span className="material-symbols-outlined">arrow_back</span>
-          <span className="text-sm font-medium">Kembali ke Dashboard</span>
-        </div>
-
+      <main className="pb-6 px-4 md:px-8 max-w-2xl mx-auto w-full">
         {/* Hero Profile */}
         <section className="flex flex-col items-center mb-8 mt-4">
           <div className="relative mb-4">
             <div className="w-32 h-32 rounded-full bg-wkl-surface-container border-4 border-wkl-surface-lowest shadow-md flex items-center justify-center text-5xl">
-              🦊
+              {avatarDisplay(child.avatar)}
             </div>
             {/* Lock toggle badge */}
             <button
@@ -102,6 +87,7 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
             </button>
           </div>
           <h1 className="text-xl font-semibold text-wkl-on-surface mb-1">{child.display_name}</h1>
+          <p className="text-xs text-wkl-on-surface-variant font-mono mb-1">@{child.username}</p>
           <p className="text-sm text-wkl-on-surface-variant bg-wkl-surface-high px-3 py-1 rounded-full border border-wkl-outline-variant/30">
             Kelas {child.grade_level} SD
           </p>

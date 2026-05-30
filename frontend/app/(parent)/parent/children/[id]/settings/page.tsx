@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import Link from 'next/link'
@@ -32,8 +32,8 @@ function Stepper({ value, onChange, min = 0, max = 200, step = 5 }: {
   )
 }
 
-export default function ChildSettingsPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params)
+export default function ChildSettingsPage({ params }: { params: { id: string } }) {
+  const { id } = params
   const router = useRouter()
   const qc = useQueryClient()
 
@@ -100,19 +100,8 @@ export default function ChildSettingsPage({ params }: { params: Promise<{ id: st
   }
 
   return (
-    <div className="min-h-screen bg-wkl-background text-wkl-on-surface pb-24">
-      {/* Header */}
-      <header className="bg-wkl-surface border-b border-wkl-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-          <button onClick={() => router.back()} className="p-2 text-wkl-on-surface hover:bg-wkl-surface-variant rounded-full transition-colors">
-            <span className="material-symbols-outlined text-2xl">arrow_back</span>
-          </button>
-          <h1 className="text-xl font-bold text-wkl-primary">Pengaturan</h1>
-        </div>
-        <span className="material-symbols-outlined text-wkl-on-surface-variant text-xl">account_circle</span>
-      </header>
-
-      <main className="max-w-3xl mx-auto p-4 md:p-6 space-y-8">
+    <div className="bg-wkl-background text-wkl-on-surface pb-24">
+      <main className="max-w-2xl mx-auto p-4 md:p-6 space-y-8">
         {/* Keamanan */}
         <section className="bg-wkl-surface-lowest rounded-xl border border-wkl-outline-variant p-4">
           <div className="flex items-center gap-2 mb-4">
