@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Analitik Budi - WapKidLearn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                        "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                        "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-bright text-on-surface font-body-admin min-h-screen pb-xxl md:pb-0">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant flex justify-between items-center w-full px-lg py-md md:px-xl sticky top-0 z-40">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full overflow-hidden border border-outline-variant bg-surface-container-low flex items-center justify-center">
+<img alt="Owl mascot wearing a graduation cap" class="w-full h-full object-cover" data-alt="A highly detailed 3D render of a cute, stylized owl mascot wearing a tiny blue graduation cap. The owl is bright orange with large, friendly eyes and soft, rounded geometry, designed to look like a premium app character. The background is pure white to isolate the subject. The lighting is soft and studio-quality, creating a cheerful and approachable learning vibe." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAulqnnV7hJjBgiWRsXl_cMN5tq3Em8yRnuDn1Er6qOvOp9cIPC0qTfwogHFZh3DDNfw4kVuXliK20WdpzpntyQW9o-wmyVth8mPiuOlS0ayIVs11dfiHHrET8mYJ1wsIMnNxwqPJDYb7ZQNKBrTh0PpPEDu6L8ABJ_vrqq6b6FItBqppytKG3tP6VrGaXqjpupyR7f8T-zMl25e0skil2VILQdBV-CXt36zccqrzKlMtXef6V1YDZnI5OEppb6SoJJzbdviBJkqeXu"/>
+</div>
+<span class="font-display-child text-primary text-xl font-bold tracking-tight">WapKidLearn</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:opacity-80 transition-opacity text-primary">
+<span class="material-symbols-outlined text-2xl">account_circle</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="max-w-3xl mx-auto md:mt-lg px-md md:px-0">
+<!-- Header Section -->
+<div class="py-lg">
+<h1 class="font-h1-admin text-h1-admin text-on-surface">Analitik Budi</h1>
+<p class="font-body-admin text-body-admin text-on-surface-variant mt-xs">Ringkasan performa belajar minggu ini</p>
+</div>
+<!-- Stats Row -->
+<div class="grid grid-cols-2 gap-md mb-lg">
+<div class="border border-outline-variant rounded-lg p-md bg-surface-container-lowest flex items-center gap-md">
+<div class="text-3xl">🔥</div>
+<div>
+<p class="font-label-admin text-label-admin text-on-surface-variant">Current Streak</p>
+<p class="font-h2-admin text-h2-admin text-on-surface">3 Hari</p>
+</div>
+</div>
+<div class="border border-outline-variant rounded-lg p-md bg-surface-container-lowest flex items-center gap-md">
+<div class="text-3xl">🏅</div>
+<div>
+<p class="font-label-admin text-label-admin text-on-surface-variant">Longest Streak</p>
+<p class="font-h2-admin text-h2-admin text-on-surface">10 Hari</p>
+</div>
+</div>
+</div>
+<!-- Chart: Poin per Hari -->
+<div class="border border-outline-variant rounded-lg p-lg bg-surface-container-lowest mb-lg">
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-h2-admin text-h2-admin text-on-surface">Poin per Hari</h2>
+<span class="font-label-admin text-label-admin text-primary bg-primary-fixed px-sm py-xs rounded-full">Total: 450</span>
+</div>
+<div class="flex items-end justify-between h-40 gap-xs border-b border-surface-variant pb-xs">
+<!-- Bar Mon -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 30%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sen</span>
+</div>
+<!-- Bar Tue -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 50%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sel</span>
+</div>
+<!-- Bar Wed -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 20%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Rab</span>
+</div>
+<!-- Bar Thu -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 80%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Kam</span>
+</div>
+<!-- Bar Fri -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 60%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Jum</span>
+</div>
+<!-- Bar Sat -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 90%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sab</span>
+</div>
+<!-- Bar Sun -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-primary-container rounded-t-sm transition-all duration-300 group-hover:bg-primary" style="height: 40%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Min</span>
+</div>
+</div>
+</div>
+<!-- Chart: Waktu Nonton per Hari -->
+<div class="border border-outline-variant rounded-lg p-lg bg-surface-container-lowest mb-lg">
+<div class="flex justify-between items-end mb-md">
+<h2 class="font-h2-admin text-h2-admin text-on-surface">Waktu Belajar (Menit)</h2>
+<span class="font-label-admin text-label-admin text-secondary bg-secondary-fixed px-sm py-xs rounded-full">Rata-rata: 25m</span>
+</div>
+<div class="flex items-end justify-between h-32 gap-xs border-b border-surface-variant pb-xs">
+<!-- Bar Mon -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 20%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sen</span>
+</div>
+<!-- Bar Tue -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 40%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sel</span>
+</div>
+<!-- Bar Wed -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 15%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Rab</span>
+</div>
+<!-- Bar Thu -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 60%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Kam</span>
+</div>
+<!-- Bar Fri -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 35%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Jum</span>
+</div>
+<!-- Bar Sat -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 80%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Sab</span>
+</div>
+<!-- Bar Sun -->
+<div class="flex flex-col items-center flex-1 h-full justify-end group">
+<div class="w-full max-w-[24px] bg-secondary rounded-t-sm transition-all duration-300 opacity-80 group-hover:opacity-100" style="height: 25%;"></div>
+<span class="font-label-admin text-label-admin text-on-surface-variant mt-sm">Min</span>
+</div>
+</div>
+</div>
+<!-- Horizontal Bar Chart: Akurasi per Topik -->
+<div class="border border-outline-variant rounded-lg p-lg bg-surface-container-lowest mb-xl">
+<h2 class="font-h2-admin text-h2-admin text-on-surface mb-lg">Akurasi per Topik</h2>
+<div class="flex flex-col gap-lg">
+<!-- Topic 1 -->
+<div>
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-admin text-body-admin text-on-surface font-medium">Penjumlahan</span>
+<span class="font-label-admin text-label-admin text-secondary-container font-semibold">90%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 90%"></div>
+</div>
+</div>
+<!-- Topic 2 -->
+<div>
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-admin text-body-admin text-on-surface font-medium">Pengurangan</span>
+<span class="font-label-admin text-label-admin text-secondary-container font-semibold">85%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-secondary-container rounded-full" style="width: 85%"></div>
+</div>
+</div>
+<!-- Topic 3 -->
+<div>
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-admin text-body-admin text-on-surface font-medium">Perkalian Dasar</span>
+<span class="font-label-admin text-label-admin text-primary-container font-semibold">75%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full" style="width: 75%"></div>
+</div>
+</div>
+<!-- Topic 4 -->
+<div>
+<div class="flex justify-between items-center mb-sm">
+<span class="font-body-admin text-body-admin text-on-surface font-medium">Pola Angka</span>
+<span class="font-label-admin text-label-admin text-error font-semibold">45%</span>
+</div>
+<div class="w-full h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 45%"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe pt-xs md:hidden bg-surface-container-lowest shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] rounded-t-xl">
+<button class="flex flex-col items-center justify-center text-on-surface-variant font-label-admin text-label-admin hover:bg-surface-variant p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined mb-1">sports_esports</span>
+<span>Play</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant font-label-admin text-label-admin hover:bg-surface-variant p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined mb-1">school</span>
+<span>Learn</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant font-label-admin text-label-admin hover:bg-surface-variant p-2 rounded-lg transition-colors">
+<span class="material-symbols-outlined mb-1">emoji_events</span>
+<span>Awards</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 font-label-admin text-label-admin scale-90 duration-200">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">person</span>
+<span>Profile</span>
+</button>
+</nav>
+</body></html>

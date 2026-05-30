@@ -68,10 +68,10 @@ type AnalyticsResponse struct {
 }
 
 type ActivityItem struct {
-	Type      string `json:"type"` // "game" | "watch"
-	Title     string `json:"title"`
-	Detail    string `json:"detail"`
-	OccuredAt string `json:"occurred_at"`
+	Type        string `json:"type"` // "game" | "watch"
+	Title       string `json:"title"`
+	Detail      string `json:"detail"`
+	OccurredAt  string `json:"occurred_at"`
 }
 
 type ActivityFeedResponse struct {
@@ -311,6 +311,9 @@ func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*
 	for d, p := range ppd {
 		pointsPerDay = append(pointsPerDay, PointsPerDay{Date: d, Points: p})
 	}
+	sort.Slice(pointsPerDay, func(i, j int) bool {
+		return pointsPerDay[i].Date < pointsPerDay[j].Date
+	})
 
 	// watch_time_per_day
 	watches, err := s.q.GetWatchHistoriesByChild(ctx, cid)
@@ -328,6 +331,9 @@ func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*
 	for d, m := range wpd {
 		watchPerDay = append(watchPerDay, WatchTimePerDay{Date: d, Minutes: m})
 	}
+	sort.Slice(watchPerDay, func(i, j int) bool {
+		return watchPerDay[i].Date < watchPerDay[j].Date
+	})
 
 	// accuracy_per_topic
 	topicRows, err := s.q.GetChildAccuracyPerTopic(ctx, cid)
@@ -371,7 +377,10 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 
 	items := []ActivityItem{}
 
-	sessions, _ := s.q.GetChildAnalytics(ctx, cid)
+	sessions, err := s.q.GetChildAnalytics(ctx, cid)
+	if err != nil {
+		return nil, fmt.Errorf("GetActivityFeed sessions: %w", err)
+	}
 	for _, gs := range sessions {
 		if !gs.StartedAt.Valid {
 			continue
@@ -381,11 +390,14 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 			Type:      "game",
 			Title:     "Main Game",
 			Detail:    detail,
-			OccuredAt: gs.StartedAt.Time.Format("2006-01-02T15:04:05Z"),
+			OccurredAt: gs.StartedAt.Time.Format("2006-01-02T15:04:05Z"),
 		})
 	}
 
-	watches, _ := s.q.GetWatchHistoriesByChild(ctx, cid)
+	watches, err := s.q.GetWatchHistoriesByChild(ctx, cid)
+	if err != nil {
+		return nil, fmt.Errorf("GetActivityFeed watches: %w", err)
+	}
 	for _, w := range watches {
 		if !w.WatchedAt.Valid {
 			continue
@@ -396,13 +408,13 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 			Type:      "watch",
 			Title:     w.Title,
 			Detail:    detail,
-			OccuredAt: w.WatchedAt.Time.Format("2006-01-02T15:04:05Z"),
+			OccurredAt: w.WatchedAt.Time.Format("2006-01-02T15:04:05Z"),
 		})
 	}
 
 	// sort by time descending
 	sort.Slice(items, func(i, j int) bool {
-		return items[i].OccuredAt > items[j].OccuredAt
+		return items[i].OccurredAt > items[j].OccurredAt
 	})
 
 	return &ActivityFeedResponse{Activities: items}, nil

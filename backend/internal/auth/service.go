@@ -111,31 +111,39 @@ func (s *Service) ChildLogin(ctx context.Context, childID, pin string) (*LoginRe
 	}, nil
 }
 
-// Refresh validates a refresh token and issues a new access token.
-func (s *Service) Refresh(ctx context.Context, refreshToken string) (string, error) {
+// Refresh validates a refresh token and issues a new access token + rotated refresh token.
+func (s *Service) Refresh(ctx context.Context, refreshToken string) (accessToken, newRefreshToken string, err error) {
 	claims, err := pkgjwt.Parse(refreshToken, s.jwtSecret)
 	if err != nil {
-		return "", errors.New("invalid refresh token")
+		return "", "", errors.New("invalid refresh token")
 	}
 
 	// [B3] Cek lock status untuk child — cegah bypass emergency lock via refresh
 	if claims.Role == "child" && claims.ChildID != nil {
-		childUUID, err := parseUUID(*claims.ChildID)
-		if err != nil {
-			return "", errors.New("invalid token claims")
+		childUUID, parseErr := parseUUID(*claims.ChildID)
+		if parseErr != nil {
+			return "", "", errors.New("invalid token claims")
 		}
-		child, err := s.q.GetChildByID(ctx, childUUID)
-		if err != nil {
-			return "", errors.New("account not found")
+		child, childErr := s.q.GetChildByID(ctx, childUUID)
+		if childErr != nil {
+			return "", "", errors.New("account not found")
 		}
 		if child.IsLocked != nil && *child.IsLocked {
-			return "", errors.New("account is locked")
+			return "", "", errors.New("account is locked")
 		}
-		settings, err := s.q.GetParentSettings(ctx, child.ID)
-		if err == nil && settings.EmergencyLock != nil && *settings.EmergencyLock {
-			return "", errors.New("account locked by parent")
+		settings, settingsErr := s.q.GetParentSettings(ctx, child.ID)
+		if settingsErr == nil && settings.EmergencyLock != nil && *settings.EmergencyLock {
+			return "", "", errors.New("account locked by parent")
 		}
 	}
 
-	return pkgjwt.Generate(claims.UserID, claims.Role, claims.ChildID, s.jwtSecret, 15*time.Minute)
+	accessToken, err = pkgjwt.Generate(claims.UserID, claims.Role, claims.ChildID, s.jwtSecret, 15*time.Minute)
+	if err != nil {
+		return "", "", err
+	}
+	newRefreshToken, err = pkgjwt.Generate(claims.UserID, claims.Role, claims.ChildID, s.jwtSecret, 7*24*time.Hour)
+	if err != nil {
+		return "", "", err
+	}
+	return accessToken, newRefreshToken, nil
 }

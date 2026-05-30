@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Game Summary</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline": "#8c7164",
+                    "on-background": "#151c27",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#e7eefe",
+                    "surface-container-low": "#f0f3ff",
+                    "error-container": "#ffdad6",
+                    "surface-variant": "#dce2f3",
+                    "surface": "#f9f9ff",
+                    "secondary-fixed-dim": "#adc6ff",
+                    "surface-tint": "#9d4300",
+                    "surface-bright": "#f9f9ff",
+                    "primary-fixed": "#ffdbca",
+                    "outline-variant": "#e0c0b1",
+                    "secondary-container": "#2170e4",
+                    "on-secondary-fixed": "#001a42",
+                    "surface-container-highest": "#dce2f3",
+                    "on-primary": "#ffffff",
+                    "primary-container": "#f97316",
+                    "inverse-surface": "#2a313d",
+                    "primary-fixed-dim": "#ffb690",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#251a00",
+                    "primary": "#9d4300",
+                    "on-primary-container": "#582200",
+                    "on-tertiary-fixed-variant": "#5a4300",
+                    "on-secondary-container": "#fefcff",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#d3daea",
+                    "tertiary-container": "#c19300",
+                    "tertiary-fixed": "#ffdf9a",
+                    "tertiary-fixed-dim": "#f7be1d",
+                    "on-error-container": "#93000a",
+                    "tertiary": "#785a00",
+                    "on-surface": "#151c27",
+                    "secondary": "#0058be",
+                    "inverse-primary": "#ffb690",
+                    "error": "#ba1a1a",
+                    "on-surface-variant": "#584237",
+                    "on-primary-fixed": "#341100",
+                    "inverse-on-surface": "#ebf1ff",
+                    "on-primary-fixed-variant": "#783200",
+                    "on-tertiary-container": "#412f00",
+                    "background": "#f9f9ff",
+                    "secondary-fixed": "#d8e2ff",
+                    "on-secondary-fixed-variant": "#004395",
+                    "surface-container-high": "#e2e8f8"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px",
+                    "2xl": "1.5rem"
+            },
+            "spacing": {
+                    "md": "16px",
+                    "xs": "4px",
+                    "xl": "32px",
+                    "lg": "24px",
+                    "touch_target_min": "44px",
+                    "sm": "8px",
+                    "xxl": "48px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "body-child": [
+                            "Nunito Sans"
+                    ],
+                    "h2-admin": [
+                            "Inter"
+                    ],
+                    "body-admin": [
+                            "Inter"
+                    ],
+                    "display-child": [
+                            "Nunito Sans"
+                    ],
+                    "h1-child": [
+                            "Nunito Sans"
+                    ],
+                    "label-admin": [
+                            "Inter"
+                    ],
+                    "h2-child": [
+                            "Nunito Sans"
+                    ],
+                    "h1-admin": [
+                            "Inter"
+                    ]
+            },
+            "fontSize": {
+                    "body-child": [
+                            "18px",
+                            {
+                                    "lineHeight": "26px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "h2-admin": [
+                            "20px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "600"
+                            }
+                    ],
+                    "body-admin": [
+                            "14px",
+                            {
+                                    "lineHeight": "20px",
+                                    "fontWeight": "400"
+                            }
+                    ],
+                    "display-child": [
+                            "40px",
+                            {
+                                    "lineHeight": "48px",
+                                    "fontWeight": "800"
+                            }
+                    ],
+                    "h1-child": [
+                            "28px",
+                            {
+                                    "lineHeight": "36px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "label-admin": [
+                            "12px",
+                            {
+                                    "lineHeight": "16px",
+                                    "fontWeight": "500"
+                            }
+                    ],
+                    "h2-child": [
+                            "22px",
+                            {
+                                    "lineHeight": "28px",
+                                    "fontWeight": "700"
+                            }
+                    ],
+                    "h1-admin": [
+                            "24px",
+                            {
+                                    "lineHeight": "32px",
+                                    "fontWeight": "700"
+                            }
+                    ]
+            }
+          }
+        },
+      }
+    </script>
+<style>
+        .confetti-bg {
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,215,0,0.1) 0%, transparent 60%);
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+        }
+        .bounce-in {
+            animation: bounceIn 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .circular-chart {
+            display: block;
+            margin: 0 auto;
+            max-width: 80%;
+            max-height: 250px;
+        }
+        .circle-bg {
+            fill: none;
+            stroke: #F3F4F6;
+            stroke-width: 3.8;
+        }
+        .circle {
+            fill: none;
+            stroke-width: 2.8;
+            stroke-linecap: round;
+            animation: progress 1s ease-out forwards;
+        }
+        @keyframes progress {
+            0% { stroke-dasharray: 0 100; }
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-child min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-md md:p-xl">
+<!-- Confetti Background Effect -->
+<div class="confetti-bg"></div>
+<main class="relative z-10 w-full max-w-md bg-surface-container-lowest rounded-[24px] border border-orange-50 shadow-[0_8px_24px_rgba(249,115,22,0.1)] p-lg flex flex-col items-center bounce-in">
+<!-- Trophy & Heading -->
+<div class="text-center mb-lg">
+<div class="w-32 h-32 mx-auto mb-md bg-primary-fixed rounded-full flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-[64px] text-tertiary-fixed-dim" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<h1 class="font-h1-child text-h1-child text-primary-container">Hebat!</h1>
+<p class="text-on-surface-variant text-lg">Kamu menyelesaikan sesi ini.</p>
+</div>
+<!-- Accuracy Ring -->
+<div class="w-full mb-lg relative">
+<svg class="circular-chart text-green-500" viewbox="0 0 36 36">
+<path class="circle-bg" d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+<path class="circle" d="M18 2.0845
+                    a 15.9155 15.9155 0 0 1 0 31.831
+                    a 15.9155 15.9155 0 0 1 0 -31.831" stroke="currentColor" stroke-dasharray="90, 100"></path>
+<text class="text-3xl font-bold fill-current text-center" text-anchor="middle" x="18" y="20.35">90%</text>
+</svg>
+<div class="text-center text-sm text-on-surface-variant font-bold mt-2">Akurasi</div>
+</div>
+<!-- Stats Grid (2x2) -->
+<div class="grid grid-cols-2 gap-md w-full mb-xl">
+<!-- Soal -->
+<div class="bg-surface p-md rounded-xl text-center border-2 border-surface-variant flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-secondary mb-sm">quiz</span>
+<span class="text-h2-child font-h2-child text-on-surface">10</span>
+<span class="text-sm text-on-surface-variant">Soal</span>
+</div>
+<!-- Benar -->
+<div class="bg-surface p-md rounded-xl text-center border-2 border-surface-variant flex flex-col items-center justify-center">
+<span class="material-symbols-outlined text-green-500 mb-sm">check_circle</span>
+<span class="text-h2-child font-h2-child text-green-600">9</span>
+<span class="text-sm text-on-surface-variant">Benar</span>
+</div>
+<!-- Poin -->
+<div class="bg-surface p-md rounded-xl text-center border-2 border-surface-variant flex flex-col items-center justify-center col-span-2">
+<span class="material-symbols-outlined text-tertiary-fixed-dim mb-sm">stars</span>
+<span class="text-h2-child font-h2-child text-primary-container">+45</span>
+<span class="text-sm text-on-surface-variant">Poin Exp</span>
+</div>
+</div>
+<!-- Actions -->
+<div class="w-full flex flex-col gap-md">
+<button class="w-full bg-[#F97316] text-[#FFFFFF] font-bold rounded-xl h-[56px] flex items-center justify-center gap-sm hover:opacity-90 transition-opacity transform active:scale-95 shadow-[0_4px_12px_rgba(249,115,22,0.3)]">
+<span class="material-symbols-outlined">replay</span>
+                Main Lagi
+            </button>
+<button class="w-full text-on-surface-variant font-bold h-[44px] hover:text-primary-container transition-colors">
+                Kembali ke Home
+            </button>
+</div>
+</main>
+<!-- Confetti JS for extra effect -->
+<script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Simple confetti effect for the background could be added here if needed,
+            // but relying on CSS for lightweight performance.
+        });
+    </script>
+</body></html>

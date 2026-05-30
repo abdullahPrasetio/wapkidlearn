@@ -10,12 +10,13 @@ import (
 )
 
 type Handler struct {
-	svc         *Service
-	authLimiter *ratelimit.Limiter
+	svc          *Service
+	authLimiter  *ratelimit.Limiter
+	cookieDomain string // kosong = localhost/dev mode
 }
 
-func NewHandler(svc *Service, authLimiter *ratelimit.Limiter) *Handler {
-	return &Handler{svc: svc, authLimiter: authLimiter}
+func NewHandler(svc *Service, authLimiter *ratelimit.Limiter, cookieDomain string) *Handler {
+	return &Handler{svc: svc, authLimiter: authLimiter, cookieDomain: cookieDomain}
 }
 
 func (h *Handler) Register(router fiber.Router) {
@@ -44,7 +45,7 @@ func (h *Handler) Login(c *fiber.Ctx) error {
 		return response.Unauthorized(c, err.Error())
 	}
 
-	setAuthCookies(c, res.AccessToken, res.RefreshToken)
+	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
 	return response.OK(c, fiber.Map{"role": res.Role, "user_id": res.UserID})
 }
 
@@ -71,7 +72,7 @@ func (h *Handler) ChildLogin(c *fiber.Ctx) error {
 		return response.Unauthorized(c, err.Error())
 	}
 
-	setAuthCookies(c, res.AccessToken, res.RefreshToken)
+	h.setAuthCookies(c, res.AccessToken, res.RefreshToken)
 	return response.OK(c, fiber.Map{"role": res.Role, "user_id": res.UserID})
 }
 
@@ -80,43 +81,51 @@ func (h *Handler) Refresh(c *fiber.Ctx) error {
 	if refreshToken == "" {
 		return response.Unauthorized(c, "missing refresh token")
 	}
-	accessToken, err := h.svc.Refresh(c.Context(), refreshToken)
+	accessToken, newRefreshToken, err := h.svc.Refresh(c.Context(), refreshToken)
 	if err != nil {
 		return response.Unauthorized(c, err.Error())
 	}
-	c.Cookie(&fiber.Cookie{
-		Name:     "access_token",
-		Value:    accessToken,
-		HTTPOnly: true,
-		SameSite: "Strict",
-		MaxAge:   int((15 * time.Minute).Seconds()),
-	})
+	h.setAuthCookies(c, accessToken, newRefreshToken)
 	return response.OK(c, fiber.Map{"message": "token refreshed"})
 }
 
 func (h *Handler) Logout(c *fiber.Ctx) error {
-	c.Cookie(&fiber.Cookie{Name: "access_token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: true, SameSite: "None", Domain: ".temancode.my.id"})
-	c.Cookie(&fiber.Cookie{Name: "refresh_token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: true, SameSite: "None", Domain: ".temancode.my.id"})
+	h.clearCookie(c, "access_token")
+	h.clearCookie(c, "refresh_token")
 	return response.OK(c, fiber.Map{"message": "logged out"})
 }
 
-func setAuthCookies(c *fiber.Ctx, accessToken, refreshToken string) {
+func (h *Handler) clearCookie(c *fiber.Ctx, name string) {
+	cookie := &fiber.Cookie{Name: name, Value: "", MaxAge: -1, HTTPOnly: true}
+	if h.cookieDomain != "" {
+		cookie.Secure = true
+		cookie.SameSite = "None"
+		cookie.Domain = h.cookieDomain
+	} else {
+		cookie.SameSite = "Lax"
+	}
+	c.Cookie(cookie)
+}
+
+func (h *Handler) setAuthCookies(c *fiber.Ctx, accessToken, refreshToken string) {
+	isProd := h.cookieDomain != ""
+
 	c.Cookie(&fiber.Cookie{
 		Name:     "access_token",
 		Value:    accessToken,
 		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "None",
-		Domain:   ".temancode.my.id",
+		Secure:   isProd,
+		SameSite: map[bool]string{true: "None", false: "Lax"}[isProd],
+		Domain:   h.cookieDomain,
 		MaxAge:   int((15 * time.Minute).Seconds()),
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HTTPOnly: true,
-		Secure:   true,
-		SameSite: "None",
-		Domain:   ".temancode.my.id",
+		Secure:   isProd,
+		SameSite: map[bool]string{true: "None", false: "Lax"}[isProd],
+		Domain:   h.cookieDomain,
 		MaxAge:   int((7 * 24 * time.Hour).Seconds()),
 	})
 }

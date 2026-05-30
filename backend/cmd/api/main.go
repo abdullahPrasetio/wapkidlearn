@@ -47,8 +47,9 @@ func main() {
 
 	// Wire dependencies
 	authLimiter := ratelimit.New()
+	cookieDomain := os.Getenv("COOKIE_DOMAIN") // kosong = localhost/dev, isi = prod
 	authSvc := auth.NewService(pool, jwtSecret)
-	authHandler := auth.NewHandler(authSvc, authLimiter)
+	authHandler := auth.NewHandler(authSvc, authLimiter, cookieDomain)
 
 	achievementSvc := achievement.NewService(pool)
 	achievementHandler := achievement.NewHandler(achievementSvc)

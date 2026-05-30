@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Child Login</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    fontFamily: {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-child": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "h2-admin": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-admin": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-child": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "h1-child": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-admin": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "h2-child": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "h1-admin": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Smooth scrolling for avatars */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-b from-primary-container to-tertiary-fixed-dim min-h-screen font-body-child text-on-primary antialiased flex flex-col items-center justify-center p-md overflow-hidden relative">
+<!-- Floating Background Elements (Decorative) -->
+<div class="absolute top-10 left-10 w-24 h-24 bg-white/10 rounded-full blur-xl pointer-events-none"></div>
+<div class="absolute bottom-20 right-10 w-32 h-32 bg-white/20 rounded-full blur-2xl pointer-events-none"></div>
+<div class="absolute top-1/2 right-4 w-16 h-16 bg-white/15 rounded-full blur-lg pointer-events-none"></div>
+<main class="w-full max-w-sm flex flex-col items-center z-10 space-y-lg">
+<!-- Mascot Section -->
+<div class="flex flex-col items-center mb-sm">
+<div class="w-40 h-40 relative drop-shadow-2xl mb-md animate-bounce" style="animation-duration: 3s;">
+<img alt="WapKidLearn Mascot" class="w-full h-full object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOsmSb9xtMVu0Krnd6ACdlzLmnTT475erk4u5XLFuELqtmtkbFRovd-yMZA5mzi2JJPZpPLPrWtgVglJ8Pl_3TeX8W2Ymd1VKiHAjUMSRTy__ntSiC1HIG1IH_EUDw5w5Rcwldp7vc2lnqVUvYMiN9Hsz59VJfMyJJr-U2y_FZKL-6rXomj85uoF6CAOYwi_UXa1GIpTL34m2V52eDLVjt2Tu4ky0OxqiCY-r9s1IR3tny9bW74QAmRXLzTPP45vW79kY0z0w5mLKP"/>
+</div>
+<h1 class="font-h1-child text-h1-child text-on-primary text-center">Halo! Siapa kamu?</h1>
+</div>
+<!-- Avatar Selection -->
+<div class="w-full relative">
+<div class="flex overflow-x-auto hide-scrollbar gap-md pb-xs px-xs items-center justify-start snap-x snap-mandatory">
+<!-- Selected Avatar -->
+<button class="snap-center flex-shrink-0 flex flex-col items-center group focus:outline-none focus:ring-4 focus:ring-white focus:ring-opacity-50 rounded-xl p-xs">
+<div class="w-20 h-20 rounded-full bg-white border-4 border-white shadow-lg overflow-hidden mb-xs relative">
+<img alt="Budi" class="w-full h-full object-cover" data-alt="A brightly lit, cheerful studio portrait of a young boy smiling warmly, wearing a casual t-shirt. The background is a solid soft pastel color to maintain a clean, child-friendly aesthetic suitable for a profile picture avatar in a learning app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCEVrShjR0Tnl0F1POBordTB7l8Hn8fgX7iQvdGVdDQ54ADaMOrUYaUVPfNulnros4VRlYZ3h68HFvuNLxWqgH56McPwHleaGF_H00m1pvt3u58nA4UrzMX3dqnb4D9JfWr3TSuzHYmAR72lvSppkZuZ4icNeSC5FVjNQLxpK422wHlb31BAJoq1qIFPf6ZTZjalon_HEXtdbdTEmtjtWZmmEpuapdFFRCa_bNEDnItz04MuLDXsOufEiGBnSjpH3F21xs5Eq5RVxZw"/>
+<div class="absolute inset-0 ring-4 ring-inset ring-secondary-container rounded-full"></div>
+</div>
+<span class="font-body-child text-body-child text-white font-bold drop-shadow-md">Budi</span>
+</button>
+<!-- Unselected Avatars -->
+<button class="snap-center flex-shrink-0 flex flex-col items-center opacity-70 transition-opacity hover:opacity-100 group focus:outline-none rounded-xl p-xs">
+<div class="w-16 h-16 rounded-full bg-white/80 border-2 border-white/50 shadow-sm overflow-hidden mb-xs">
+<img alt="Siti" class="w-full h-full object-cover" data-alt="A brightly lit, cheerful studio portrait of a young girl looking curious, wearing a colorful top. The background is a solid soft pastel color to maintain a clean, child-friendly aesthetic suitable for a profile picture avatar in a learning app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5C8jFo5hfk1IkFgNJEMsL-MPGESJAn9dg4PyE9AeCE94k3rnLRlQsakiLcqRzqRhsKxTssf5PnYlp7-6YNOdr3judHCS7V5bc-CWlL9V83qCfCCcXegJdrd5t6ohpSG5kixG8mBbJ6BlZcU4KVIwjpYb-g0Zrn8EyXaW3EeQhKTw3hFwEOhd1Zxl0HVI7I040-cYzFMvBXAc9dZxknPezTrfdLKN0bQgp_KY0DtQAsPKdlFVyLrIiOPsZWJSrkvE3BGgeZO5aKFwz"/>
+</div>
+<span class="font-body-child text-sm text-white/80 font-medium">Siti</span>
+</button>
+<button class="snap-center flex-shrink-0 flex flex-col items-center opacity-70 transition-opacity hover:opacity-100 group focus:outline-none rounded-xl p-xs">
+<div class="w-16 h-16 rounded-full bg-white/80 border-2 border-white/50 shadow-sm overflow-hidden mb-xs">
+<img alt="Agus" class="w-full h-full object-cover" data-alt="A brightly lit, cheerful studio portrait of a young student wearing glasses, looking confident. The background is a solid soft pastel color to maintain a clean, child-friendly aesthetic suitable for a profile picture avatar in a learning app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQhnrtRUY2EO1m5cgQjCCgOT_hiHczVD4FS3miBSpWb4M1JBnVo9ir7GsBR_3Ta9AxkZld7vTHJwDNU4vg_Vvk0n7Sz39-Ap9-KK3x8VRRu4jS4IcIaJXzy_EHnx2fJCW08uNtp6Q4j5jvy2-ujlvkXdGsxF3NqR3_91s0hdDndivLtQkoS2ZTwrRn92YJ_JQPqNqzRpnlRRqp2RTZrmrKqbC6sJuXq9LNxDrrmS1bx6bWsAICogvWrpJ0s-xyJIvXvWVyKmVESO4A"/>
+</div>
+<span class="font-body-child text-sm text-white/80 font-medium">Agus</span>
+</button>
+<!-- Add new user button -->
+<button class="snap-center flex-shrink-0 flex flex-col items-center opacity-80 transition-opacity hover:opacity-100 group focus:outline-none rounded-xl p-xs">
+<div class="w-16 h-16 rounded-full bg-white/20 border-2 border-dashed border-white flex items-center justify-center shadow-sm mb-xs">
+<span class="material-symbols-outlined text-white text-3xl">add</span>
+</div>
+<span class="font-body-child text-sm text-white font-medium">Baru</span>
+</button>
+</div>
+<!-- Scroll fade effects -->
+<div class="absolute top-0 right-0 bottom-0 w-8 bg-gradient-to-l from-primary-container/80 to-transparent pointer-events-none"></div>
+</div>
+<!-- PIN Input Display -->
+<div class="flex gap-sm justify-center my-md">
+<!-- Filled Dot -->
+<div class="w-5 h-5 rounded-full bg-white shadow-sm"></div>
+<div class="w-5 h-5 rounded-full bg-white shadow-sm"></div>
+<div class="w-5 h-5 rounded-full bg-white shadow-sm"></div>
+<!-- Empty Dots -->
+<div class="w-5 h-5 rounded-full bg-white/30 border-2 border-white/50"></div>
+<div class="w-5 h-5 rounded-full bg-white/30 border-2 border-white/50"></div>
+<div class="w-5 h-5 rounded-full bg-white/30 border-2 border-white/50"></div>
+</div>
+<!-- Numeric Keypad -->
+<div class="grid grid-cols-3 gap-md w-full max-w-[280px]">
+<!-- Row 1 -->
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">1</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">2</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">3</button>
+<!-- Row 2 -->
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">4</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">5</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">6</button>
+<!-- Row 3 -->
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">7</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">8</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">9</button>
+<!-- Row 4 (Actions & 0) -->
+<button class="aspect-square bg-surface-container-lowest/20 text-white font-h1-child text-h1-child rounded-2xl border-2 border-white/30 hover:bg-white/30 active:scale-95 transition-all flex items-center justify-center touch-manipulation">
+<span class="material-symbols-outlined text-3xl">backspace</span>
+</button>
+<button class="aspect-square bg-surface-container-lowest text-primary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.1)] border-b-4 border-surface-variant hover:bg-surface active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">0</button>
+<button class="aspect-square bg-secondary-container text-on-secondary-container font-h1-child text-h1-child rounded-2xl shadow-[0px_4px_12px_rgba(17,24,39,0.2)] border-b-4 border-[#1c5fba] hover:brightness-110 active:border-b-0 active:translate-y-1 transition-all flex items-center justify-center touch-manipulation">
+<span class="material-symbols-outlined text-4xl">check_circle</span>
+</button>
+</div>
+</main>
+<!-- Parent Access Link (Subtle) -->
+<button class="absolute top-md right-md text-white/80 hover:text-white font-body-child text-sm font-medium px-sm py-xs bg-black/10 rounded-full flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+<span>Ortu</span>
+</button>
+</body></html>

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Child Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                        "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                        "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface antialiased min-h-screen flex flex-col md:flex-row">
+<!-- TopAppBar (Mobile Context) -->
+<header class="flex justify-between items-center w-full px-lg py-md md:px-xl bg-surface dark:bg-on-background border-b border-outline-variant dark:border-outline md:hidden sticky top-0 z-40">
+<div class="flex items-center gap-sm cursor-pointer" onclick="window.history.back()">
+<span class="material-symbols-outlined text-primary">arrow_back</span>
+<span class="font-h1-admin text-h1-admin text-primary">Budi</span>
+</div>
+<div class="flex items-center">
+<span class="material-symbols-outlined text-primary text-[28px]">account_circle</span>
+</div>
+</header>
+<!-- Side Navigation (Desktop Context - Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-xl w-60 bg-surface-container-low dark:bg-on-background border-r border-outline-variant dark:border-outline z-40">
+<div class="px-lg mb-xl flex items-center gap-sm">
+<img alt="Admin Profile" class="w-10 h-10 rounded-full object-cover" data-alt="A small, professional portrait photo of a smiling adult woman with dark hair, used as an avatar in a dashboard interface. Soft, natural lighting on a light background. Clean corporate style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM7jKzgnSxxvKiRbRrieFYe9x6CE7g4JF5gnRD62N7XfxKs5mqu6ll5WHN34A6zS5GjK6Dm9p7khxDXgjOUovHKXxyxERC97wTtMaTBpAfFfTO0M6KqhJKQQPQggK9j1WxIwtfTYVer5w26MWK-sAk_B56FO5HAf_cus6hnw1pqbD5THQDp5ejG1-ZbAQjhKWgYq5bIuWY215F4X5oZF6E4bmTnihj-oBf9QdnYwfuu9xjEN8IuZxPY_CTVBHQ_cmgzYHVo4nKFS1c"/>
+<div>
+<div class="font-h1-admin text-h1-admin text-primary leading-tight">WapKidAdmin</div>
+<div class="font-label-admin text-label-admin text-on-surface-variant">Manage Learning</div>
+</div>
+</div>
+<div class="flex flex-col gap-sm px-sm">
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm font-semibold hover:opacity-80 transition-opacity" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-admin text-body-admin">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span class="font-body-admin text-body-admin">Student Progress</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-body-admin text-body-admin">Curriculum</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">assessment</span>
+<span class="font-body-admin text-body-admin">Reports</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-admin text-body-admin">Settings</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-60 pb-24 md:pb-xl p-md md:p-xl max-w-4xl mx-auto w-full">
+<!-- Desktop Header Back button -->
+<div class="hidden md:flex items-center gap-sm mb-lg cursor-pointer hover:text-primary transition-colors w-fit" onclick="window.history.back()">
+<span class="material-symbols-outlined">arrow_back</span>
+<span class="font-body-admin text-body-admin font-medium">Kembali ke Dashboard</span>
+</div>
+<!-- Hero Profile Section -->
+<section class="flex flex-col items-center mb-xl">
+<div class="relative mb-md">
+<img alt="Budi Avatar" class="w-32 h-32 rounded-full object-cover border-4 border-surface-container-lowest shadow-md" data-alt="A bright, cheerful portrait photo of a young boy smiling, suitable for a student profile avatar. The background is a soft, warm solid color. Lighting is soft and highly flattering, adhering to a soft-modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCubvrj61L42K60pCnWaWEr2KA56ICraRA_7cG2uqHG14ck6WaBXV0CLHjYXTklQRXbAex8wm_9zlhr9-IWmtQO7ByrhZxy1Lu13zHQbBC0EsUbqf8SjP4zlwo5obUfYK3Ui74pAJjFVjzJfNTdJcUvKMBZV0uAabooflopkQCknx2J1nf-UoJ5Gr5GrJxVi-lIru-rmHEI4Jnm6eVznrbQA6FYpMvN6FmWTob-0DBUuh-7WbRaxJebgYMqKMKSQ2esTiSeDTSCsI3q"/>
+<!-- Lock/Unlock Status Badge -->
+<button class="absolute -bottom-2 left-1/2 transform -translate-x-1/2 bg-[#22C55E] text-white px-4 py-1.5 rounded-full flex items-center gap-sm shadow-sm transition-colors hover:bg-green-600 w-max" id="lockToggleBtn" onclick="toggleLockStatus()">
+<span class="material-symbols-outlined text-[18px]" id="lockIcon">lock_open</span>
+<span class="font-label-admin text-label-admin font-bold tracking-wide" id="lockText">UNLOCKED</span>
+</button>
+</div>
+<h1 class="font-h2-admin text-h2-admin text-on-surface mb-xs">Budi Hartono</h1>
+<p class="font-body-admin text-body-admin text-on-surface-variant bg-surface-container-high px-3 py-1 rounded-full border border-outline-variant/30">Kelas 3 SD</p>
+</section>
+<!-- Stats Row -->
+<section class="grid grid-cols-3 gap-sm md:gap-md mb-xl">
+<!-- Stat Card: Points -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-md flex flex-col items-center justify-center text-center">
+<div class="w-10 h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-[#D97706]" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<div class="font-h2-admin text-h2-admin text-on-surface leading-none mb-xs">1,250</div>
+<div class="font-label-admin text-label-admin text-on-surface-variant uppercase tracking-wider">Total Poin</div>
+</div>
+<!-- Stat Card: Watch Time -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-md flex flex-col items-center justify-center text-center">
+<div class="w-10 h-10 rounded-full bg-[#DBEAFE] flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-[#2563EB]" style="font-variation-settings: 'FILL' 1;">schedule</span>
+</div>
+<div class="font-h2-admin text-h2-admin text-on-surface leading-none mb-xs">15m</div>
+<div class="font-label-admin text-label-admin text-on-surface-variant uppercase tracking-wider">Waktu Nonton</div>
+</div>
+<!-- Stat Card: Streak -->
+<div class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-md flex flex-col items-center justify-center text-center">
+<div class="w-10 h-10 rounded-full bg-[#FFEDD5] flex items-center justify-center mb-sm">
+<span class="material-symbols-outlined text-[#EA580C]" style="font-variation-settings: 'FILL' 1;">local_fire_department</span>
+</div>
+<div class="font-h2-admin text-h2-admin text-on-surface leading-none mb-xs">3</div>
+<div class="font-label-admin text-label-admin text-on-surface-variant uppercase tracking-wider">Hari Streak</div>
+</div>
+</section>
+<!-- 2x2 Action Grid -->
+<section class="grid grid-cols-2 gap-md">
+<!-- Analitik Card -->
+<a class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center text-center hover:bg-surface-container-low transition-colors active:scale-95" href="#">
+<div class="w-14 h-14 rounded-full bg-[#F3E8FF] flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-[#9333EA] text-[32px]" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+</div>
+<h3 class="font-body-admin text-body-admin font-semibold text-on-surface">Analitik</h3>
+<p class="font-label-admin text-label-admin text-on-surface-variant mt-1">Perkembangan belajar</p>
+</a>
+<!-- Pengaturan Card -->
+<a class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center text-center hover:bg-surface-container-low transition-colors active:scale-95" href="#">
+<div class="w-14 h-14 rounded-full bg-[#E1EFFE] flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-[#1D4ED8] text-[32px]" style="font-variation-settings: 'FILL' 1;">settings</span>
+</div>
+<h3 class="font-body-admin text-body-admin font-semibold text-on-surface">Pengaturan</h3>
+<p class="font-label-admin text-label-admin text-on-surface-variant mt-1">Batas waktu &amp; akses</p>
+</a>
+<!-- Video Card -->
+<a class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center text-center hover:bg-surface-container-low transition-colors active:scale-95" href="#">
+<div class="w-14 h-14 rounded-full bg-[#FFE4E6] flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-[#E11D48] text-[32px]" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<h3 class="font-body-admin text-body-admin font-semibold text-on-surface">Video</h3>
+<p class="font-label-admin text-label-admin text-on-surface-variant mt-1">Riwayat tontonan</p>
+</a>
+<!-- Aktivitas Card -->
+<a class="bg-surface-container-lowest border border-outline-variant/50 rounded-xl p-lg flex flex-col items-center text-center hover:bg-surface-container-low transition-colors active:scale-95" href="#">
+<div class="w-14 h-14 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-md">
+<span class="material-symbols-outlined text-[#15803D] text-[32px]" style="font-variation-settings: 'FILL' 1;">assignment</span>
+</div>
+<h3 class="font-body-admin text-body-admin font-semibold text-on-surface">Aktivitas</h3>
+<p class="font-label-admin text-label-admin text-on-surface-variant mt-1">Tugas &amp; latihan</p>
+</a>
+</section>
+</main>
+<script>
+        // Simple Lock/Unlock Toggle Logic
+        let isLocked = false;
+        function toggleLockStatus() {
+            const btn = document.getElementById('lockToggleBtn');
+            const icon = document.getElementById('lockIcon');
+            const text = document.getElementById('lockText');
+
+            isLocked = !isLocked;
+
+            if (isLocked) {
+                btn.classList.remove('bg-[#22C55E]', 'hover:bg-green-600');
+                btn.classList.add('bg-[#EF4444]', 'hover:bg-red-600');
+                icon.textContent = 'lock';
+                text.textContent = 'LOCKED';
+            } else {
+                btn.classList.remove('bg-[#EF4444]', 'hover:bg-red-600');
+                btn.classList.add('bg-[#22C55E]', 'hover:bg-green-600');
+                icon.textContent = 'lock_open';
+                text.textContent = 'UNLOCKED';
+            }
+            
+            // Add a slight bounce effect on click
+            btn.style.transform = 'translate(-50%, 0) scale(0.95)';
+            setTimeout(() => {
+                btn.style.transform = 'translate(-50%, 0) scale(1)';
+            }, 100);
+        }
+    </script>
+</body></html>

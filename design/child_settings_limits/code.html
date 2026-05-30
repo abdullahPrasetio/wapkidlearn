@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Pengaturan Budi</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                        "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                        "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f0f3ff;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #dce2f3;
+            border-radius: 4px;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-admin min-h-screen pb-24">
+<!-- Top App Bar -->
+<header class="bg-surface docked full-width top-0 border-b border-outline-variant flex justify-between items-center w-full px-lg py-md md:px-xl sticky z-10">
+<div class="flex items-center gap-sm">
+<button class="p-sm text-on-surface hover:bg-surface-variant rounded-full transition-colors">
+<span class="material-symbols-outlined text-[24px]">arrow_back</span>
+</button>
+<h1 class="font-h1-admin text-h1-admin text-primary">Pengaturan Budi</h1>
+</div>
+<img alt="Avatar" class="w-10 h-10 rounded-full border border-outline-variant object-cover" data-alt="A small circular profile picture avatar of a parent or admin, featuring a smiling professional in clean lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2PO7w7t_K8UBa2gES3Uh8rponjsPb1jmt3lBx6tlFIdvDAgq4xGEKFEebbHolC4IzI-9aSVTw5GUS2GZJ8jbbJKwjyCAIA9AcB0wT78M5GCVkOw5mP9jD7sDVf5QlTddXJo4hN3ErucQlK-4IveAk6IAwqXbwLe8KvcuH6wYNuaD_MI5d0nxynZ5SWuvBDxHwxUW9_wX1vuHZaBYw9FY9vsIhUqFV9dFIzqguyL3k0S9piUavPTCsSeMwGYvNtQgZGehsSd_r7JBu"/>
+</header>
+<main class="max-w-3xl mx-auto p-md md:p-lg space-y-xl">
+<!-- Keamanan Section -->
+<section class="bg-surface-container-lowest rounded-[12px] border border-outline-variant p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary text-[20px]">security</span>
+<h2 class="font-h2-admin text-h2-admin text-on-surface">Keamanan</h2>
+</div>
+<div class="space-y-md">
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant transition-colors">
+<div>
+<p class="font-semibold text-on-surface">Emergency Lock</p>
+<p class="text-on-surface-variant text-sm">Kunci semua akses anak seketika</p>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-error"></div>
+</label>
+</div>
+<div class="flex items-center justify-between p-sm rounded-lg hover:bg-surface-variant transition-colors">
+<div>
+<p class="font-semibold text-on-surface">Ganti PIN</p>
+<p class="text-on-surface-variant text-sm">Ubah PIN untuk akses orang tua</p>
+</div>
+<button class="px-md py-sm bg-surface-container-lowest border-2 border-outline-variant text-on-surface rounded-lg font-semibold hover:bg-surface-variant transition-colors">
+                        Ubah
+                    </button>
+</div>
+</div>
+</section>
+<!-- Batas Harian Section -->
+<section class="bg-surface-container-lowest rounded-[12px] border border-outline-variant p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary text-[20px]">timer</span>
+<h2 class="font-h2-admin text-h2-admin text-on-surface">Batas Harian</h2>
+</div>
+<div class="space-y-lg">
+<!-- Daily Watch Limit -->
+<div>
+<label class="block font-semibold text-on-surface mb-xs">Batas Menonton Harian (Menit)</label>
+<p class="text-on-surface-variant text-sm mb-sm">Maksimal durasi menonton per hari</p>
+<div class="flex items-center gap-sm bg-surface-variant p-sm rounded-lg w-fit">
+<button aria-label="Kurangi" class="w-8 h-8 flex items-center justify-center bg-surface-container-lowest rounded shadow-sm text-primary hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<span class="font-h2-admin text-h2-admin w-16 text-center text-on-surface">60</span>
+<button aria-label="Tambah" class="w-8 h-8 flex items-center justify-center bg-surface-container-lowest rounded shadow-sm text-primary hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+<!-- Conversion Rate -->
+<div>
+<label class="block font-semibold text-on-surface mb-xs">Nilai Tukar Poin Belajar</label>
+<p class="text-on-surface-variant text-sm mb-sm">Berapa menit didapat dari 100 poin</p>
+<div class="flex items-center gap-sm bg-surface-variant p-sm rounded-lg w-fit">
+<button aria-label="Kurangi" class="w-8 h-8 flex items-center justify-center bg-surface-container-lowest rounded shadow-sm text-primary hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">remove</span>
+</button>
+<span class="font-h2-admin text-h2-admin w-16 text-center text-on-surface">15</span>
+<button aria-label="Tambah" class="w-8 h-8 flex items-center justify-center bg-surface-container-lowest rounded shadow-sm text-primary hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[20px]">add</span>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Jam Menonton Section -->
+<section class="bg-surface-container-lowest rounded-[12px] border border-outline-variant p-md">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary text-[20px]">schedule</span>
+<h2 class="font-h2-admin text-h2-admin text-on-surface">Jam Menonton</h2>
+</div>
+<p class="text-on-surface-variant text-sm mb-md">Pilih jam dimana anak diperbolehkan menonton</p>
+<div class="grid grid-cols-4 sm:grid-cols-6 gap-sm">
+<!-- Checkbox Grid -->
+<script>
+                    const gridContainer = document.currentScript.parentElement;
+                    const allowedHours = [8, 9, 10, 15, 16, 17, 18, 19];
+                    for(let i=0; i<24; i++) {
+                        const hour = i.toString().padStart(2, '0') + ':00';
+                        const isChecked = allowedHours.includes(i) ? 'checked' : '';
+                        const bgColor = allowedHours.includes(i) ? 'bg-primary-container text-white border-primary-container' : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant hover:bg-surface-variant';
+                        
+                        gridContainer.innerHTML += `
+                            <label class="relative flex items-center justify-center p-sm border rounded-lg cursor-pointer transition-colors ${bgColor} group">
+                                <input type="checkbox" class="sr-only" ${isChecked}>
+                                <span class="font-label-admin text-label-admin select-none">${hour}</span>
+                            </label>
+                        `;
+                    }
+                </script>
+</div>
+</section>
+</main>
+<!-- Sticky Save Button -->
+<div class="fixed bottom-0 left-0 w-full bg-surface-container-lowest border-t border-outline-variant p-md shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] z-20">
+<div class="max-w-3xl mx-auto flex justify-end gap-md">
+<button class="px-xl py-sm h-[44px] bg-surface-container-lowest border-2 border-outline-variant text-on-surface rounded-lg font-semibold hover:bg-surface-variant transition-colors">
+                Batal
+            </button>
+<button class="px-xl py-sm h-[44px] bg-[#F97316] text-[#FFFFFF] rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-sm">
+                Simpan Pengaturan
+            </button>
+</div>
+</div>
+<script>
+        // Simple toggle logic for the hour grid visual updates
+        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+            if(!checkbox.closest('.peer')) { // exclude emergency lock
+                checkbox.addEventListener('change', function() {
+                    const label = this.closest('label');
+                    if(this.checked) {
+                        label.classList.remove('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant', 'hover:bg-surface-variant');
+                        label.classList.add('bg-primary-container', 'text-white', 'border-primary-container');
+                    } else {
+                        label.classList.add('bg-surface-container-lowest', 'text-on-surface-variant', 'border-outline-variant', 'hover:bg-surface-variant');
+                        label.classList.remove('bg-primary-container', 'text-white', 'border-primary-container');
+                    }
+                });
+            }
+        });
+    </script>
+</body></html>

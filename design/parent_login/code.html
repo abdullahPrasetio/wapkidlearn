@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parent Login - WapKidLearn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#ffffff",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    spacing: {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    fontFamily: {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-child": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "h2-admin": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-admin": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-child": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "h1-child": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-admin": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "h2-child": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "h1-admin": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body-admin min-h-screen flex flex-col items-center justify-center p-md">
+<!-- Container -->
+<div class="w-full max-w-[400px] flex flex-col gap-xl">
+<!-- Header -->
+<div class="flex flex-col items-center gap-sm text-center">
+<img alt="WapKidLearn Logo" class="w-48 h-auto object-contain mb-md" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOsmSb9xtMVu0Krnd6ACdlzLmnTT475erk4u5XLFuELqtmtkbFRovd-yMZA5mzi2JJPZpPLPrWtgVglJ8Pl_3TeX8W2Ymd1VKiHAjUMSRTy__ntSiC1HIG1IH_EUDw5w5Rcwldp7vc2lnqVUvYMiN9Hsz59VJfMyJJr-U2y_FZKL-6rXomj85uoF6CAOYwi_UXa1GIpTL34m2V52eDLVjt2Tu4ky0OxqiCY-r9s1IR3tny9bW74QAmRXLzTPP45vW79kY0z0w5mLKP"/>
+<h1 class="font-h1-admin text-h1-admin text-on-surface">Panel Orang Tua</h1>
+<p class="font-body-admin text-body-admin text-on-surface-variant">Masuk untuk memantau perkembangan belajar anak Anda.</p>
+</div>
+<!-- Form -->
+<form class="flex flex-col gap-md w-full">
+<!-- Email Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-admin text-label-admin text-on-surface-variant ml-xs" for="email">Alamat Email</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant" data-icon="mail">mail</span>
+</div>
+<input class="w-full pl-xl pr-sm py-[10px] bg-surface-container-lowest border-2 border-outline-variant rounded focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/20 transition-all font-body-admin text-body-admin text-on-surface placeholder-on-surface-variant/50" id="email" name="email" placeholder="contoh@email.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Input -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-admin text-label-admin text-on-surface-variant ml-xs" for="password">Kata Sandi</label>
+<div class="relative">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span aria-hidden="true" class="material-symbols-outlined text-on-surface-variant" data-icon="lock">lock</span>
+</div>
+<input class="w-full pl-xl pr-xl py-[10px] bg-surface-container-lowest border-2 border-outline-variant rounded focus:outline-none focus:border-secondary focus:ring-4 focus:ring-secondary/20 transition-all font-body-admin text-body-admin text-on-surface placeholder-on-surface-variant/50" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+<button class="absolute inset-y-0 right-0 pr-sm flex items-center text-on-surface-variant hover:text-on-surface transition-colors" onclick="togglePassword()" type="button">
+<span aria-hidden="true" class="material-symbols-outlined" data-icon="visibility_off" id="visibility-icon">visibility_off</span>
+</button>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex flex-col gap-lg mt-sm">
+<button class="w-full bg-primary-container text-on-primary-container font-h2-admin text-h2-admin h-touch_target_min rounded flex items-center justify-center hover:opacity-90 active:scale-[0.98] transition-all shadow-md" type="submit">
+                    Masuk
+                </button>
+<!-- Alternate Link -->
+<a class="w-full flex items-center justify-center gap-xs text-primary font-body-admin text-body-admin font-semibold hover:opacity-80 transition-opacity" href="#">
+                    Masuk sebagai Anak
+                    <span aria-hidden="true" class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</form>
+</div>
+<script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const visibilityIcon = document.getElementById('visibility-icon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                visibilityIcon.textContent = 'visibility';
+                visibilityIcon.setAttribute('data-icon', 'visibility');
+            } else {
+                passwordInput.type = 'password';
+                visibilityIcon.textContent = 'visibility_off';
+                visibilityIcon.setAttribute('data-icon', 'visibility_off');
+            }
+        }
+    </script>
+</body></html>

@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+
+<html lang="id"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Watch Library</title>
+<!-- Tailwind CSS Setup -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Config injected from system prompt -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#8c7164",
+                      "on-background": "#151c27",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e7eefe",
+                      "surface-container-low": "#f0f3ff",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#dce2f3",
+                      "surface": "#f9f9ff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "surface-tint": "#9d4300",
+                      "surface-bright": "#f9f9ff",
+                      "primary-fixed": "#ffdbca",
+                      "outline-variant": "#e0c0b1",
+                      "secondary-container": "#2170e4",
+                      "on-secondary-fixed": "#001a42",
+                      "surface-container-highest": "#dce2f3",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#f97316",
+                      "inverse-surface": "#2a313d",
+                      "primary-fixed-dim": "#ffb690",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#251a00",
+                      "primary": "#9d4300",
+                      "on-primary-container": "#582200",
+                      "on-tertiary-fixed-variant": "#5a4300",
+                      "on-secondary-container": "#fefcff",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-dim": "#d3daea",
+                      "tertiary-container": "#c19300",
+                      "tertiary-fixed": "#ffdf9a",
+                      "tertiary-fixed-dim": "#f7be1d",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#785a00",
+                      "on-surface": "#151c27",
+                      "secondary": "#0058be",
+                      "inverse-primary": "#ffb690",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#584237",
+                      "on-primary-fixed": "#341100",
+                      "inverse-on-surface": "#ebf1ff",
+                      "on-primary-fixed-variant": "#783200",
+                      "on-tertiary-container": "#412f00",
+                      "background": "#f9f9ff",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-secondary-fixed-variant": "#004395",
+                      "surface-container-high": "#e2e8f8"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "touch_target_min": "44px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-child": [
+                              "Nunito Sans"
+                      ],
+                      "h2-admin": [
+                              "Inter"
+                      ],
+                      "body-admin": [
+                              "Inter"
+                      ],
+                      "display-child": [
+                              "Nunito Sans"
+                      ],
+                      "h1-child": [
+                              "Nunito Sans"
+                      ],
+                      "label-admin": [
+                              "Inter"
+                      ],
+                      "h2-child": [
+                              "Nunito Sans"
+                      ],
+                      "h1-admin": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-child": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h2-admin": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-admin": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-child": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "h1-child": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-admin": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2-child": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h1-admin": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Hide scrollbar for horizontal scroll but keep functionality */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-child min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background sticky full-width top-0 z-40 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center w-full px-lg py-md md:px-xl">
+<div class="flex items-center gap-sm">
+<img alt="Owl mascot wearing a graduation cap" class="w-10 h-10 rounded-full border-2 border-primary-container object-cover" data-alt="A highly detailed 3D render of a cute, expressive cartoon owl mascot character. The owl has large friendly eyes and is wearing a graduation cap. The style is bright, playful, soft-modern, with high-energy colors like orange and blue against a clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBBY_ENTLe9trlrdgAP6oHfhHTBvF_KNl8PIzGoDwDgJ-bDNaDVgYhOqkI-LLiD1f-DFI6l3x8-pa30gSk3tpVFignep43671oKEBpP2ENwR1ZPOviWaFLEuAGc6XJV1sBJm4MONS8fz7J_5yv4dmILsWSAmNPRT_f00ZT313GoIljRLZY4X9I_SgWZyuCiD7QAgig2RUrpuCw0fwdr6CrShu2TWC7wqdvuaggS08uPs_c_2rsfffKsMMWKO_3Xt34sz-VECxIh_DEZ"/>
+<span class="font-display-child text-display-child text-primary dark:text-primary-fixed">WapKidLearn</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:opacity-80 transition-opacity Active: scale-95 transition-transform text-primary dark:text-primary-fixed-dim">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto pb-24 px-md md:px-lg lg:px-xl mt-md">
+<!-- Top Banner (Time Remaining) -->
+<div class="bg-secondary text-on-secondary rounded-[24px] p-lg flex items-center justify-between mb-xl shadow-[0px_4px_12px_rgba(17,24,39,0.05)] border-2 border-[#1E40AF]">
+<div class="flex items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-surface-container/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-[32px] fill">timer</span>
+</div>
+<div>
+<h2 class="font-h2-child text-h2-child">Waktumu: 15 Menit</h2>
+<p class="font-body-child text-body-child opacity-90">Yuk, tonton video seru!</p>
+</div>
+</div>
+<span class="text-4xl">⏱</span>
+</div>
+<!-- Section: Video Baru (Horizontal Scroll) -->
+<section class="mb-xl">
+<div class="flex justify-between items-end mb-md">
+<h3 class="font-h1-child text-h1-child text-primary">Video Baru ✨</h3>
+<button class="text-secondary font-bold hover:underline px-sm py-xs">Lihat Semua</button>
+</div>
+<div class="flex overflow-x-auto gap-md hide-scrollbar pb-sm snap-x snap-mandatory -mx-md px-md md:mx-0 md:px-0">
+<!-- Video Item 1 -->
+<div class="min-w-[280px] max-w-[280px] snap-center shrink-0">
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-[0px_4px_12px_rgba(17,24,39,0.05)] overflow-hidden flex flex-col group cursor-pointer transition-transform hover:-translate-y-1">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px]" data-alt="A bright, playful 3D cartoon style image of a cute monkey exploring a jungle. The scene is brightly lit, using vibrant greens and soft high-key lighting to appeal to children. The style is soft-modern, cheerful, and educational." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaiMiTsXzFm9QiHXqHYIXy1ob9NYzO2MgfGeoOoDNH89QzkeY5L5I3vfnBeLj2scRHpZV1KApc33vObi6_hcjFKVgI_ZFUaSo6nK7T46FHpSPbWZ5Dn_SiTIpPLWDymiyKtOiifryrXFzoyM50du0Zy0z5hJ-0LGJHi9SdDcDPNFSdwUVBbASsgML7hQuU34iwMYcb9h2Sd3zZXORueoV9C8WgjvANcf7hHyf2EIdHn9FtgLRmFE1pd5WPqd96TATRZg-jpVwPZfXu"/>
+<!-- Play Icon Overlay -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+<div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px] text-primary fill">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-on-background/80 text-white text-sm font-bold px-2 py-1 rounded-lg backdrop-blur-sm">
+                                05:20
+                            </div>
+</div>
+<div class="p-md bg-surface-container-lowest">
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Mengenal Hewan Liar bersama Budi</h4>
+<p class="font-body-child text-[14px] text-on-surface-variant">Belajar Alam</p>
+</div>
+</div>
+</div>
+<!-- Video Item 2 (Locked State) -->
+<div class="min-w-[280px] max-w-[280px] snap-center shrink-0 relative">
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-[0px_4px_12px_rgba(17,24,39,0.05)] overflow-hidden flex flex-col h-full cursor-not-allowed">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px] grayscale blur-[2px]" data-alt="A soft, colorful cartoon illustration of numbers and math symbols floating in space. The image is brightly colored but intentionally slightly blurred as it represents locked content in an educational app. The style is joyful, clean, and modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5JH4wm7x6ME5CV1CEp-iMw433mfKrklbrz5m4lNuY0s3mRjkQqArausDQW38tBh3EoUUl3rT3jn_amYnZ8Xw4rrO4ZYyZBoYhSn3On9SSD9pUNlN0m-SFf1xWdNYu0R9IuVnazywEpuwTTFzkjtQc5keU2nc4knfN6UCxaZJlxEeaas0D46REAxe2vn6pX5yaHqw9YZHKzKtfE3G818RFty9qrRoVlH2ZXtp4rUdOaoxEMe8Jo9E_bAQDx5ePTKe1OtRXz0wUDyte"/>
+<!-- Locked Overlay (Orange) -->
+<div class="absolute inset-0 bg-primary-container/90 rounded-t-[24px] flex flex-col items-center justify-center p-md text-center backdrop-blur-[2px]">
+<span class="material-symbols-outlined text-[48px] text-white mb-sm fill">lock</span>
+<p class="text-white font-bold text-[16px] leading-tight">Kumpulkan poin untuk nonton!</p>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest opacity-70">
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Berhitung Menyenangkan (Part 1)</h4>
+<div class="flex items-center gap-xs mt-sm text-primary">
+<span class="material-symbols-outlined text-[20px] fill">stars</span>
+<span class="font-bold">Butuh 50 Poin</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Video Item 3 -->
+<div class="min-w-[280px] max-w-[280px] snap-center shrink-0">
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-[0px_4px_12px_rgba(17,24,39,0.05)] overflow-hidden flex flex-col group cursor-pointer transition-transform hover:-translate-y-1">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px]" data-alt="A playful 3D rendering of laboratory beakers and colorful bubbling liquids on a clean white desk. The aesthetic is educational, safe, and exciting for children, using bright vibrant colors and soft rounded shapes typical of modern educational apps." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzLoYGfg5gqeSOPeBXqeD0fV6OunXbwTKFrEOJavk5Gn-YLVlhYC-XVkEi03JrQGwNLFVv0wDLdZgJgPBiT7t12WyfkyLE_j12s3194MfuuJX-xCDivJD8sFevGgIjnGimXlWalwYxItzUwq-JT0domQRsHlS4boDs2e-QBQCcYuu-dflfA-zOo6AqmRus4lHVvPG-NpGC-dJFvsbaXkOdxxJ86qVfup5fGPrLEVU4B1X-t6NNTiD4jnVPpRJZjuDssS9mgMhhZzf_"/>
+<!-- Play Icon Overlay -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+<div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px] text-primary fill">play_arrow</span>
+</div>
+</div>
+<div class="absolute bottom-2 right-2 bg-on-background/80 text-white text-sm font-bold px-2 py-1 rounded-lg backdrop-blur-sm">
+                                08:15
+                            </div>
+</div>
+<div class="p-md bg-surface-container-lowest">
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Eksperimen Sains Sederhana</h4>
+<p class="font-body-child text-[14px] text-on-surface-variant">Sains Asik</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section: Lanjutkan Menonton (2-Column Grid) -->
+<section>
+<h3 class="font-h1-child text-h1-child text-secondary mb-md">Lanjutkan Menonton 🎬</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md md:gap-lg">
+<!-- Grid Item 1 -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-[#FFF7ED] shadow-[0px_4px_12px_rgba(249,115,22,0.1)] overflow-hidden flex flex-col group cursor-pointer transition-transform hover:-translate-y-1">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px]" data-alt="A bright, cheerful 3D cartoon style illustration of an astronaut cat exploring a colorful planet. The visual style is soft-modern, with high-energy colors designed to appeal to children. The lighting is soft and inviting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlywtt9zGAGw3_Q85gZosd-9VBgL-1yo8b-lfFiPfTw5rQLxgGAovjm6yD0R6ZTeS4hCfONdqppfspBTSbS5rFNPLo18ROiB8Vn_3W24grihT5Z19K9ATtWdS8uaWgz5szrkYnr5DuoR4ThPhRzRL1TWQi9fe-HFWG9CKHB6Dqtg5zSysep4D6T0UMd65EeheHiNQi6XTdiVfe78wG-37sebzA19w4seWFs6Ui6jDbJkwr6-lt79uI-ve8MKMc_FnxcZIL5PJDzUjm"/>
+<!-- Play Icon Overlay & Progress -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+<div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px] text-primary fill">play_arrow</span>
+</div>
+</div>
+<!-- Progress Bar (Math Mastery Style) -->
+<div class="absolute bottom-0 left-0 right-0 h-1.5 bg-[#F3F4F6]">
+<div class="h-full bg-primary-container w-1/2"></div>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest relative">
+<div class="absolute -top-6 right-4 text-3xl drop-shadow-md">🚀</div>
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Petualangan di Luar Angkasa</h4>
+<p class="font-body-child text-[14px] text-on-surface-variant">Tersisa 4 menit</p>
+</div>
+</div>
+<!-- Grid Item 2 -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-[#FFF7ED] shadow-[0px_4px_12px_rgba(249,115,22,0.1)] overflow-hidden flex flex-col group cursor-pointer transition-transform hover:-translate-y-1">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px]" data-alt="A highly detailed 3D render of colorful musical notes bouncing happily on a sunny background. The aesthetic is playful learning, using soft rounded geometry and high key lighting. The colors are vibrant and joyful." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAxA3Yg-kLqJv5m92smgXEz4vi0GiE5r5Ys-BWLhhxuiVwCe62jhgpFABb3XCrNorXrd0rIMqbvctDmp6pC-zOwsNu6oXz2Pv0Chd4MkCVgP6NosV-6E4eRBDeX3EbooPEvM5Ba0o4EVnJul0taEH-J7P7aWNtUigtrp2mqrUl6hO3viEM8SGAktxkbg8DAakJhKbo63vKSCj-wbMSjCrJj4HTWg2jPoqU9LTP5sMZsMqS1eeykZU4MjDln7sPL3RqT3Df_oRgaabin"/>
+<!-- Play Icon Overlay -->
+<div class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-colors">
+<div class="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg backdrop-blur-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-[36px] text-primary fill">play_arrow</span>
+</div>
+</div>
+<!-- Progress Bar (Math Mastery Style) -->
+<div class="absolute bottom-0 left-0 right-0 h-1.5 bg-[#F3F4F6]">
+<div class="h-full bg-primary-container w-[80%]"></div>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest relative">
+<div class="absolute -top-6 right-4 text-3xl drop-shadow-md">🎵</div>
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Lagu Alfabet Ceria</h4>
+<p class="font-body-child text-[14px] text-on-surface-variant">Tersisa 1 menit</p>
+</div>
+</div>
+<!-- Grid Item 3 (Locked State Example in Grid) -->
+<div class="bg-surface-container-lowest rounded-[24px] border border-outline-variant shadow-[0px_4px_12px_rgba(17,24,39,0.05)] overflow-hidden flex flex-col h-full cursor-not-allowed relative">
+<div class="relative w-full aspect-[16/9] bg-surface-variant">
+<img alt="Video thumbnail" class="w-full h-full object-cover rounded-t-[24px] grayscale blur-[2px]" data-alt="A soft cartoon illustration of building blocks spelling out simple words. The image is blurred to indicate locked content. The style remains playful and modern, adhering to an educational app aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvlzKVpKp-ArbRaJxfTi07eoBTCRSUeSlvm30HMHT6dQocFIbaDiXXqzhXxC6PqH0bDWtKlNLpjEKoSM0nyRC6bWbJhNw30avo8sIhs2g6Ag8R85ntSh-_QG9F6g4-vHMYtMDeE8-U2SJrIO6GqO_IQ-l7IT89WQrd3im-8bVxyE5lj-ow8epre8I1j87VkRNIeTSifgLxAlgAfJRjp83y9XXRBQD686m8sGG6WMwRqqG_yzNT3l0x4LoWxSCfdrxh7rThqQFIi9Wc"/>
+<!-- Locked Overlay (Orange) -->
+<div class="absolute inset-0 bg-primary-container/90 rounded-t-[24px] flex flex-col items-center justify-center p-md text-center backdrop-blur-[2px]">
+<span class="material-symbols-outlined text-[48px] text-white mb-sm fill">lock</span>
+<p class="text-white font-bold text-[16px] leading-tight">Kumpulkan poin untuk nonton!</p>
+</div>
+</div>
+<div class="p-md bg-surface-container-lowest opacity-70">
+<div class="absolute -top-6 right-4 text-3xl drop-shadow-md grayscale opacity-50">📚</div>
+<h4 class="font-h2-child text-h2-child text-on-surface line-clamp-2 leading-tight mb-xs">Membaca itu Mudah!</h4>
+<div class="flex items-center gap-xs mt-sm text-primary">
+<span class="material-symbols-outlined text-[20px] fill">stars</span>
+<span class="font-bold">Butuh 100 Poin</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-on-background fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe pt-xs md:hidden shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] shadow-lg dark:shadow-none docked full-width bottom-0 rounded-t-xl h-[80px]">
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface Active: scale-90 duration-200 w-16 h-full rounded-lg transition-colors group">
+<span class="material-symbols-outlined text-2xl group-hover:fill transition-all" data-icon="sports_esports">sports_esports</span>
+<span class="font-label-admin text-label-admin mt-1">Play</span>
+</button>
+<!-- Active state matches "Learn" / Watch intent -->
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 hover:bg-surface-variant dark:hover:bg-inverse-surface Active: scale-90 duration-200 min-w-[64px] h-[56px] transition-colors group">
+<span class="material-symbols-outlined text-2xl fill" data-icon="school">school</span>
+<span class="font-label-admin text-label-admin mt-1 font-bold">Learn</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface Active: scale-90 duration-200 w-16 h-full rounded-lg transition-colors group">
+<span class="material-symbols-outlined text-2xl group-hover:fill transition-all" data-icon="emoji_events">emoji_events</span>
+<span class="font-label-admin text-label-admin mt-1">Awards</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface Active: scale-90 duration-200 w-16 h-full rounded-lg transition-colors group">
+<span class="material-symbols-outlined text-2xl group-hover:fill transition-all" data-icon="person">person</span>
+<span class="font-label-admin text-label-admin mt-1">Profile</span>
+</button>
+</nav>
+<!-- Side Navigation (Web - Hidden on Mobile) -->
+<nav class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-xl bg-surface-container-low dark:bg-on-background docked left-0 h-full w-60 border-r border-outline-variant dark:border-outline flat no shadows z-50">
+<!-- Profile Header -->
+<div class="px-md mb-xl flex items-center gap-md left_align">
+<img alt="Parent or Admin Profile Picture" class="w-12 h-12 rounded-full object-cover border-2 border-primary" data-alt="A highly detailed 3D render of a cute, expressive cartoon owl mascot character. The owl has large friendly eyes and is wearing a graduation cap. The style is bright, playful, soft-modern, with high-energy colors like orange and blue against a clean white background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZFV2MnYBOc9JzLNN7sTHZLJBhekoDN-rvNv4z2uVI17ziOj4fPZpFUx_7kyYPPnDl5o8MBjAD3u6M5zRFjXFIeAhmLiwVqGb0NaDcj_rm0bO8uptD_v78iOzvIpOtfLvUzcZd2hDvTXwHctUcL19va0IGbsp_xqxo948qsjBwL_hBBsjfNTktm4xtHUKT_7rzkSnfXBeA8_qPdadkp8VOvm4JHl7Oadntn1Xdfb7TWGXnshF-wX-1IEZJas6yh2VXrq-q5tl9chvN"/>
+<div>
+<h2 class="font-h1-admin text-h1-admin text-primary truncate w-32">WapKidAdmin</h2>
+<p class="font-body-admin text-body-admin text-secondary dark:text-secondary-fixed-dim truncate">Manage Learning</p>
+</div>
+</div>
+<!-- Navigation Links -->
+<div class="flex flex-col gap-sm px-sm flex-grow">
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors Active: opacity-70 duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-admin text-body-admin">Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors Active: opacity-70 duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="trending_up">trending_up</span>
+<span class="font-body-admin text-body-admin">Student Progress</span>
+</a>
+<!-- Active State -->
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm font-semibold hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors Active: opacity-70 duration-150" href="#">
+<span class="material-symbols-outlined fill" data-icon="menu_book">menu_book</span>
+<span class="font-body-admin text-body-admin">Curriculum</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors Active: opacity-70 duration-150 rounded-lg" href="#">
+<span class="material-symbols-outlined" data-icon="assessment">assessment</span>
+<span class="font-body-admin text-body-admin">Reports</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant hover:bg-surface-container-high dark:hover:bg-inverse-surface transition-colors Active: opacity-70 duration-150 rounded-lg mt-auto" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-admin text-body-admin">Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

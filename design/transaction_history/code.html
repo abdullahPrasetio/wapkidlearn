@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Transaction History</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1.5rem"
+                    },
+                    spacing: {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    fontFamily: {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    fontSize: {
+                        "body-child": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "h2-admin": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-admin": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-child": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "h1-child": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-admin": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "h2-child": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "h1-admin": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .shadow-soft-orange {
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.1);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-child min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface border-b border-outline-variant docked full-width top-0 z-40 sticky">
+<div class="flex justify-between items-center w-full px-lg py-md md:px-xl">
+<div class="flex items-center gap-sm">
+<!-- Mascot Image Placeholder -->
+<div class="w-10 h-10 rounded-full bg-primary-fixed overflow-hidden flex items-center justify-center border-2 border-primary-container">
+<img alt="Owl mascot wearing a graduation cap" class="w-full h-full object-cover" data-alt="A cute, 3D rendered owl mascot with large expressive eyes, wearing a blue graduation cap. The style is soft, playful, and modern, using vibrant orange and blue colors consistent with a fun learning app for children." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgFM-vp-sGhHyOIm9KPGlrjTUmaFlNHF77SgG1cuS0cpsRteQ7Xq3r2Yg3AppV0fi-FHGnS4NRpS57k0MgqBsN6evZIsUy4DCBby7cqpyQEjDPe_s1VRyFjsGA_cCXhMtUBsTH3qvbs8sZJmMva1BFvWCaDOSrDmfeTIzkmwfZrMObVLwvn9cuxOWG-QK6mowB-DRrZblX-09unD_wOuplQK2l8ico2Fgm8K1tTqnKS8bxah8cSQbpwXZBOgNxD4FulF-_HpKkeWU1"/>
+</div>
+</div>
+<h1 class="font-h1-child text-h1-child text-primary tracking-tight">WapKidLearn</h1>
+<button class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:opacity-80 transition-opacity text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-grow w-full max-w-md mx-auto px-md py-lg flex flex-col gap-lg pb-32">
+<!-- Page Title -->
+<div class="flex items-center gap-sm">
+<a class="w-10 h-10 flex items-center justify-center rounded-full bg-surface-container hover:bg-surface-variant transition-colors text-on-surface-variant" href="#">
+<span class="material-symbols-outlined">arrow_back</span>
+</a>
+<h2 class="font-h2-child text-h2-child text-on-surface">Riwayat Poin</h2>
+</div>
+<!-- Filter Tabs -->
+<div class="flex gap-sm p-sm bg-surface-container-low rounded-xl border border-outline-variant">
+<button class="flex-1 py-sm rounded-lg bg-primary-container text-on-primary-container font-bold text-center transition-transform scale-95 shadow-soft-orange">
+                Semua
+            </button>
+<button class="flex-1 py-sm rounded-lg bg-surface text-on-surface-variant font-semibold text-center hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant">
+                Poin Masuk
+            </button>
+<button class="flex-1 py-sm rounded-lg bg-surface text-on-surface-variant font-semibold text-center hover:bg-surface-variant transition-colors border border-transparent hover:border-outline-variant">
+                Poin Keluar
+            </button>
+</div>
+<!-- Transaction List -->
+<div class="flex flex-col gap-md">
+<!-- Category Header -->
+<h3 class="text-on-surface-variant font-bold text-sm tracking-wider uppercase mt-sm">Bulan Ini</h3>
+<!-- Earned Points Item -->
+<div class="bg-surface-container-lowest rounded-2xl p-md border border-[#FFF7ED] shadow-soft-orange flex items-center gap-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-[#22C55E]"></div>
+<div class="w-12 h-12 rounded-xl bg-[#22C55E]/10 flex items-center justify-center text-[#22C55E]">
+<span class="material-symbols-outlined" style="font-size: 28px;">add_circle</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-on-surface">Main Matematika (Penjumlahan)</p>
+<p class="text-on-surface-variant text-sm">12 Okt</p>
+</div>
+<div class="text-[#22C55E] font-bold text-lg">
+                    +50 Poin
+                </div>
+</div>
+<!-- Spent Points Item -->
+<div class="bg-surface-container-lowest rounded-2xl p-md border border-[#FFF7ED] shadow-soft-orange flex items-center gap-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-primary-container"></div>
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-size: 28px;">remove_circle</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-on-surface">Tukar Waktu Nonton</p>
+<p class="text-on-surface-variant text-sm">11 Okt</p>
+</div>
+<div class="text-primary-container font-bold text-lg">
+                    -100 Poin
+                </div>
+</div>
+<!-- Earned Points Item -->
+<div class="bg-surface-container-lowest rounded-2xl p-md border border-[#FFF7ED] shadow-soft-orange flex items-center gap-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-[#22C55E]"></div>
+<div class="w-12 h-12 rounded-xl bg-[#22C55E]/10 flex items-center justify-center text-[#22C55E]">
+<span class="material-symbols-outlined" style="font-size: 28px;">emoji_events</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-on-surface">Misi Harian Selesai</p>
+<p class="text-on-surface-variant text-sm">10 Okt</p>
+</div>
+<div class="text-[#22C55E] font-bold text-lg">
+                    +20 Poin
+                </div>
+</div>
+<!-- Spent Points Item -->
+<div class="bg-surface-container-lowest rounded-2xl p-md border border-[#FFF7ED] shadow-soft-orange flex items-center gap-md relative overflow-hidden">
+<div class="absolute left-0 top-0 bottom-0 w-2 bg-primary-container"></div>
+<div class="w-12 h-12 rounded-xl bg-primary-container/10 flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined" style="font-size: 28px;">sports_esports</span>
+</div>
+<div class="flex-1">
+<p class="font-bold text-on-surface">Main Game Ekstra</p>
+<p class="text-on-surface-variant text-sm">08 Okt</p>
+</div>
+<div class="text-primary-container font-bold text-lg">
+                    -30 Poin
+                </div>
+</div>
+</div>
+<!-- Empty State Example (Hidden by default, shown here for structure) -->
+<!--
+        <div class="flex flex-col items-center justify-center py-xl mt-lg bg-surface-container-low rounded-2xl border-2 border-dashed border-outline-variant">
+            <span class="text-6xl mb-md">📭</span>
+            <h3 class="font-h2-child text-on-surface mb-xs">Belum Ada Riwayat</h3>
+            <p class="text-on-surface-variant text-center max-w-[250px]">Ayo main dan belajar untuk mengumpulkan poin!</p>
+        </div>
+        -->
+</main>
+<!-- BottomNavBar (Transaction history implies leaving the main flow, so nav shell is excluded based on logic, but since it's a mobile child view and might be considered a top level 'Profile' sub-view, I'll exclude it to prioritize canvas as instructed for task-focused pages with 'Back' action) -->
+</body></html>

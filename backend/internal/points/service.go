@@ -3,6 +3,7 @@ package points
 import (
 	"context"
 	"errors"
+	"log"
 	"wapkidlearn/internal/achievement"
 	db "wapkidlearn/internal/database/queries"
 	"wapkidlearn/pkg/pgutil"
@@ -34,9 +35,12 @@ type WatchWalletResponse struct {
 }
 
 type CombinedWalletResponse struct {
-	Point    *WalletResponse      `json:"point"`
-	Watch    *WatchWalletResponse `json:"watch"`
-	IsLocked bool                 `json:"is_locked"`
+	Point         *WalletResponse      `json:"point"`
+	Watch         *WatchWalletResponse `json:"watch"`
+	IsLocked      bool                 `json:"is_locked"`
+	DisplayName   string               `json:"display_name"`
+	CurrentStreak int32                `json:"current_streak"`
+	LongestStreak int32                `json:"longest_streak"`
 }
 
 type ConversionResult struct {
@@ -81,6 +85,25 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 		isLocked = true // safe-fail: bila gagal cek, anggap locked
 	}
 
+	displayName := ""
+	if profile, err := s.repo.GetChildByID(ctx, cid); err != nil {
+		log.Printf("[points] GetChildByID child=%s: %v", childID, err)
+	} else {
+		displayName = profile.DisplayName
+	}
+
+	var currentStreak, longestStreak int32
+	if streak, err := s.repo.GetStreak(ctx, cid); err != nil {
+		log.Printf("[points] GetStreak child=%s: %v", childID, err)
+	} else {
+		if streak.CurrentStreak != nil {
+			currentStreak = *streak.CurrentStreak
+		}
+		if streak.LongestStreak != nil {
+			longestStreak = *streak.LongestStreak
+		}
+	}
+
 	return &CombinedWalletResponse{
 		Point: &WalletResponse{
 			WalletID:       pgutil.UUIDToString(w.ID),
@@ -92,7 +115,10 @@ func (s *Service) GetWallet(ctx context.Context, childID string) (*CombinedWalle
 			BalanceSeconds:   watchBal,
 			UsedTodaySeconds: watchUsed,
 		},
-		IsLocked: isLocked,
+		IsLocked:      isLocked,
+		DisplayName:   displayName,
+		CurrentStreak: currentStreak,
+		LongestStreak: longestStreak,
 	}, nil
 }
 
@@ -201,7 +227,7 @@ func (s *Service) ConvertPoints(ctx context.Context, childID string, points int3
 		return nil, err
 	}
 
-	go s.achievements.AwardFirstWatch(context.Background(), cid)
+	s.achievements.AwardFirstWatch(ctx, cid)
 
 	return &ConversionResult{
 		PointsDeducted: points,

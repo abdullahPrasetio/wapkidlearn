@@ -69,6 +69,9 @@ export interface CombinedWallet {
   point: Wallet
   watch: WatchWallet
   is_locked: boolean
+  display_name: string
+  current_streak: number
+  longest_streak: number
 }
 
 export interface WatchWallet {
@@ -103,6 +106,8 @@ export interface Video {
   video_type: VideoType
   status: VideoStatus
   scope: 'global' | 'child_specific'
+  duration_seconds?: number
+  required_points?: number
 }
 
 export interface WatchSession {

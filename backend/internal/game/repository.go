@@ -74,5 +74,9 @@ func (r *Repository) GetLifetimePoints(ctx context.Context, childID pgtype.UUID)
 	return r.q.GetLifetimePoints(ctx, childID)
 }
 
+func (r *Repository) GetChildGradeLevel(ctx context.Context, childID pgtype.UUID) (int32, error) {
+	return r.q.GetChildGradeLevel(ctx, childID)
+}
+
 // NonceExpiry is how long a question nonce is valid.
 const NonceExpiry = 60 * time.Second

@@ -3,8 +3,26 @@
 import { use } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Link from 'next/link'
+
+const DAYS = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min']
+
+function BarChart({ data, color }: { data: { value: number; label: string }[]; color: string }) {
+  const max = Math.max(...data.map((d) => d.value), 1)
+  return (
+    <div className="flex items-end justify-between h-40 gap-1 border-b border-wkl-surface-variant pb-1">
+      {data.map((d, i) => (
+        <div key={i} className="flex flex-col items-center flex-1 h-full justify-end group">
+          <div
+            className="w-full max-w-[24px] rounded-t-sm transition-all duration-300"
+            style={{ height: `${Math.round((d.value / max) * 100)}%`, background: color, minHeight: d.value > 0 ? '4px' : '0' }}
+          />
+          <span className="text-[10px] text-wkl-on-surface-variant mt-2">{d.label}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 export default function ChildAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
@@ -13,85 +31,108 @@ export default function ChildAnalyticsPage({ params }: { params: Promise<{ id: s
     queryFn: () => parent.getAnalytics(id),
   })
 
+  const pointsData = data?.points_per_day?.slice(-7).map((d, i) => ({
+    value: d.points,
+    label: DAYS[i % 7],
+  })) ?? DAYS.map((label) => ({ value: 0, label }))
+
+  const watchData = data?.watch_time_per_day?.slice(-7).map((d, i) => ({
+    value: d.minutes,
+    label: DAYS[i % 7],
+  })) ?? DAYS.map((label) => ({ value: 0, label }))
+
+  const totalPoints = data?.points_per_day?.reduce((s, d) => s + d.points, 0) ?? 0
+  const avgWatch = watchData.length ? Math.round(watchData.reduce((s, d) => s + d.value, 0) / watchData.length) : 0
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center gap-3 pt-4">
-        <Link href={`/parent/children/${id}`} className="text-gray-400">←</Link>
-        <h1 className="text-xl font-bold text-gray-900">Laporan</h1>
-      </div>
-
-      {isLoading ? (
-        <div className="space-y-4">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-2xl h-48 animate-pulse" />
-          ))}
+    <div className="min-h-screen bg-wkl-surface text-wkl-on-surface pb-16 md:pb-0">
+      {/* Header */}
+      <header className="bg-wkl-surface border-b border-wkl-outline-variant flex justify-between items-center w-full px-6 py-4 sticky top-0 z-40">
+        <div className="flex items-center gap-2">
+          <Link href={`/parent/children/${id}`} className="flex items-center gap-1 text-wkl-on-surface-variant">
+            <span className="material-symbols-outlined">arrow_back</span>
+          </Link>
+          <span className="text-base font-bold text-wkl-on-surface">WapKidLearn</span>
         </div>
-      ) : data && (
-        <>
-          {/* Streak */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 text-center">
-              <p className="text-xs text-orange-500 font-medium">Streak Saat Ini</p>
-              <p className="text-3xl font-bold text-orange-600 mt-1">{data.current_streak}</p>
-              <p className="text-xs text-orange-400">hari berturut</p>
-            </div>
-            <div className="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 text-center">
-              <p className="text-xs text-yellow-600 font-medium">Streak Terpanjang</p>
-              <p className="text-3xl font-bold text-yellow-600 mt-1">{data.longest_streak}</p>
-              <p className="text-xs text-yellow-400">hari</p>
-            </div>
-          </div>
+        <span className="material-symbols-outlined text-wkl-primary text-2xl">account_circle</span>
+      </header>
 
-          {/* Points per day */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4">Poin per Hari</h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={data.points_per_day}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Bar dataKey="points" fill="#FF6B35" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      <main className="max-w-3xl mx-auto px-4 md:px-0 md:mt-4">
+        {/* Section header */}
+        <div className="py-6">
+          <h1 className="text-2xl font-bold text-wkl-on-surface">Analitik</h1>
+          <p className="text-sm text-wkl-on-surface-variant mt-1">Ringkasan performa belajar minggu ini</p>
+        </div>
 
-          {/* Watch time per day */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4">Waktu Nonton per Hari (menit)</h3>
-            <ResponsiveContainer width="100%" height={180}>
-              <BarChart data={data.watch_time_per_day}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="date" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Bar dataKey="minutes" fill="#118AB2" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+        {isLoading ? (
+          <div className="space-y-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="bg-wkl-surface-lowest border border-wkl-outline-variant rounded-lg h-48 animate-pulse" />
+            ))}
           </div>
-
-          {/* Accuracy per topic */}
-          <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
-            <h3 className="font-bold text-gray-900 mb-4">Akurasi per Topik</h3>
-            <div className="space-y-3">
-              {data.accuracy_per_topic.map((t) => (
-                <div key={t.topic}>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-gray-700">{t.topic}</span>
-                    <span className="font-medium text-gray-900">{t.accuracy}%</span>
-                  </div>
-                  <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-green-500 rounded-full transition-all"
-                      style={{ width: `${t.accuracy}%` }}
-                    />
-                  </div>
+        ) : (
+          <>
+            {/* Streak cards */}
+            <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="border border-wkl-outline-variant rounded-lg p-4 bg-wkl-surface-lowest flex items-center gap-4">
+                <div className="text-3xl">🔥</div>
+                <div>
+                  <p className="text-xs text-wkl-on-surface-variant">Current Streak</p>
+                  <p className="text-xl font-bold text-wkl-on-surface">{data?.current_streak ?? 0} Hari</p>
                 </div>
-              ))}
+              </div>
+              <div className="border border-wkl-outline-variant rounded-lg p-4 bg-wkl-surface-lowest flex items-center gap-4">
+                <div className="text-3xl">🏅</div>
+                <div>
+                  <p className="text-xs text-wkl-on-surface-variant">Longest Streak</p>
+                  <p className="text-xl font-bold text-wkl-on-surface">{data?.longest_streak ?? 0} Hari</p>
+                </div>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+
+            {/* Points chart */}
+            <div className="border border-wkl-outline-variant rounded-lg p-6 bg-wkl-surface-lowest mb-6">
+              <div className="flex justify-between items-end mb-4">
+                <h2 className="text-base font-semibold text-wkl-on-surface">Poin per Hari</h2>
+                <span className="text-xs text-wkl-primary bg-wkl-primary-fixed px-2 py-1 rounded-full">Total: {totalPoints}</span>
+              </div>
+              <BarChart data={pointsData} color="#f97316" />
+            </div>
+
+            {/* Watch time chart */}
+            <div className="border border-wkl-outline-variant rounded-lg p-6 bg-wkl-surface-lowest mb-6">
+              <div className="flex justify-between items-end mb-4">
+                <h2 className="text-base font-semibold text-wkl-on-surface">Waktu Belajar (Menit)</h2>
+                <span className="text-xs text-wkl-secondary bg-wkl-secondary-fixed px-2 py-1 rounded-full">Rata-rata: {avgWatch}m</span>
+              </div>
+              <BarChart data={watchData} color="#0058be" />
+            </div>
+
+            {/* Accuracy per topic */}
+            {data?.accuracy_per_topic?.length ? (
+              <div className="border border-wkl-outline-variant rounded-lg p-6 bg-wkl-surface-lowest mb-8">
+                <h2 className="text-base font-semibold text-wkl-on-surface mb-6">Akurasi per Topik</h2>
+                <div className="flex flex-col gap-6">
+                  {data.accuracy_per_topic.map((t) => {
+                    const color = t.accuracy >= 80 ? '#2170e4' : t.accuracy >= 60 ? '#f97316' : '#ba1a1a'
+                    return (
+                      <div key={t.topic}>
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-wkl-on-surface font-medium">{t.topic}</span>
+                          <span className="text-xs font-semibold" style={{ color }}>{t.accuracy}%</span>
+                        </div>
+                        <div className="w-full h-3 bg-wkl-surface-variant rounded-full overflow-hidden">
+                          <div className="h-full rounded-full transition-all" style={{ width: `${t.accuracy}%`, background: color }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            ) : null}
+          </>
+        )}
+      </main>
     </div>
   )
 }

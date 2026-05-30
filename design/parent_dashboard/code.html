@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parent Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#8c7164",
+                      "on-background": "#151c27",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e7eefe",
+                      "surface-container-low": "#f0f3ff",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#dce2f3",
+                      "surface": "#f9f9ff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "surface-tint": "#9d4300",
+                      "surface-bright": "#f9f9ff",
+                      "primary-fixed": "#ffdbca",
+                      "outline-variant": "#e0c0b1",
+                      "secondary-container": "#2170e4",
+                      "on-secondary-fixed": "#001a42",
+                      "surface-container-highest": "#dce2f3",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#f97316",
+                      "inverse-surface": "#2a313d",
+                      "primary-fixed-dim": "#ffb690",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#251a00",
+                      "primary": "#9d4300",
+                      "on-primary-container": "#582200",
+                      "on-tertiary-fixed-variant": "#5a4300",
+                      "on-secondary-container": "#fefcff",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-dim": "#d3daea",
+                      "tertiary-container": "#c19300",
+                      "tertiary-fixed": "#ffdf9a",
+                      "tertiary-fixed-dim": "#f7be1d",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#785a00",
+                      "on-surface": "#151c27",
+                      "secondary": "#0058be",
+                      "inverse-primary": "#ffb690",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#584237",
+                      "on-primary-fixed": "#341100",
+                      "inverse-on-surface": "#ebf1ff",
+                      "on-primary-fixed-variant": "#783200",
+                      "on-tertiary-container": "#412f00",
+                      "background": "#f9f9ff",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-secondary-fixed-variant": "#004395",
+                      "surface-container-high": "#e2e8f8"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "touch_target_min": "44px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "base": "4px"
+              },
+              "fontFamily": {
+                      "body-child": ["Nunito Sans"],
+                      "h2-admin": ["Inter"],
+                      "body-admin": ["Inter"],
+                      "display-child": ["Nunito Sans"],
+                      "h1-child": ["Nunito Sans"],
+                      "label-admin": ["Inter"],
+                      "h2-child": ["Nunito Sans"],
+                      "h1-admin": ["Inter"]
+              },
+              "fontSize": {
+                      "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                      "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                      "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                      "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                      "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                      "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                      "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                      "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-admin min-h-screen pb-xl">
+<!-- Mobile Top Bar -->
+<header class="bg-surface-container-lowest border-b border-outline-variant flex justify-between items-center w-full px-lg py-md md:px-xl sticky top-0 z-50">
+<h1 class="font-h1-admin text-on-surface">Halo, Ayah Budi! 👋</h1>
+<button aria-label="Logout" class="text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="logout">logout</span>
+</button>
+</header>
+<main class="px-md py-lg md:max-w-2xl md:mx-auto">
+<div class="flex flex-col gap-md">
+<!-- Child Card 1: Budi -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-start gap-md shadow-sm">
+<img alt="Budi's avatar" class="w-[64px] h-[64px] rounded-full object-cover border-2 border-surface-container" data-alt="A brightly lit, professional headshot of a smiling young boy with short dark hair, wearing a casual orange t-shirt. The background is a soft, solid light gray, keeping the focus entirely on his cheerful expression. The lighting is soft and even, typical of a modern app avatar placeholder." src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3BQryYB8N0iUgyE6ZMCjD42zo2VYTHw2F2VZuljgOHEr5Z5R4bMTWah3shRl-6OYI57DhqS1vYv7dtXoSUSw9EVNqkx7JvADNQkf7sZcB5l2BeDeojeHmf9RLGjx7P3tsBhiMoFt3DcK-qoAN3mkAkLeECJyRBmNh--FhHl2iiF6gor8dAQq8NaHz_1O0w3nNer26_-FObYUmpi2VElA4d3ef1m3oMsCSxwrnyoMKX6hB8Gk3cVtIWBctA37vI9mjTZ0hmNYRLLeD"/>
+<div class="flex-1">
+<div class="flex justify-between items-start mb-sm">
+<h2 class="font-h2-admin text-on-surface">Budi</h2>
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-full bg-surface-container text-secondary font-label-admin">
+<span class="material-symbols-outlined text-[14px]">check_circle</span>
+                            Aktif
+                        </span>
+</div>
+<div class="flex flex-wrap gap-sm mb-sm">
+<!-- Poin Badge -->
+<div class="inline-flex items-center gap-xs bg-tertiary-container text-on-tertiary-container px-2 py-1 rounded-lg font-label-admin">
+<span class="material-symbols-outlined text-[16px]">stars</span>
+                            1,250 Poin
+                        </div>
+<!-- Watch Time -->
+<div class="inline-flex items-center gap-xs bg-surface-container-low text-on-surface-variant px-2 py-1 rounded-lg font-label-admin">
+<span class="material-symbols-outlined text-[16px]">schedule</span>
+                            15m hari ini
+                        </div>
+</div>
+<button class="text-secondary font-label-admin hover:underline mt-xs flex items-center gap-xs">
+                        Lihat Progres Detail <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</article>
+<!-- Child Card 2: Siti (Locked) -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl p-md flex items-start gap-md opacity-80 relative overflow-hidden">
+<div class="absolute inset-0 bg-surface-variant/10 z-0"></div>
+<img alt="Siti's avatar" class="w-[64px] h-[64px] rounded-full object-cover border-2 border-surface-container grayscale relative z-10" data-alt="A portrait of a young girl with pigtails wearing a blue top, set against a plain background. The image is rendered in grayscale to indicate a disabled or locked state within a user interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsX8Y6YZet_XRXUCqAg0ri-EVu-aoTcGEKpKE-dscUSFbm2QH07oPzOTYMpBJdxY7bwp_L-JCHPjHiQTR3rGKDsJumLA8rlSNKI8qtixhCY7OEUkJieJxRZ8F-li1Z_Ro8dNWiqXCCwTpNNo-yKBm3ygTBz-woyz2FRtmJVS8orpyrnAKUvRVdhUBUHH68TQNYoOcEIiUVtin2ucsasZxs3K61E-PHrP-OlXDxtDKFoPVuoN_y2oAYHOl9pF-rRCkR_ObA3rXrJFhq"/>
+<div class="flex-1 relative z-10">
+<div class="flex justify-between items-start mb-sm">
+<h2 class="font-h2-admin text-on-surface">Siti</h2>
+<span class="inline-flex items-center gap-xs px-2 py-1 rounded-full bg-error text-on-error font-label-admin">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+                            Terkunci
+                        </span>
+</div>
+<p class="text-body-admin text-on-surface-variant mb-sm">Berlangganan paket Premium untuk membuka akses belajar untuk Siti.</p>
+<button class="bg-primary-container text-on-primary h-touch_target_min px-md rounded-lg font-label-admin font-bold uppercase tracking-wider w-full flex justify-center items-center gap-sm">
+                        Buka Akses <span class="material-symbols-outlined text-[18px]">workspace_premium</span>
+</button>
+</div>
+</article>
+<!-- Add Child Card -->
+<button class="w-full border-2 border-dashed border-outline-variant rounded-xl p-lg flex flex-col items-center justify-center gap-sm text-on-surface-variant hover:bg-surface-container-low hover:border-secondary transition-all group min-h-[120px]">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest group-hover:bg-secondary-container flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-2xl group-hover:text-on-secondary-container" data-icon="add">add</span>
+</div>
+<span class="font-h2-admin group-hover:text-secondary">Tambah Anak</span>
+</button>
+</div>
+</main>
+<!-- NavigationDrawer (Hidden on Mobile, visible on MD+ as per spec) -->
+<nav class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-xl bg-surface-container-low dark:bg-on-background border-r border-outline-variant dark:border-outline w-60 z-40">
+<div class="px-md mb-xl flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold">AB</div>
+<div>
+<h2 class="font-h1-admin text-h1-admin text-primary text-sm">WapKidAdmin</h2>
+<p class="text-xs text-on-surface-variant">Manage Learning</p>
+</div>
+</div>
+<div class="flex flex-col gap-xs px-sm">
+<a class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm font-semibold" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg" href="#">
+<span class="material-symbols-outlined">trending_up</span>
+<span>Student Progress</span>
+</a>
+<a class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+</body></html>

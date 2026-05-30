@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Achievements - WapKidLearn</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#8c7164",
+                      "on-background": "#151c27",
+                      "surface-container-lowest": "#ffffff",
+                      "surface-container": "#e7eefe",
+                      "surface-container-low": "#f0f3ff",
+                      "error-container": "#ffdad6",
+                      "surface-variant": "#dce2f3",
+                      "surface": "#f9f9ff",
+                      "secondary-fixed-dim": "#adc6ff",
+                      "surface-tint": "#9d4300",
+                      "surface-bright": "#f9f9ff",
+                      "primary-fixed": "#ffdbca",
+                      "outline-variant": "#e0c0b1",
+                      "secondary-container": "#2170e4",
+                      "on-secondary-fixed": "#001a42",
+                      "surface-container-highest": "#dce2f3",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#f97316",
+                      "inverse-surface": "#2a313d",
+                      "primary-fixed-dim": "#ffb690",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed": "#251a00",
+                      "primary": "#9d4300",
+                      "on-primary-container": "#582200",
+                      "on-tertiary-fixed-variant": "#5a4300",
+                      "on-secondary-container": "#fefcff",
+                      "on-secondary": "#ffffff",
+                      "on-error": "#ffffff",
+                      "surface-dim": "#d3daea",
+                      "tertiary-container": "#c19300",
+                      "tertiary-fixed": "#ffdf9a",
+                      "tertiary-fixed-dim": "#f7be1d",
+                      "on-error-container": "#93000a",
+                      "tertiary": "#785a00",
+                      "on-surface": "#151c27",
+                      "secondary": "#0058be",
+                      "inverse-primary": "#ffb690",
+                      "error": "#ba1a1a",
+                      "on-surface-variant": "#584237",
+                      "on-primary-fixed": "#341100",
+                      "inverse-on-surface": "#ebf1ff",
+                      "on-primary-fixed-variant": "#783200",
+                      "on-tertiary-container": "#412f00",
+                      "background": "#f9f9ff",
+                      "secondary-fixed": "#d8e2ff",
+                      "on-secondary-fixed-variant": "#004395",
+                      "surface-container-high": "#e2e8f8"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px",
+                      "2xl": "1rem",
+                      "3xl": "1.5rem"
+              },
+              "spacing": {
+                      "md": "16px",
+                      "xs": "4px",
+                      "xl": "32px",
+                      "lg": "24px",
+                      "touch_target_min": "44px",
+                      "sm": "8px",
+                      "xxl": "48px",
+                      "base": "4px",
+                      "safe": "env(safe-area-inset-bottom)"
+              },
+              "fontFamily": {
+                      "body-child": [
+                              "Nunito Sans"
+                      ],
+                      "h2-admin": [
+                              "Inter"
+                      ],
+                      "body-admin": [
+                              "Inter"
+                      ],
+                      "display-child": [
+                              "Nunito Sans"
+                      ],
+                      "h1-child": [
+                              "Nunito Sans"
+                      ],
+                      "label-admin": [
+                              "Inter"
+                      ],
+                      "h2-child": [
+                              "Nunito Sans"
+                      ],
+                      "h1-admin": [
+                              "Inter"
+                      ]
+              },
+              "fontSize": {
+                      "body-child": [
+                              "18px",
+                              {
+                                      "lineHeight": "26px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "h2-admin": [
+                              "20px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-admin": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-child": [
+                              "40px",
+                              {
+                                      "lineHeight": "48px",
+                                      "fontWeight": "800"
+                              }
+                      ],
+                      "h1-child": [
+                              "28px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-admin": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "h2-child": [
+                              "22px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "h1-admin": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "700"
+                              }
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .child-card-shadow {
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.15);
+        }
+        .flat-shadow {
+            box-shadow: 0px 4px 12px rgba(17, 24, 39, 0.05);
+        }
+        .gold-banner {
+            background: #EAB308;
+            color: #ffffff;
+        }
+        .locked-card {
+            opacity: 0.5;
+            filter: grayscale(100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-child min-h-screen flex flex-col antialiased">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center w-full px-lg py-md md:px-xl sticky z-40">
+<div class="flex items-center gap-sm hover:opacity-80 transition-opacity">
+<img alt="Owl mascot wearing a graduation cap" class="w-10 h-10 rounded-full border-2 border-primary-container" data-alt="A cheerful, 3D-rendered 3D owl mascot wearing a tiny blue graduation cap. The owl is bright orange with large, friendly eyes. It is presented against a clean white background, creating a high-quality, app-icon style avatar image suitable for a playful kids learning app." src="https://lh3.googleusercontent.com/aida-public/AB6AXuArbFVUR553phjhgADjXH0BcNhmS8QszT2VrAkeJo_1riiVv7RoZWDT2_jjmyHHeFLyfqtWlNFEbplw0K6KXVYNKseIjDqXnb4g-b_I2hyMxG9GJG7pPdLY-ydR9xGruLEiYp28xToRb9Z747q9WJzr0YJR1XE8xSD3xOXpSDh1viq9Eox03T1_PtrPOzv82uP_554opIcxU_n0Wo7TB0fC8ptnhcH2Lk7_a2IgdVFPQm_YzsxYUOVf7amzm8PcFvENNYuHbxt2XqMe"/>
+<span class="font-display-child text-display-child text-primary dark:text-primary-fixed tracking-tight">WapKidLearn</span>
+</div>
+<button aria-label="Profile" class="hover:opacity-80 transition-opacity active:scale-95 transition-transform text-on-surface-variant">
+<span class="material-symbols-outlined text-[32px]">account_circle</span>
+</button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-md md:px-lg py-lg md:py-xl pb-[100px] md:pb-xl flex flex-col gap-lg">
+<!-- Summary Banner -->
+<section class="gold-banner rounded-2xl p-md flex items-center justify-between shadow-lg transform hover:-translate-y-1 transition-transform cursor-pointer">
+<div class="flex items-center gap-sm">
+<span class="text-4xl">🏆</span>
+<div>
+<h2 class="font-h1-child text-h1-child m-0 text-white leading-tight">12 Badge Diraih</h2>
+<p class="font-body-child text-body-child text-white opacity-90 m-0">Kamu hebat, teruskan!</p>
+</div>
+</div>
+<div class="bg-white/20 rounded-full p-2">
+<span class="material-symbols-outlined text-white text-[28px]">chevron_right</span>
+</div>
+</section>
+<!-- Unlocked Achievements -->
+<section class="flex flex-col gap-md">
+<h3 class="font-h2-child text-h2-child text-on-background flex items-center gap-2">
+<span class="text-2xl">✨</span> Koleksi Kamu
+            </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border border-yellow-100 rounded-3xl p-md child-card-shadow flex flex-col items-center text-center gap-sm hover:scale-105 transition-transform cursor-pointer relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-yellow-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 bg-yellow-400 rounded-full flex items-center justify-center text-[40px] shadow-inner border-4 border-yellow-200 z-10">
+                        🚀
+                    </div>
+<div class="z-10">
+<h4 class="font-body-child text-body-child text-on-background m-0">Bintang Cepat</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Selesai &lt; 5 menit</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border border-blue-100 rounded-3xl p-md child-card-shadow flex flex-col items-center text-center gap-sm hover:scale-105 transition-transform cursor-pointer relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 bg-blue-400 rounded-full flex items-center justify-center text-[40px] shadow-inner border-4 border-blue-200 z-10">
+                        📚
+                    </div>
+<div class="z-10">
+<h4 class="font-body-child text-body-child text-on-background m-0">Pintar Baca</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Baca 10 Buku</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border border-green-100 rounded-3xl p-md child-card-shadow flex flex-col items-center text-center gap-sm hover:scale-105 transition-transform cursor-pointer relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 bg-green-400 rounded-full flex items-center justify-center text-[40px] shadow-inner border-4 border-green-200 z-10">
+                        💯
+                    </div>
+<div class="z-10">
+<h4 class="font-body-child text-body-child text-on-background m-0">Skor Sempurna</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Kuis Matematika</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container-lowest border border-purple-100 rounded-3xl p-md child-card-shadow flex flex-col items-center text-center gap-sm hover:scale-105 transition-transform cursor-pointer relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-br from-purple-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+<div class="w-20 h-20 bg-purple-400 rounded-full flex items-center justify-center text-[40px] shadow-inner border-4 border-purple-200 z-10">
+                        🎨
+                    </div>
+<div class="z-10">
+<h4 class="font-body-child text-body-child text-on-background m-0">Seniman Cilik</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Selesai 5 Gambar</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Locked Achievements -->
+<section class="flex flex-col gap-md mt-lg">
+<h3 class="font-h2-child text-h2-child text-on-background flex items-center gap-2">
+<span class="text-2xl">🔒</span> Belum Dibuka
+            </h3>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-md">
+<!-- Locked Card 1 -->
+<div class="bg-surface-variant rounded-3xl p-md locked-card flex flex-col items-center text-center gap-sm">
+<div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-[40px] border-4 border-gray-200">
+                        👑
+                    </div>
+<div>
+<h4 class="font-body-child text-body-child text-on-background m-0">Raja Kuis</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Menang 5x</p>
+</div>
+</div>
+<!-- Locked Card 2 -->
+<div class="bg-surface-variant rounded-3xl p-md locked-card flex flex-col items-center text-center gap-sm">
+<div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-[40px] border-4 border-gray-200">
+                        🔥
+                    </div>
+<div>
+<h4 class="font-body-child text-body-child text-on-background m-0">Api Semangat</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Main 7 Hari</p>
+</div>
+</div>
+<!-- Locked Card 3 -->
+<div class="bg-surface-variant rounded-3xl p-md locked-card flex flex-col items-center text-center gap-sm">
+<div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-[40px] border-4 border-gray-200">
+                        🌍
+                    </div>
+<div>
+<h4 class="font-body-child text-body-child text-on-background m-0">Penjelajah</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Selesai Peta</p>
+</div>
+</div>
+<!-- Locked Card 4 -->
+<div class="bg-surface-variant rounded-3xl p-md locked-card flex flex-col items-center text-center gap-sm">
+<div class="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center text-[40px] border-4 border-gray-200">
+                        🧩
+                    </div>
+<div>
+<h4 class="font-body-child text-body-child text-on-background m-0">Master Puzzle</h4>
+<p class="text-sm text-on-surface-variant font-medium mt-1">Level 10</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-on-background docked full-width bottom-0 rounded-t-xl shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] bg-surface-container-lowest fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe pt-xs md:hidden">
+<button aria-label="Play" class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-lg p-2 transition-colors w-16">
+<span class="material-symbols-outlined text-[28px] mb-1">sports_esports</span>
+<span class="font-label-admin text-label-admin">Play</span>
+</button>
+<button aria-label="Learn" class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-lg p-2 transition-colors w-16">
+<span class="material-symbols-outlined text-[28px] mb-1">school</span>
+<span class="font-label-admin text-label-admin">Learn</span>
+</button>
+<button aria-label="Awards" class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 Active: scale-90 duration-200 w-16">
+<span class="material-symbols-outlined text-[28px] mb-1" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+<span class="font-label-admin text-label-admin font-bold">Awards</span>
+</button>
+<button aria-label="Profile" class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface rounded-lg p-2 transition-colors w-16">
+<span class="material-symbols-outlined text-[28px] mb-1">person</span>
+<span class="font-label-admin text-label-admin">Profile</span>
+</button>
+</nav>
+</body></html>

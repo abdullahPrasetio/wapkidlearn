@@ -49,8 +49,16 @@ func (r *Repository) ResetDailyWatch(ctx context.Context, childID pgtype.UUID) e
 	return r.q.ResetDailyWatch(ctx, childID)
 }
 
+func (r *Repository) GetChildByID(ctx context.Context, childID pgtype.UUID) (db.ChildProfile, error) {
+	return r.q.GetChildByID(ctx, childID)
+}
+
+func (r *Repository) GetStreak(ctx context.Context, childID pgtype.UUID) (db.GetStreakByChildRow, error) {
+	return r.q.GetStreakByChild(ctx, childID)
+}
+
 func (r *Repository) GetIsLocked(ctx context.Context, childID pgtype.UUID) (bool, error) {
-	child, err := r.q.GetChildByID(ctx, childID)
+	child, err := r.GetChildByID(ctx, childID)
 	if err != nil {
 		return false, err
 	}

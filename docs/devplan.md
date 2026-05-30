@@ -3,7 +3,7 @@
 
 **Version:** 1.0.0  
 **Target:** 3 users, deploy di STB via Docker Compose + Cloudflare Tunnel  
-**Last Updated:** 2026-05-29
+**Last Updated:** 2026-05-30
 
 ---
 
@@ -598,8 +598,17 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] PWA: `sw.js` (cache-first + network-only untuk `/api/`), icon-192/512.png — selesai
 - [x] UI polish: loading skeleton (rewards, admin dashboard, child detail), error states (home, rewards, achievements, watch, transactions), empty states
 - [x] Responsiveness semua screen — layout `max-w-md/2xl/4xl mx-auto` per role, konten tidak stretching di tablet/desktop
+- [x] Design implementation child screens: redesign visual semua 10 halaman child mengikuti `design/` folder (child-login, home, game, session-summary, watch, video-player, locked, rewards, transactions, achievements)
+- [x] ChildBottomNav component — navigasi bawah 4 tab untuk semua screen child
+- [x] Nunito font — `next/font/google` + CSS variable `--font-nunito` + Tailwind `font-nunito`
+- [x] Design implementation parent screens: redesign visual semua 7 halaman parent (login, dashboard, child detail, analytics, settings, videos, activity) mengikuti Stitch design system
+- [x] Design implementation admin screens: redesign visual semua 4 halaman admin (dashboard, questions, users, videos) mengikuti Stitch design system
+- [x] AdminSidebar component — sidebar shared dengan active state detection via `usePathname()`
+- [x] Stitch design token (`wkl-*`) — 35+ color token di `tailwind.config.ts` (primary, secondary, surface variants, error, dll.)
+- [x] Material Symbols Outlined — import via Google Fonts CDN di `globals.css`, CSS class `.material-symbols-outlined`
+- [x] Inter font — `next/font/google` + CSS variable `--font-inter` untuk admin & parent UI
 
-**Deliverable:** App lengkap, siap dipakai keluarga.
+**Deliverable:** App lengkap dengan UI konsisten Stitch design system di semua role, siap dipakai keluarga.
 
 ---
 

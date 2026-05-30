@@ -396,7 +396,7 @@ func (s *Service) EndSession(ctx context.Context, childID, sessionID string) (*S
 }
 
 func (s *Service) getChildGradeLevel(ctx context.Context, childID pgtype.UUID) (int32, error) {
-	gradeLevel, err := s.repo.q.GetChildGradeLevel(ctx, childID)
+	gradeLevel, err := s.repo.GetChildGradeLevel(ctx, childID)
 	if err != nil {
 		return 1, nil // default grade 1
 	}

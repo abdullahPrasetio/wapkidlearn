@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>WapKidLearn - Home</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "2xl": "1.5rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans", "sans-serif"],
+                        "h2-admin": ["Inter", "sans-serif"],
+                        "body-admin": ["Inter", "sans-serif"],
+                        "display-child": ["Nunito Sans", "sans-serif"],
+                        "h1-child": ["Nunito Sans", "sans-serif"],
+                        "label-admin": ["Inter", "sans-serif"],
+                        "h2-child": ["Nunito Sans", "sans-serif"],
+                        "h1-admin": ["Inter", "sans-serif"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                        "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                        "h1-child-mobile": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Nunito Sans', sans-serif; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Playful animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        .float-animation { animation: float 3s ease-in-out infinite; }
+        
+        /* Soft shadows for child UI */
+        .card-shadow { box-shadow: 0 8px 16px -4px rgba(249, 115, 22, 0.15); }
+    </style>
+</head>
+<body class="bg-background text-on-background pb-24 md:pb-0 md:pl-60">
+<!-- TopAppBar -->
+<header class="bg-surface docked full-width top-0 border-b border-outline-variant flex justify-between items-center w-full px-lg py-md md:px-xl sticky z-40">
+<div class="flex items-center gap-sm">
+<img alt="Owl Mascot" class="w-12 h-12 rounded-full object-cover float-animation border-2 border-primary-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOsmSb9xtMVu0Krnd6ACdlzLmnTT475erk4u5XLFuELqtmtkbFRovd-yMZA5mzi2JJPZpPLPrWtgVglJ8Pl_3TeX8W2Ymd1VKiHAjUMSRTy__ntSiC1HIG1IH_EUDw5w5Rcwldp7vc2lnqVUvYMiN9Hsz59VJfMyJJr-U2y_FZKL-6rXomj85uoF6CAOYwi_UXa1GIpTL34m2V52eDLVjt2Tu4ky0OxqiCY-r9s1IR3tny9bW74QAmRXLzTPP45vW79kY0z0w5mLKP"/>
+<h1 class="font-display-child text-primary h1-child-mobile md:text-h1-child">Halo, Budi! 👋</h1>
+</div>
+<button class="hover:opacity-80 transition-opacity p-2 rounded-full bg-surface-container hover:bg-surface-variant">
+<span class="material-symbols-outlined text-primary text-3xl">account_circle</span>
+</button>
+</header>
+<!-- Main Canvas -->
+<main class="max-w-4xl mx-auto p-md md:p-lg lg:p-xl space-y-lg">
+<!-- Stats Banners -->
+<div class="flex gap-md overflow-x-auto pb-sm snap-x snap-mandatory hide-scrollbar" style="scrollbar-width: none;">
+<div class="snap-center shrink-0 w-64 bg-surface-container-lowest rounded-2xl p-4 border-2 border-outline-variant card-shadow flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-[#FEF08A] flex items-center justify-center text-xl">🪙</div>
+<div>
+<p class="font-body-child text-sm text-on-surface-variant">Poin Saya</p>
+<p class="font-h2-child text-tertiary-container">1,250</p>
+</div>
+</div>
+</div>
+<div class="snap-center shrink-0 w-64 bg-surface-container-lowest rounded-2xl p-4 border-2 border-outline-variant card-shadow flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-error-container flex items-center justify-center text-xl">🔥</div>
+<div>
+<p class="font-body-child text-sm text-on-surface-variant">Streak</p>
+<p class="font-h2-child text-error">3 Hari</p>
+</div>
+</div>
+</div>
+<div class="snap-center shrink-0 w-64 bg-surface-container-lowest rounded-2xl p-4 border-2 border-outline-variant card-shadow flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed flex items-center justify-center text-xl">⏱</div>
+<div>
+<p class="font-body-child text-sm text-on-surface-variant">Waktu Belajar</p>
+<p class="font-h2-child text-secondary">45 mnt</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Progress Bar Strip -->
+<div class="bg-surface-container-lowest rounded-2xl p-md border-2 border-outline-variant card-shadow flex items-center gap-md">
+<span class="text-2xl">🔥</span>
+<div class="flex-1">
+<div class="flex justify-between mb-1">
+<span class="font-body-child text-sm text-primary">Streak 3 hari!</span>
+<span class="font-body-child text-sm text-on-surface-variant">Terus semangat!</span>
+</div>
+<div class="h-3 bg-surface-variant rounded-full overflow-hidden">
+<div class="h-full bg-primary-container rounded-full w-3/7"></div>
+</div>
+</div>
+</div>
+<!-- 2x2 Navigation Grid -->
+<div class="grid grid-cols-2 gap-md md:gap-lg">
+<!-- Main Game -->
+<button class="bg-gradient-to-br from-[#FFEDD5] to-[#FFCC99] rounded-[24px] p-lg border-2 border-[#F97316] card-shadow text-left hover:-translate-y-1 transition-transform active:scale-95 flex flex-col items-center justify-center aspect-square relative overflow-hidden group">
+<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-md shadow-sm float-animation">
+<span class="material-symbols-outlined text-4xl text-primary-container" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+</div>
+<h3 class="font-h2-child text-on-primary-container text-center">Main Game</h3>
+<span class="mt-sm bg-white/50 px-3 py-1 rounded-full text-sm font-body-child text-primary">+100 Poin</span>
+</button>
+<!-- Nonton Video -->
+<button class="bg-gradient-to-br from-[#DBEAFE] to-[#93C5FD] rounded-[24px] p-lg border-2 border-[#3B82F6] card-shadow text-left hover:-translate-y-1 transition-transform active:scale-95 flex flex-col items-center justify-center aspect-square relative overflow-hidden group">
+<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-md shadow-sm float-animation" style="animation-delay: 0.2s;">
+<span class="material-symbols-outlined text-4xl text-secondary" style="font-variation-settings: 'FILL' 1;">play_circle</span>
+</div>
+<h3 class="font-h2-child text-[#1E3A8A] text-center">Nonton Video</h3>
+<span class="mt-sm bg-white/50 px-3 py-1 rounded-full text-sm font-body-child text-secondary">Baru!</span>
+</button>
+<!-- Pencapaian -->
+<button class="bg-gradient-to-br from-[#FEF9C3] to-[#FDE047] rounded-[24px] p-lg border-2 border-[#EAB308] card-shadow text-left hover:-translate-y-1 transition-transform active:scale-95 flex flex-col items-center justify-center aspect-square relative overflow-hidden group">
+<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-md shadow-sm float-animation" style="animation-delay: 0.4s;">
+<span class="material-symbols-outlined text-4xl text-tertiary-container" style="font-variation-settings: 'FILL' 1;">emoji_events</span>
+</div>
+<h3 class="font-h2-child text-tertiary text-center">Pencapaian</h3>
+<span class="mt-sm bg-white/50 px-3 py-1 rounded-full text-sm font-body-child text-tertiary">3 Lencana</span>
+</button>
+<!-- Tukar Poin -->
+<button class="bg-gradient-to-br from-[#F3E8FF] to-[#D8B4FE] rounded-[24px] p-lg border-2 border-[#A855F7] card-shadow text-left hover:-translate-y-1 transition-transform active:scale-95 flex flex-col items-center justify-center aspect-square relative overflow-hidden group">
+<div class="absolute inset-0 bg-white opacity-0 group-hover:opacity-10 transition-opacity"></div>
+<div class="w-16 h-16 rounded-full bg-white flex items-center justify-center mb-md shadow-sm float-animation" style="animation-delay: 0.6s;">
+<span class="material-symbols-outlined text-4xl text-[#7E22CE]" style="font-variation-settings: 'FILL' 1;">redeem</span>
+</div>
+<h3 class="font-h2-child text-[#4C1D95] text-center">Tukar Poin</h3>
+<span class="mt-sm bg-white/50 px-3 py-1 rounded-full text-sm font-body-child text-[#7E22CE]">Diskon 10%</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="bg-surface-container-lowest shadow-lg shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] docked full-width bottom-0 rounded-t-xl fixed left-0 w-full z-50 flex justify-around items-center px-md pb-safe pt-xs md:hidden" style="padding-bottom: env(safe-area-inset-bottom, 16px);">
+<button class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-2 w-20 hover:bg-surface-variant transition-colors group">
+<span class="material-symbols-outlined text-2xl group-active:scale-90 duration-200" style="font-variation-settings: 'FILL' 1;">sports_esports</span>
+<span class="font-label-admin text-label-admin mt-1">Play</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant rounded-full px-4 py-2 w-20 transition-colors group">
+<span class="material-symbols-outlined text-2xl group-active:scale-90 duration-200">school</span>
+<span class="font-label-admin text-label-admin mt-1">Learn</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant rounded-full px-4 py-2 w-20 transition-colors group">
+<span class="material-symbols-outlined text-2xl group-active:scale-90 duration-200">emoji_events</span>
+<span class="font-label-admin text-label-admin mt-1">Awards</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant rounded-full px-4 py-2 w-20 transition-colors group">
+<span class="material-symbols-outlined text-2xl group-active:scale-90 duration-200">person</span>
+<span class="font-label-admin text-label-admin mt-1">Profile</span>
+</button>
+</nav>
+<!-- NavigationDrawer (Desktop Only) -->
+<nav class="hidden md:flex flex-col h-screen fixed left-0 top-0 py-xl bg-surface-container-low border-r border-outline-variant docked w-60">
+<div class="px-md mb-xl flex items-center gap-md">
+<img alt="Parent or Admin Profile Picture" class="w-10 h-10 rounded-full bg-surface-variant object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCOsmSb9xtMVu0Krnd6ACdlzLmnTT475erk4u5XLFuELqtmtkbFRovd-yMZA5mzi2JJPZpPLPrWtgVglJ8Pl_3TeX8W2Ymd1VKiHAjUMSRTy__ntSiC1HIG1IH_EUDw5w5Rcwldp7vc2lnqVUvYMiN9Hsz59VJfMyJJr-U2y_FZKL-6rXomj85uoF6CAOYwi_UXa1GIpTL34m2V52eDLVjt2Tu4ky0OxqiCY-r9s1IR3tny9bW74QAmRXLzTPP45vW79kY0z0w5mLKP"/>
+<div>
+<h2 class="font-h2-admin text-primary">WapKidAdmin</h2>
+<p class="font-body-admin text-sm text-on-surface-variant">Manage Learning</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-sm px-sm">
+<button class="flex items-center gap-md bg-secondary-container text-on-secondary-container rounded-lg px-md py-sm font-semibold hover:bg-surface-container-high transition-colors active:opacity-70 duration-150">
+<span class="material-symbols-outlined">dashboard</span>
+                Dashboard
+            </button>
+<button class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors active:opacity-70 duration-150">
+<span class="material-symbols-outlined">trending_up</span>
+                Student Progress
+            </button>
+<button class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors active:opacity-70 duration-150">
+<span class="material-symbols-outlined">menu_book</span>
+                Curriculum
+            </button>
+<button class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors active:opacity-70 duration-150">
+<span class="material-symbols-outlined">assessment</span>
+                Reports
+            </button>
+<button class="flex items-center gap-md text-on-surface-variant px-md py-sm hover:bg-surface-variant rounded-lg transition-colors mt-auto active:opacity-70 duration-150">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </button>
+</div>
+</nav>
+</body></html>

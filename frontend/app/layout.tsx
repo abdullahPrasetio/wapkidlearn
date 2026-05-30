@@ -1,6 +1,19 @@
 import type { Metadata, Viewport } from 'next'
+import { Nunito, Inter } from 'next/font/google'
 import './globals.css'
 import { Providers } from './providers'
+
+const nunito = Nunito({
+  subsets: ['latin'],
+  variable: '--font-nunito',
+  display: 'swap',
+})
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+})
 
 export const metadata: Metadata = {
   title: 'WapKidLearn',
@@ -26,8 +39,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="id">
       <head>
         <meta name="mobile-web-app-capable" content="yes" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
-      <body>
+      <body className={`${nunito.variable} ${inter.variable}`} suppressHydrationWarning>
         <Providers>{children}</Providers>
         <script
           dangerouslySetInnerHTML={{

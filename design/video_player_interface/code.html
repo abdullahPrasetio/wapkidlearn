@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>WapKidLearn - Video Player</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", { "lineHeight": "26px", "fontWeight": "600" }],
+                        "h2-admin": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-admin": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "display-child": ["40px", { "lineHeight": "48px", "fontWeight": "800" }],
+                        "h1-child": ["28px", { "lineHeight": "36px", "fontWeight": "700" }],
+                        "label-admin": ["12px", { "lineHeight": "16px", "fontWeight": "500" }],
+                        "h2-child": ["22px", { "lineHeight": "28px", "fontWeight": "700" }],
+                        "h1-admin": ["24px", { "lineHeight": "32px", "fontWeight": "700" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: normal;
+            font-style: normal;
+            font-size: 24px;
+            line-height: 1;
+            letter-spacing: normal;
+            text-transform: none;
+            display: inline-block;
+            white-space: nowrap;
+            word-wrap: normal;
+            direction: ltr;
+            -webkit-font-feature-settings: 'liga';
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-black text-white h-screen w-screen overflow-hidden flex flex-col relative font-body-child selection:bg-primary-container selection:text-on-primary-container">
+<!-- Top Navigation Overlay (Task Focused) -->
+<div class="absolute top-0 left-0 w-full flex justify-between items-start px-md py-lg z-20 bg-gradient-to-b from-black/80 to-transparent pointer-events-none">
+<!-- Exit Action -->
+<button aria-label="Exit Video" class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20 pointer-events-auto hover:bg-white/20 active:scale-95 transition-all shadow-lg">
+<span class="material-symbols-outlined text-white" style="font-size: 28px;">close</span>
+</button>
+<!-- Title & Timer Group -->
+<div class="flex flex-col items-end gap-2 pointer-events-auto">
+<!-- Timer Pill -->
+<div class="flex items-center gap-2 bg-surface/20 px-4 py-2 rounded-full backdrop-blur-md border border-surface/30 shadow-lg">
+<span class="material-symbols-outlined text-white text-lg">timer</span>
+<span class="text-white font-body-child text-sm font-bold tracking-widest tabular-nums">08:45</span>
+</div>
+<!-- Video Title -->
+<h1 class="text-white font-h2-child text-right drop-shadow-md max-w-[200px] leading-tight">Belajar Perkalian Dasar</h1>
+</div>
+</div>
+<!-- Video Canvas Center -->
+<div class="flex-1 flex items-center justify-center w-full relative z-0 mt-[-20px]">
+<!-- 16:9 Container -->
+<div class="w-full aspect-video bg-[#111] relative overflow-hidden flex items-center justify-center shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+<!-- Simulated Video Content via Background Image -->
+<img alt="Video Thumbnail" class="w-full h-full object-cover opacity-90" data-alt="A vibrant 3D animated educational scene designed for children, featuring colorful, soft-rounded 3D numbers and basic math symbols floating in a bright, modern classroom environment. Warm, cheerful lighting enhances the playful learning atmosphere. The visual aesthetic is polished, energetic, and engaging, utilizing a lively color palette of oranges, blues, and yellows typical of high-quality kids educational videos." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAVZW8IRm_oX4sC4V9pNBL198rha4Y-Tf7RxHj8O40CB3qQqKmzxXc5nTWf82vlUWNHqJbB9fzLQTJP45k5fF58XXsqZXUvp53OTQ9233CbEHMcluafMKzHMDwtWQtwBeqFkseB8RncgRN5oqKUAnA_0nwoh5jqBGVhYz5itfnX9hbglvP8q5fRKSGIF0tu1O0kCVfG5-SczDR9arZJL8sIaTAzkm07agjKzWhDHImJz_kdlb5mcN1-vJwIKZbfXb02rPQKs5RzBUpb"/>
+<!-- Vignette for better control visibility -->
+<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+</div>
+</div>
+<!-- Bottom Controls Overlay -->
+<div class="absolute bottom-16 left-0 w-full flex flex-col items-center gap-lg z-20 px-md pb-md">
+<!-- Progress Bar Scrubber -->
+<div class="w-full max-w-[500px] flex items-center gap-4 px-2">
+<span class="text-sm text-white/80 font-body-child font-bold tabular-nums drop-shadow-sm">02:15</span>
+<!-- Track -->
+<div class="flex-1 h-3 bg-white/20 rounded-full overflow-hidden relative cursor-pointer group shadow-inner">
+<!-- Indicator (Orange for active progress per guidelines) -->
+<div class="absolute top-0 left-0 h-full w-[20%] bg-primary-container rounded-full shadow-[0_0_10px_rgba(249,115,22,0.8)] group-hover:brightness-110 transition-all"></div>
+</div>
+<span class="text-sm text-white/80 font-body-child font-bold tabular-nums drop-shadow-sm">11:00</span>
+</div>
+<!-- Playback Controls -->
+<div class="flex items-center justify-center gap-xl">
+<!-- Rewind 10s -->
+<button class="w-14 h-14 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/10 active:scale-90 transition-all">
+<span class="material-symbols-outlined" style="font-size: 36px; font-variation-settings: 'FILL' 1;">replay_10</span>
+</button>
+<!-- Play/Pause Primary Action -->
+<button class="w-20 h-20 bg-primary-container text-on-primary-container rounded-full flex items-center justify-center shadow-[0_4px_20px_rgba(249,115,22,0.5)] hover:scale-105 hover:shadow-[0_6px_24px_rgba(249,115,22,0.6)] active:scale-95 transition-all border-2 border-white/20" id="playPauseBtn">
+<span class="material-symbols-outlined" id="playIcon" style="font-size: 48px; font-variation-settings: 'FILL' 1;">pause</span>
+</button>
+<!-- Forward 10s -->
+<button class="w-14 h-14 rounded-full flex items-center justify-center text-white/90 hover:text-white hover:bg-white/10 active:scale-90 transition-all">
+<span class="material-symbols-outlined" style="font-size: 36px; font-variation-settings: 'FILL' 1;">forward_10</span>
+</button>
+</div>
+</div>
+<!-- Warning Strip (Fixed at bottom per requirements) -->
+<div class="absolute bottom-0 left-0 w-full bg-tertiary-fixed text-on-tertiary-fixed-variant px-md py-sm flex items-center justify-center gap-sm z-30 shadow-[0_-4px_16px_rgba(0,0,0,0.5)] border-t border-tertiary-fixed-dim/30">
+<span class="material-symbols-outlined text-lg animate-pulse" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="font-body-child text-sm font-bold tracking-wide">Waktu belajar hampir habis!</span>
+</div>
+<!-- Simple interaction script for visual feedback -->
+<script>
+        document.getElementById('playPauseBtn').addEventListener('click', function() {
+            const icon = document.getElementById('playIcon');
+            if (icon.textContent === 'pause') {
+                icon.textContent = 'play_arrow';
+            } else {
+                icon.textContent = 'pause';
+            }
+        });
+    </script>
+</body></html>

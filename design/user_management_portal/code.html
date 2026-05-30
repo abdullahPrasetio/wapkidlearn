@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kelola User - WapKidLearn Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Nunito+Sans:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c7164",
+                        "on-background": "#151c27",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-container": "#e7eefe",
+                        "surface-container-low": "#f0f3ff",
+                        "error-container": "#ffdad6",
+                        "surface-variant": "#dce2f3",
+                        "surface": "#f9f9ff",
+                        "secondary-fixed-dim": "#adc6ff",
+                        "surface-tint": "#9d4300",
+                        "surface-bright": "#f9f9ff",
+                        "primary-fixed": "#ffdbca",
+                        "outline-variant": "#e0c0b1",
+                        "secondary-container": "#2170e4",
+                        "on-secondary-fixed": "#001a42",
+                        "surface-container-highest": "#dce2f3",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#f97316",
+                        "inverse-surface": "#2a313d",
+                        "primary-fixed-dim": "#ffb690",
+                        "on-tertiary": "#ffffff",
+                        "on-tertiary-fixed": "#251a00",
+                        "primary": "#9d4300",
+                        "on-primary-container": "#582200",
+                        "on-tertiary-fixed-variant": "#5a4300",
+                        "on-secondary-container": "#fefcff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#d3daea",
+                        "tertiary-container": "#c19300",
+                        "tertiary-fixed": "#ffdf9a",
+                        "tertiary-fixed-dim": "#f7be1d",
+                        "on-error-container": "#93000a",
+                        "tertiary": "#785a00",
+                        "on-surface": "#151c27",
+                        "secondary": "#0058be",
+                        "inverse-primary": "#ffb690",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#584237",
+                        "on-primary-fixed": "#341100",
+                        "inverse-on-surface": "#ebf1ff",
+                        "on-primary-fixed-variant": "#783200",
+                        "on-tertiary-container": "#412f00",
+                        "background": "#f9f9ff",
+                        "secondary-fixed": "#d8e2ff",
+                        "on-secondary-fixed-variant": "#004395",
+                        "surface-container-high": "#e2e8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "16px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "lg": "24px",
+                        "touch_target_min": "44px",
+                        "sm": "8px",
+                        "xxl": "48px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "body-child": ["Nunito Sans"],
+                        "h2-admin": ["Inter"],
+                        "body-admin": ["Inter"],
+                        "display-child": ["Nunito Sans"],
+                        "h1-child": ["Nunito Sans"],
+                        "label-admin": ["Inter"],
+                        "h2-child": ["Nunito Sans"],
+                        "h1-admin": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-child": ["18px", {"lineHeight": "26px", "fontWeight": "600"}],
+                        "h2-admin": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "body-admin": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-child": ["40px", {"lineHeight": "48px", "fontWeight": "800"}],
+                        "h1-child": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "label-admin": ["12px", {"lineHeight": "16px", "fontWeight": "500"}],
+                        "h2-child": ["22px", {"lineHeight": "28px", "fontWeight": "700"}],
+                        "h1-admin": ["24px", {"lineHeight": "32px", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-background min-h-screen pb-[80px]">
+<!-- TopAppBar -->
+<header class="bg-surface dark:bg-on-background text-primary dark:text-primary-fixed-dim docked full-width top-0 border-b border-outline-variant dark:border-outline flat no shadows flex justify-between items-center w-full px-lg py-md md:px-xl sticky z-40">
+<div class="flex items-center gap-sm">
+<img alt="Owl mascot wearing a graduation cap" class="w-10 h-10 rounded-full" data-alt="A 3D rendering of a cute, stylized owl mascot wearing a blue graduation cap. The owl is bright orange with large, friendly eyes and is holding a colorful plus sign. The style is modern, playful, and high-quality, suitable for an educational app. The background is isolated white." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAPRgPrH-8nGHgMERABBXNT2WlIDb0cSAdYAHvMDHIlm16lZiHOBiSYKVnAGg4G8SBmU4eIiSKPd5NezuTT9QGNB4ShLRsZd2OcMqWCZs9qz31S-NADcaldw0_w-xlc69K2xkksaFDB0r9hSzFy4syZjk9HOPIHDhW6kY1ecVVOV72nxPMONY2v5VnfKuOnGNiuZq30ieGslx1DJiKz9BnY8e-NhQUFtasbzg8lDjIF9q40e15WqE8W8hwKXnFUhASTRhv3f1RG3Jdh"/>
+<span class="font-display-child text-display-child text-primary dark:text-primary-fixed">WapKidLearn</span>
+</div>
+<button aria-label="Account" class="text-on-surface-variant hover:opacity-80 transition-opacity active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="account_circle" style="font-variation-settings: 'FILL' 0;">account_circle</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="p-md max-w-md mx-auto">
+<div class="mb-lg">
+<h1 class="font-h1-admin text-h1-admin mb-sm">Kelola User</h1>
+<p class="font-body-admin text-body-admin text-on-surface-variant">Manage application access and roles.</p>
+</div>
+<!-- Search Bar -->
+<div class="relative mb-lg">
+<div class="absolute inset-y-0 left-0 pl-sm flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+</div>
+<input class="w-full pl-xl pr-sm py-sm border-2 border-outline-variant rounded-DEFAULT focus:outline-none focus:border-[#3B82F6] focus:ring-4 focus:ring-[#3B82F6]/20 font-body-admin text-body-admin bg-surface-container-lowest" placeholder="Search users by name or email..." type="text"/>
+</div>
+<!-- User List -->
+<div class="space-y-sm">
+<!-- User Card 1 -->
+<div class="bg-surface-container-lowest border border-[#E5E7EB] rounded-lg p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-touch_target_min h-touch_target_min rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-h2-admin text-h2-admin shrink-0">
+                        JS
+                    </div>
+<div>
+<h3 class="font-h2-admin text-h2-admin text-on-background">John Smith</h3>
+<p class="font-body-admin text-body-admin text-on-surface-variant">john.smith@example.com</p>
+<span class="inline-block mt-xs px-2 py-1 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full font-label-admin text-label-admin">Parent</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#22C55E]"></div>
+</label>
+<span class="font-label-admin text-label-admin text-[#22C55E]">Active</span>
+</div>
+</div>
+<!-- User Card 2 -->
+<div class="bg-surface-container-lowest border border-[#E5E7EB] rounded-lg p-md flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-touch_target_min h-touch_target_min rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center font-h2-admin text-h2-admin shrink-0">
+                        EW
+                    </div>
+<div>
+<h3 class="font-h2-admin text-h2-admin text-on-background">Emily Watson</h3>
+<p class="font-body-admin text-body-admin text-on-surface-variant">emily.w@example.com</p>
+<span class="inline-block mt-xs px-2 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full font-label-admin text-label-admin">Admin</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm">
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#22C55E]"></div>
+</label>
+<span class="font-label-admin text-label-admin text-[#22C55E]">Active</span>
+</div>
+</div>
+<!-- User Card 3 (Inactive) -->
+<div class="bg-surface-container-lowest border border-[#E5E7EB] rounded-lg p-md flex items-center justify-between opacity-75">
+<div class="flex items-center gap-md">
+<div class="w-touch_target_min h-touch_target_min rounded-full bg-surface-variant text-on-surface-variant flex items-center justify-center font-h2-admin text-h2-admin shrink-0">
+                        MD
+                    </div>
+<div>
+<h3 class="font-h2-admin text-h2-admin text-on-background">Michael Doe</h3>
+<p class="font-body-admin text-body-admin text-on-surface-variant">m.doe@example.com</p>
+<span class="inline-block mt-xs px-2 py-1 bg-secondary-fixed text-on-secondary-fixed-variant rounded-full font-label-admin text-label-admin">Parent</span>
+</div>
+</div>
+<div class="flex flex-col items-end gap-sm">
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-11 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#22C55E]"></div>
+</label>
+<span class="font-label-admin text-label-admin text-on-surface-variant">Inactive</span>
+</div>
+</div>
+</div>
+<!-- FAB Add User -->
+<button aria-label="Add User" class="fixed bottom-[90px] right-md w-14 h-14 bg-[#F97316] text-[#FFFFFF] rounded-full shadow-[0px_4px_12px_rgba(17,24,39,0.2)] flex items-center justify-center active:scale-95 transition-transform">
+<span class="material-symbols-outlined" data-icon="add" style="font-size: 28px;">add</span>
+</button>
+</main>
+<!-- BottomNavBar -->
+<nav class="bg-surface-container-lowest dark:bg-on-background text-primary dark:text-primary-fixed-dim font-label-admin text-label-admin text-primary font-display-child docked full-width bottom-0 rounded-t-xl shadow-lg dark:shadow-none bg-surface-container-lowest shadow-[0px_-4px_12px_rgba(17,24,39,0.05)] fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-md pb-safe pt-xs md:hidden">
+<button aria-label="Dashboard" class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface active:scale-90 duration-200 p-sm rounded-lg w-[72px]">
+<span class="material-symbols-outlined mb-xs" data-icon="dashboard">dashboard</span>
+<span class="truncate w-full text-center">Dashboard</span>
+</button>
+<button aria-label="Reports" class="flex flex-col items-center justify-center text-on-surface-variant hover:bg-surface-variant dark:hover:bg-inverse-surface active:scale-90 duration-200 p-sm rounded-lg w-[72px]">
+<span class="material-symbols-outlined mb-xs" data-icon="assessment">assessment</span>
+<span class="truncate w-full text-center">Reports</span>
+</button>
+<button aria-label="Settings" class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full px-4 py-1 active:scale-90 duration-200 w-[72px]">
+<span class="material-symbols-outlined mb-xs" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="truncate w-full text-center">Settings</span>
+</button>
+</nav>
+</body></html>

@@ -250,13 +250,7 @@ Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
 
 ## Sisa yang Belum Dikerjakan
 
-| Item | Prioritas |
-|------|-----------|
-| Child: Emergency lock screen (halaman khusus `/child/locked`) | Medium |
-| Parent: Settings form lengkap (allowed hours, conversion rate) | Medium |
-| Parent analytics dashboard (cek & lengkapi) | Low |
-| UI polish: loading/error/empty states semua screen | Low |
-| Responsiveness audit (375px–1280px) | Low |
+Semua item telah selesai dikerjakan. ✅
 
 ---
 
@@ -302,3 +296,191 @@ Perbaikan menyeluruh dari hasil security review di `docs/finding.md`.
 - `watch/page.tsx` — error state di atas loading/empty
 - `parent/children/[id]/page.tsx` — pisah loading skeleton vs not-found screen
 - `admin/dashboard/page.tsx` — loading skeleton per stat card
+
+---
+
+## 2026-05-30 — Design Implementation: Semua Screen Child
+
+Redesign menyeluruh semua halaman child-facing mengikuti design di folder `design/`. Semua screen diimplementasikan dengan Tailwind CSS + Nunito font, tanpa mengubah business logic atau data-binding di `lib/api.ts`.
+
+### Infrastruktur
+
+#### Font Nunito
+- `app/layout.tsx`: tambah `import { Nunito } from 'next/font/google'`, apply `nunito.variable` ke `<body>`
+- `tailwind.config.ts`: tambah `nunito: ['var(--font-nunito)', 'system-ui', 'sans-serif']` ke `fontFamily`
+- Semua child screen menggunakan `font-nunito` class
+
+#### ChildBottomNav (baru)
+- `components/child/BottomNav.tsx` — navigasi bawah 4 tab: Play (`/child/game`), Learn (`/child/watch`), Awards (`/child/achievements`), Profile (`/child/rewards`)
+- Active tab detection via `usePathname()`, warna aktif orange-500
+- Fixed bottom, `max-w-md mx-auto`, `z-40`
+
+#### Child Layout
+- `app/(child)/layout.tsx` — import dan render `ChildBottomNav`, wrap children dalam `<div className="pb-20">` agar tidak tertutup navbar
+
+### Halaman Child
+
+#### Child Login (`app/(auth)/child-login/page.tsx`)
+- Step 1 (ID): full orange background, WapKidLearn owl logo, 6 avatar emoji carousel dengan dot indicator, input child ID, tombol "Ortu" ke `/login`
+- Step 2 (PIN): avatar terpilih ditampilkan, 4 PIN dots, white card numpad di bawah (1–9, backspace, 0, tombol checkmark oranye)
+
+#### Child Home (`app/(child)/child/home/page.tsx`)
+- Header: owl logo + WapKidLearn + profile icon link ke `/child/rewards`
+- Greeting "Halo, {nama}! 👋"
+- Dua wallet card: poin (orange-50) + menit nonton (red-50) dari `useWallet()`
+- Streak bar dengan fill oranye (hardcoded 60% — menunggu endpoint streak)
+- Grid 2×2: Game, Nonton, Pencapaian (tampilkan count badge unlocked), Tukar Poin
+
+#### Game Page + QuestionCard
+- `app/(child)/child/game/page.tsx` — idle screen: kartu tengah + emoji + tombol "Mulai!"; header game: X button, "Soal X/10", pause icon
+- `components/game/QuestionCard.tsx` — dual timer bar (orange + red), topic badge (blue-100) + streak badge (yellow-100), area soal `bg-orange-50` min-height 160px, grid 2×2 jawaban `py-5`, feedback panel hijau/merah
+
+#### SessionSummaryCard (`components/game/SessionSummaryCard.tsx`)
+- Trophy dalam circle `bg-orange-100`, judul dinamis ("Hebat!" ≥90%, "Bagus!" ≥70%, "Ayo Semangat!")
+- SVG circular accuracy ring (`r=48`, strokeDashoffset dari persentase), stroke hijau
+- Stats grid: jumlah soal + jawaban benar + poin diraih (⭐)
+- Tombol "Main Lagi" (refresh icon) + link "Kembali ke Home"
+
+#### Watch Library (`app/(child)/child/watch/page.tsx`)
+- Header owl logo + clock icon
+- Banner biru: tampilkan sisa waktu nonton; banner oranye jika balance 0
+- Section "Video Baru ✨": horizontal scroll `VideoCardH` (thumbnail 144×112px, overlay play/lock, duration badge)
+- Section "Lanjutkan Menonton 🎬": list vertikal `VideoCardV` (thumbnail 112×80px + judul + "Tersisa X menit")
+- Skeleton loading untuk kedua section
+
+#### VideoPlayer (`components/video/VideoPlayer.tsx`)
+- Background gelap (`bg-black`), X button `bg-white/10` kiri atas
+- Timer badge kanan atas: `bg-white/10 rounded-full`, teks merah saat ≤60 detik
+- Judul video di bawah header
+- Video area: iframe untuk YouTube/Vimeo, `<video ref>` untuk mp4
+- Progress bar oranye dengan dot handle + timestamp `formatTime()`
+- Kontrol mp4: skip-back, play/pause (circle oranye), skip-forward
+- Warning banner kuning saat `timeRemaining ≤ 300`
+
+#### Emergency Lock Screen (`app/(child)/child/locked/page.tsx`)
+- Full `bg-orange-500`, shield SVG 40% opacity latar
+- Emoji 🔒 ukuran `text-8xl` center
+- 3 bouncing white dots animasi staggered + teks "Menunggu orang tua membuka..."
+- Polling logic tidak berubah (`refetchInterval: 10_000`)
+
+#### Rewards / Tukar Poin (`app/(child)/child/rewards/page.tsx`)
+- Hapus `ConvertSlider`, ganti dengan preset tab inline: [10, 20, 50, 100] — tab style, selected = oranye
+- Dua balance card: poin (🌑) + menit nonton (🕐)
+- Conversion preview: orange card `{selected} poin → {watchMinutes} menit`
+- Success/error message inline dengan auto-clear 3 detik
+
+#### Transaction History (`app/(child)/child/rewards/transactions/page.tsx`)
+- Back button ke `/child/rewards` + judul "Riwayat Poin"
+- Filter tab: Semua / Poin Masuk / Poin Keluar dalam container abu-abu
+- `groupByMonth()` kelompokkan per bulan (`id-ID` locale)
+- Card per transaksi: border-l berwarna (hijau = earn, oranye = spend), ikon circle + deskripsi + tanggal + jumlah poin ±
+
+#### Achievements (`app/(child)/child/achievements/page.tsx`)
+- Banner kuning: "{N} Badge Diraih / Kamu hebat, teruskan!" (muncul jika ada badge)
+- `BadgeCard`: unlocked = gradient bg + emoji + judul; locked = gray bg + 🔒 + teks redup
+- `BADGE_EMOJI` dan `BADGE_COLORS` record untuk mapping code → tampilan
+- Section "✨ Koleksi Kamu" (grid 2 kolom) + section "🔒 Belum Dibuka" (grid 2 kolom)
+- Skeleton 4 kartu + error state + empty state
+
+### TypeScript
+- `npx tsc --noEmit` — 0 error setelah semua perubahan
+
+---
+
+## 2026-05-30 — Design Implementation: Semua Screen Parent & Admin
+
+Redesign menyeluruh semua halaman parent dan admin mengikuti Stitch design system dari folder `design/`. Semua screen diimplementasikan dengan color token `wkl-*`, Material Symbols Outlined, dan Inter font — tanpa mengubah business logic, API call, atau state management.
+
+### Infrastruktur
+
+#### Stitch Design Token (`wkl-*`)
+- `tailwind.config.ts`: tambah 35+ color token namespace `wkl` — primary (`#9d4300`), primary-container (`#f97316`), secondary (`#0058be`), secondary-container (`#2170e4`), surface variants (lowest/low/container/high/highest), outline-variant, error, tertiary-fixed, dll.
+- Seluruh halaman parent & admin menggunakan class `wkl-*` untuk warna, bukan hardcode hex
+
+#### Material Symbols Outlined
+- `app/globals.css`: pindah `@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined...')` ke **baris pertama** sebelum `@tailwind base` — wajib agar browser tidak mengabaikan import
+- CSS class `.material-symbols-outlined` dengan `font-variation-settings` untuk variasi filled/outlined
+
+#### Inter Font
+- `app/layout.tsx`: tambah `import { Inter } from 'next/font/google'`, apply `inter.variable` ke `<body>`
+- `body` juga ditambah `suppressHydrationWarning` untuk menghilangkan warning dari browser extension yang inject attribute
+
+#### AdminSidebar (komponen baru)
+- `components/admin/AdminSidebar.tsx` — sidebar fixed 240px, nav 4 item (Dashboard, Bank Soal, Review Video, Kelola User)
+- Active state via `usePathname()`: item aktif pakai `bg-wkl-secondary-container text-wkl-on-secondary-container`
+- Dipakai di semua halaman admin via `<AdminSidebar />`
+
+### Halaman Parent (7 halaman)
+
+#### Login (`app/(auth)/login/page.tsx`)
+- Material design input: icon email/lock di kiri, show/hide password toggle di kanan
+- CTA button orange (`bg-wkl-primary-container`), border input `border-wkl-outline-variant`
+- Link ke `/child-login` dengan arrow_forward icon di bawah
+
+#### Parent Dashboard (`app/(parent)/parent/dashboard/page.tsx`)
+- Sticky header: greeting + logout icon
+- Child card: avatar emoji, status badge (Aktif/Terkunci chip), poin badge, info kelas
+- Dashed "Tambah Anak" card dengan hover effect
+- Loading skeleton menggunakan `wkl` colors
+
+#### Child Detail (`app/(parent)/parent/children/[id]/page.tsx`)
+- Mobile sticky header dengan arrow_back
+- Hero: avatar besar + badge button lock/unlock (merah/hijau)
+- Stats row 3 kartu: Total Poin (emas), Waktu Nonton (biru), Hari Streak (oranye)
+- Grid 2×2 action: Analitik, Pengaturan, Video, Aktivitas — masing-masing dengan colored icon circle
+- Total poin dihitung dari `analytics.points_per_day.reduce()` (field `total_points` tidak ada di type)
+
+#### Analytics (`app/(parent)/parent/children/[id]/analytics/page.tsx`)
+- Ganti recharts → pure CSS bar chart component `BarChart` (tidak perlu dependency eksternal)
+- Streak cards (Current/Longest) dengan emoji api dan kalender
+- Bar chart poin per hari (orange) + bar chart waktu nonton (biru)
+- Horizontal progress bar per topik, warna berdasarkan akurasi (hijau ≥80%, kuning ≥60%, merah <60%)
+
+#### Settings (`app/(parent)/parent/children/[id]/settings/page.tsx`)
+- Stepper −/nilai/+ untuk daily limit dan conversion rate
+- CSS-only toggle switch untuk emergency lock
+- Grid 24 jam untuk allowed hours (clickable)
+- Sticky save/cancel bar di bawah
+- Semua mutation tetap via `parent.updateSettings()`
+
+#### Videos (`app/(parent)/parent/children/[id]/videos/page.tsx`)
+- Tab filter: Aktif / Menunggu / Ditolak
+- Card grid dengan thumbnail placeholder, status badge
+- Tombol approve/reject/delete inline per status
+- Form tambah video collapsible (collapsed by default)
+
+#### Activity (`app/(parent)/parent/children/[id]/activity/page.tsx`)
+- Feed dikelompokkan per hari: "Hari Ini" / "Kemarin" / tanggal
+- Row item dengan colored icon (game=orange, watch=biru)
+- Field `a.detail` digunakan untuk subtitle (bukan `a.points` yang tidak ada di type)
+- "Muat Lebih Banyak" button di bawah
+
+### Halaman Admin (4 halaman)
+
+#### Admin Dashboard (`app/(admin)/admin/dashboard/page.tsx`)
+- `<AdminSidebar />` + sticky header + logo WapKidLearn
+- 3 stat card: Total Soal, Total User, Video Pending (aksen merah jika ada pending)
+- 3 Quick Action link (Bank Soal, Review Video, Kelola User) dengan emoji icon + chevron_right
+
+#### Bank Soal (`app/(admin)/admin/questions/page.tsx`)
+- Search bar + grade filter chip (Semua, Kelas 1–6) — active chip `bg-wkl-secondary-container`
+- Card grid: topic badge (color-coded per topik), grade badge, difficulty stars (filled/outlined)
+- Edit/delete icon button per card
+- Collapsible form create/edit
+- FAB "Tambah Soal" bottom-right
+- Mobile bottom nav 4 tab
+
+#### Kelola User (`app/(admin)/admin/users/page.tsx`)
+- Search bar untuk filter email
+- User card: initials avatar (warna by role), email, role badge, toggle switch aktif/nonaktif
+- CSS toggle switch, mutation `admin.toggleUser()` tetap berjalan
+- Mobile bottom nav
+
+#### Review Video (`app/(admin)/admin/videos/page.tsx`)
+- `<AdminSidebar />` + tab filter Aktif / Menunggu / Ditolak
+- Card grid video: thumbnail placeholder, status badge, scope badge (Global/Parent)
+- Tombol approve/reject (dengan `prompt()` untuk alasan) / delete
+- Form tambah video global (collapsible)
+
+### TypeScript
+- `npx tsc --noEmit` — 0 error setelah semua perubahan
