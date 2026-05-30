@@ -10,7 +10,7 @@ interface Props {
 }
 
 export function SessionSummaryCard({ summary, onPlayAgain }: Props) {
-  const accuracy = summary.accuracy_pct
+  const accuracy = Math.round(summary.accuracy ?? summary.accuracy_pct ?? 0)
   const circumference = 2 * Math.PI * 48
   const offset = circumference - (accuracy / 100) * circumference
 

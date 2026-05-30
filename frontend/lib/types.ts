@@ -55,6 +55,7 @@ export interface SessionSummary {
   total_questions: number
   correct_count: number
   accuracy_pct: number
+  accuracy: number
   points_earned: number
   duration_seconds: number
 }

@@ -102,15 +102,16 @@ func (q *Queries) CreateVideo(ctx context.Context, arg CreateVideoParams) (Video
 }
 
 const createWatchHistory = `-- name: CreateWatchHistory :exec
-INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds)
-VALUES ($1, $2, $3, $4)
+INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds, last_position_seconds)
+VALUES ($1, $2, $3, $4, $5)
 `
 
 type CreateWatchHistoryParams struct {
-	ChildID         pgtype.UUID `json:"child_id"`
-	VideoID         pgtype.UUID `json:"video_id"`
-	SessionID       pgtype.UUID `json:"session_id"`
-	DurationSeconds int32       `json:"duration_seconds"`
+	ChildID             pgtype.UUID `json:"child_id"`
+	VideoID             pgtype.UUID `json:"video_id"`
+	SessionID           pgtype.UUID `json:"session_id"`
+	DurationSeconds     int32       `json:"duration_seconds"`
+	LastPositionSeconds int32       `json:"last_position_seconds"`
 }
 
 func (q *Queries) CreateWatchHistory(ctx context.Context, arg CreateWatchHistoryParams) error {
@@ -119,12 +120,13 @@ func (q *Queries) CreateWatchHistory(ctx context.Context, arg CreateWatchHistory
 		arg.VideoID,
 		arg.SessionID,
 		arg.DurationSeconds,
+		arg.LastPositionSeconds,
 	)
 	return err
 }
 
 const createWatchSession = `-- name: CreateWatchSession :one
-INSERT INTO watch_sessions (child_id, video_id, allocated_seconds) VALUES ($1, $2, $3) RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at
+INSERT INTO watch_sessions (child_id, video_id, allocated_seconds) VALUES ($1, $2, $3) RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at, last_position_seconds
 `
 
 type CreateWatchSessionParams struct {
@@ -146,6 +148,7 @@ func (q *Queries) CreateWatchSession(ctx context.Context, arg CreateWatchSession
 		&i.StartedAt,
 		&i.LastHeartbeatAt,
 		&i.EndedAt,
+		&i.LastPositionSeconds,
 	)
 	return i, err
 }
@@ -179,7 +182,7 @@ func (q *Queries) DeleteVideo(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getActiveWatchSession = `-- name: GetActiveWatchSession :one
-SELECT id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at FROM watch_sessions WHERE child_id = $1 AND status = 'active' LIMIT 1
+SELECT id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at, last_position_seconds FROM watch_sessions WHERE child_id = $1 AND status = 'active' LIMIT 1
 `
 
 func (q *Queries) GetActiveWatchSession(ctx context.Context, childID pgtype.UUID) (WatchSession, error) {
@@ -195,6 +198,7 @@ func (q *Queries) GetActiveWatchSession(ctx context.Context, childID pgtype.UUID
 		&i.StartedAt,
 		&i.LastHeartbeatAt,
 		&i.EndedAt,
+		&i.LastPositionSeconds,
 	)
 	return i, err
 }
@@ -227,6 +231,30 @@ func (q *Queries) GetAllVideos(ctx context.Context) ([]Video, error) {
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAssignedChildIDsForVideo = `-- name: GetAssignedChildIDsForVideo :many
+SELECT child_id FROM child_video_assignments WHERE video_id = $1
+`
+
+func (q *Queries) GetAssignedChildIDsForVideo(ctx context.Context, videoID pgtype.UUID) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, getAssignedChildIDsForVideo, videoID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []pgtype.UUID{}
+	for rows.Next() {
+		var child_id pgtype.UUID
+		if err := rows.Scan(&child_id); err != nil {
+			return nil, err
+		}
+		items = append(items, child_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -291,6 +319,24 @@ func (q *Queries) GetGlobalActiveVideos(ctx context.Context) ([]Video, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const getLastWatchPosition = `-- name: GetLastWatchPosition :one
+SELECT last_position_seconds FROM watch_histories
+WHERE child_id = $1 AND video_id = $2
+ORDER BY watched_at DESC LIMIT 1
+`
+
+type GetLastWatchPositionParams struct {
+	ChildID pgtype.UUID `json:"child_id"`
+	VideoID pgtype.UUID `json:"video_id"`
+}
+
+func (q *Queries) GetLastWatchPosition(ctx context.Context, arg GetLastWatchPositionParams) (int32, error) {
+	row := q.db.QueryRow(ctx, getLastWatchPosition, arg.ChildID, arg.VideoID)
+	var last_position_seconds int32
+	err := row.Scan(&last_position_seconds)
+	return last_position_seconds, err
 }
 
 const getVideoByID = `-- name: GetVideoByID :one
@@ -435,17 +481,21 @@ func (q *Queries) GetVideosBySubmitter(ctx context.Context, submittedBy pgtype.U
 }
 
 const heartbeatWatchSession = `-- name: HeartbeatWatchSession :one
-UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_heartbeat_at = NOW()
-WHERE id = $1 AND status = 'active' RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at
+UPDATE watch_sessions
+SET consumed_seconds = consumed_seconds + $2,
+    last_position_seconds = $3,
+    last_heartbeat_at = NOW()
+WHERE id = $1 AND status = 'active' RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at, last_position_seconds
 `
 
 type HeartbeatWatchSessionParams struct {
-	ID              pgtype.UUID `json:"id"`
-	ConsumedSeconds *int32      `json:"consumed_seconds"`
+	ID                  pgtype.UUID `json:"id"`
+	ConsumedSeconds     *int32      `json:"consumed_seconds"`
+	LastPositionSeconds int32       `json:"last_position_seconds"`
 }
 
 func (q *Queries) HeartbeatWatchSession(ctx context.Context, arg HeartbeatWatchSessionParams) (WatchSession, error) {
-	row := q.db.QueryRow(ctx, heartbeatWatchSession, arg.ID, arg.ConsumedSeconds)
+	row := q.db.QueryRow(ctx, heartbeatWatchSession, arg.ID, arg.ConsumedSeconds, arg.LastPositionSeconds)
 	var i WatchSession
 	err := row.Scan(
 		&i.ID,
@@ -457,6 +507,7 @@ func (q *Queries) HeartbeatWatchSession(ctx context.Context, arg HeartbeatWatchS
 		&i.StartedAt,
 		&i.LastHeartbeatAt,
 		&i.EndedAt,
+		&i.LastPositionSeconds,
 	)
 	return i, err
 }
@@ -516,7 +567,7 @@ func (q *Queries) SetVideoScope(ctx context.Context, arg SetVideoScopeParams) (V
 }
 
 const terminateWatchSession = `-- name: TerminateWatchSession :one
-UPDATE watch_sessions SET status = $2, ended_at = NOW() WHERE id = $1 RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at
+UPDATE watch_sessions SET status = $2, ended_at = NOW() WHERE id = $1 RETURNING id, child_id, video_id, allocated_seconds, consumed_seconds, status, started_at, last_heartbeat_at, ended_at, last_position_seconds
 `
 
 type TerminateWatchSessionParams struct {
@@ -537,6 +588,7 @@ func (q *Queries) TerminateWatchSession(ctx context.Context, arg TerminateWatchS
 		&i.StartedAt,
 		&i.LastHeartbeatAt,
 		&i.EndedAt,
+		&i.LastPositionSeconds,
 	)
 	return i, err
 }

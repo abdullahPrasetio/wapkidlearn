@@ -61,6 +61,9 @@ DELETE FROM child_video_assignments WHERE child_id = $1 AND video_id = $2;
 -- name: GetAssignedVideoIDs :many
 SELECT video_id FROM child_video_assignments WHERE child_id = $1;
 
+-- name: GetAssignedChildIDsForVideo :many
+SELECT child_id FROM child_video_assignments WHERE video_id = $1;
+
 -- name: GetActiveWatchSession :one
 SELECT * FROM watch_sessions WHERE child_id = $1 AND status = 'active' LIMIT 1;
 
@@ -68,19 +71,27 @@ SELECT * FROM watch_sessions WHERE child_id = $1 AND status = 'active' LIMIT 1;
 INSERT INTO watch_sessions (child_id, video_id, allocated_seconds) VALUES ($1, $2, $3) RETURNING *;
 
 -- name: HeartbeatWatchSession :one
-UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_heartbeat_at = NOW()
+UPDATE watch_sessions
+SET consumed_seconds = consumed_seconds + $2,
+    last_position_seconds = $3,
+    last_heartbeat_at = NOW()
 WHERE id = $1 AND status = 'active' RETURNING *;
 
 -- name: TerminateWatchSession :one
 UPDATE watch_sessions SET status = $2, ended_at = NOW() WHERE id = $1 RETURNING *;
+
+-- name: GetLastWatchPosition :one
+SELECT last_position_seconds FROM watch_histories
+WHERE child_id = $1 AND video_id = $2
+ORDER BY watched_at DESC LIMIT 1;
 
 -- name: CloseStaleWatchSessions :exec
 UPDATE watch_sessions SET status = 'terminated', ended_at = NOW()
 WHERE status = 'active' AND last_heartbeat_at < NOW() - INTERVAL '90 seconds';
 
 -- name: CreateWatchHistory :exec
-INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds)
-VALUES ($1, $2, $3, $4);
+INSERT INTO watch_histories (child_id, video_id, session_id, duration_seconds, last_position_seconds)
+VALUES ($1, $2, $3, $4, $5);
 
 -- name: DeductWatchTime :one
 UPDATE watch_wallets

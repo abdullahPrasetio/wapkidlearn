@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
-import type { Video, VideoStatus } from '@/lib/types'
+import type { Video, VideoStatus, ChildProfile } from '@/lib/types'
 
 type Tab = VideoStatus
 
@@ -32,6 +32,135 @@ function VideoThumbnail({ video }: { video: Video }) {
   )
 }
 
+// ── Assign Modal ──────────────────────────────────────────────────────────────
+
+function AssignModal({
+  video,
+  childList,
+  onClose,
+}: {
+  video: Video
+  childList: ChildProfile[]
+  onClose: () => void
+}) {
+  const qc = useQueryClient()
+
+  const { data: assignedIds, isLoading } = useQuery({
+    queryKey: ['video-assignments', video.id],
+    queryFn: () => parent.getVideoAssignments(video.id),
+  })
+
+  const assignMut = useMutation({
+    mutationFn: (childId: string) => parent.assignVideoToChild(video.id, childId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['video-assignments', video.id] }),
+    onError: (e) => alert(e instanceof Error ? e.message : 'Gagal assign'),
+  })
+
+  const unassignMut = useMutation({
+    mutationFn: (childId: string) => parent.unassignVideoFromChild(video.id, childId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['video-assignments', video.id] }),
+    onError: (e) => alert(e instanceof Error ? e.message : 'Gagal unassign'),
+  })
+
+  const isPending = assignMut.isPending || unassignMut.isPending
+
+  const toggle = (child: ChildProfile) => {
+    if (isPending) return
+    const assigned = assignedIds?.includes(child.id)
+    if (assigned) {
+      unassignMut.mutate(child.id)
+    } else {
+      assignMut.mutate(child.id)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+      <div className="bg-wkl-surface rounded-2xl w-full max-w-sm pb-safe shadow-xl">
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pt-5 pb-3 border-b border-wkl-outline-variant/30">
+          <div className="flex-1 min-w-0">
+            <p className="text-xs text-wkl-on-surface-variant mb-0.5">Kelola Assign Anak</p>
+            <h2 className="font-semibold text-sm text-wkl-on-surface truncate">{video.title}</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="ml-3 w-8 h-8 flex items-center justify-center rounded-full hover:bg-wkl-surface-container text-wkl-on-surface-variant"
+          >
+            <span className="material-symbols-outlined text-[20px]">close</span>
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="px-5 py-4">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map((i) => <div key={i} className="h-14 bg-wkl-surface-container rounded-xl animate-pulse" />)}
+            </div>
+          ) : childList.length === 0 ? (
+            <p className="text-sm text-wkl-on-surface-variant text-center py-6">
+              Belum ada anak terdaftar
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {childList.map((child) => {
+                const isAssigned = assignedIds?.includes(child.id) ?? false
+                return (
+                  <li key={child.id}>
+                    <button
+                      onClick={() => toggle(child)}
+                      disabled={isPending}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border transition-colors disabled:opacity-60 ${
+                        isAssigned
+                          ? 'border-wkl-primary bg-wkl-primary/5'
+                          : 'border-wkl-outline-variant hover:bg-wkl-surface-container'
+                      }`}
+                    >
+                      {/* Avatar */}
+                      <div className="w-9 h-9 rounded-full bg-wkl-surface-container flex items-center justify-center shrink-0 overflow-hidden">
+                        {child.avatar ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={child.avatar} alt={child.display_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="material-symbols-outlined text-[20px] text-wkl-on-surface-variant">face</span>
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 text-left min-w-0">
+                        <p className="font-semibold text-sm text-wkl-on-surface truncate">{child.display_name}</p>
+                        <p className="text-xs text-wkl-on-surface-variant">Kelas {child.grade_level}</p>
+                      </div>
+                      {/* Checkbox indicator */}
+                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        isAssigned ? 'border-wkl-primary bg-wkl-primary' : 'border-wkl-outline-variant'
+                      }`}>
+                        {isAssigned && (
+                          <span className="material-symbols-outlined text-white text-[14px]">check</span>
+                        )}
+                      </div>
+                    </button>
+                  </li>
+                )
+              })}
+            </ul>
+          )}
+        </div>
+
+        <div className="px-5 pb-5">
+          <button
+            onClick={onClose}
+            className="w-full py-2.5 rounded-xl bg-wkl-surface-container text-wkl-on-surface text-sm font-semibold"
+          >
+            Selesai
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function ParentVideosPage() {
   const qc = useQueryClient()
   const [tab, setTab] = useState<Tab>('pending')
@@ -46,9 +175,17 @@ export default function ParentVideosPage() {
   const [editTitle, setEditTitle] = useState('')
   const [editUrl, setEditUrl] = useState('')
 
+  // Assign modal state
+  const [assignVideo, setAssignVideo] = useState<Video | null>(null)
+
   const { data: myVideos } = useQuery({
     queryKey: ['parent-my-videos'],
     queryFn: parent.listMyVideos,
+  })
+
+  const { data: children } = useQuery({
+    queryKey: ['parent-children'],
+    queryFn: parent.listChildren,
   })
 
   const addMut = useMutation({
@@ -223,13 +360,14 @@ export default function ParentVideosPage() {
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-sm text-wkl-on-background leading-tight line-clamp-2 flex-1">{v.title}</h3>
                           <div className="flex gap-1 shrink-0">
-                            <button onClick={() => startEdit(v)} className="p-1 rounded hover:bg-wkl-surface-container text-wkl-on-surface-variant">
+                            <button onClick={() => startEdit(v)} className="p-1 rounded hover:bg-wkl-surface-container text-wkl-on-surface-variant" title="Edit judul/URL">
                               <span className="material-symbols-outlined text-[18px]">edit</span>
                             </button>
                             <button
                               onClick={() => { if (confirm(`Hapus "${v.title}"?`)) deleteMut.mutate(v.id) }}
                               disabled={deleteMut.isPending}
                               className="p-1 rounded hover:bg-red-50 text-wkl-on-surface-variant hover:text-red-500"
+                              title="Hapus video"
                             >
                               <span className="material-symbols-outlined text-[18px]">delete</span>
                             </button>
@@ -248,6 +386,17 @@ export default function ParentVideosPage() {
                           </span>
                           <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.className}`}>{badge.label}</span>
                         </div>
+
+                        {/* Assign button — hanya untuk video aktif */}
+                        {v.status === 'active' && (
+                          <button
+                            onClick={() => setAssignVideo(v)}
+                            className="mt-1 w-full flex items-center justify-center gap-1.5 py-2 rounded-xl border border-wkl-outline-variant text-xs font-semibold text-wkl-on-surface hover:bg-wkl-surface-container transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[16px]">group</span>
+                            Kelola Assign Anak
+                          </button>
+                        )}
                       </>
                     )}
                   </div>
@@ -257,6 +406,15 @@ export default function ParentVideosPage() {
           </div>
         )}
       </main>
+
+      {/* Assign Modal */}
+      {assignVideo && (
+        <AssignModal
+          video={assignVideo}
+          childList={children ?? []}
+          onClose={() => setAssignVideo(null)}
+        />
+      )}
     </div>
   )
 }

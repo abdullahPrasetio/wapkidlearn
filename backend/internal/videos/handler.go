@@ -28,6 +28,9 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Post("/watch-sessions", h.StartWatchSession)
 	router.Patch("/watch-sessions/:id/heartbeat", h.Heartbeat)
 	router.Delete("/watch-sessions/:id", h.TerminateSession)
+
+	// Resume position
+	router.Get("/videos/:id/last-position", h.GetLastWatchPosition)
 }
 
 func (h *Handler) ListVideos(c *fiber.Ctx) error {
@@ -153,16 +156,30 @@ func (h *Handler) Heartbeat(c *fiber.Ctx) error {
 	}
 	sessionID := c.Params("id")
 	var req struct {
-		ElapsedSeconds int32 `json:"elapsed_seconds"`
+		ElapsedSeconds  int32 `json:"elapsed_seconds"`
+		PositionSeconds int32 `json:"position_seconds"`
 	}
 	if err := validator.BindAndValidate(c, &req); err != nil || req.ElapsedSeconds <= 0 {
 		return response.BadRequest(c, "elapsed_seconds must be positive")
 	}
-	res, err := h.svc.Heartbeat(c.Context(), childID, sessionID, req.ElapsedSeconds)
+	res, err := h.svc.Heartbeat(c.Context(), childID, sessionID, req.ElapsedSeconds, req.PositionSeconds)
 	if err != nil {
 		return response.BadRequest(c, err.Error())
 	}
 	return response.OK(c, res)
+}
+
+func (h *Handler) GetLastWatchPosition(c *fiber.Ctx) error {
+	childID, ok := c.Locals("childID").(string)
+	if !ok || childID == "" {
+		return response.Forbidden(c, "child access only")
+	}
+	videoID := c.Params("id")
+	pos, err := h.svc.GetLastWatchPosition(c.Context(), childID, videoID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, fiber.Map{"position_seconds": pos})
 }
 
 func (h *Handler) TerminateSession(c *fiber.Ctx) error {

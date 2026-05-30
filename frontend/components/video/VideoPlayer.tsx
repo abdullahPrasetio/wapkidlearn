@@ -9,7 +9,8 @@ interface Props {
   videoTitle: string
   videoType: string
   allocatedSeconds: number
-  onHeartbeat: (elapsed: number) => Promise<number>
+  startAtSeconds?: number
+  onHeartbeat: (elapsed: number, positionSeconds: number) => Promise<number>
   onTimeExpired: () => void
   onBack: () => void
 }
@@ -21,6 +22,7 @@ export function VideoPlayer({
   videoTitle,
   videoType,
   allocatedSeconds,
+  startAtSeconds = 0,
   onHeartbeat,
   onTimeExpired,
   onBack,
@@ -33,11 +35,19 @@ export function VideoPlayer({
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const videoRef = useRef<HTMLVideoElement>(null)
 
+  // Untuk iframe (YouTube/Vimeo) kita estimasi posisi dari elapsed + startAt
+  const getPosition = () => {
+    if (videoType === 'mp4' && videoRef.current) {
+      return Math.floor(videoRef.current.currentTime)
+    }
+    return startAtSeconds + elapsed
+  }
+
   const flushHeartbeat = async () => {
     const e = Math.floor((Date.now() - lastHeartbeat.current) / 1000)
     if (e > 0) {
       lastHeartbeat.current = Date.now()
-      await onHeartbeat(e).catch(() => {})
+      await onHeartbeat(e, getPosition()).catch(() => {})
     }
   }
 
@@ -53,7 +63,7 @@ export function VideoPlayer({
     const tick = async () => {
       const e = Math.floor((Date.now() - lastHeartbeat.current) / 1000)
       lastHeartbeat.current = Date.now()
-      const remaining = await onHeartbeat(e)
+      const remaining = await onHeartbeat(e, getPosition())
       setTimeRemaining(remaining)
       if (remaining <= 0) {
         setExpired(true)
@@ -86,6 +96,13 @@ export function VideoPlayer({
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
+  // Seek mp4 ke posisi resume saat video siap
+  const handleVideoLoaded = () => {
+    if (videoRef.current && startAtSeconds > 0) {
+      videoRef.current.currentTime = startAtSeconds
+    }
+  }
+
   const seekVideo = (delta: number) => {
     if (videoRef.current) {
       videoRef.current.currentTime = Math.max(0, videoRef.current.currentTime + delta)
@@ -114,6 +131,18 @@ export function VideoPlayer({
     const s = secs % 60
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   }
+
+  // Untuk YouTube embed: tambahkan &start=N ke URL
+  const resolvedUrl = (() => {
+    if (videoType !== 'youtube' || startAtSeconds <= 0) return videoUrl
+    try {
+      const u = new URL(videoUrl)
+      u.searchParams.set('start', String(startAtSeconds))
+      return u.toString()
+    } catch {
+      return videoUrl
+    }
+  })()
 
   if (expired) {
     return (
@@ -160,20 +189,21 @@ export function VideoPlayer({
 
       {/* Video */}
       <div className="flex-1 flex items-center bg-black">
-        {videoUrl ? (
+        {resolvedUrl ? (
           videoType === 'mp4' ? (
             <video
               ref={videoRef}
-              src={videoUrl}
+              src={resolvedUrl}
               autoPlay
               className="w-full"
               style={{ maxHeight: '50vh' }}
+              onLoadedMetadata={handleVideoLoaded}
               onPlay={() => setIsPlaying(true)}
               onPause={() => setIsPlaying(false)}
             />
           ) : (
             <iframe
-              src={videoUrl}
+              src={resolvedUrl}
               title={videoTitle}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

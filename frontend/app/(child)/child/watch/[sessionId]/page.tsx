@@ -13,10 +13,11 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
   const videoTitle = searchParams.get('title') ?? ''
   const videoType = searchParams.get('type') ?? 'youtube'
   const allocatedSeconds = parseInt(searchParams.get('secs') ?? '0', 10)
+  const startAtSeconds = parseInt(searchParams.get('start') ?? '0', 10)
 
-  const handleHeartbeat = async (elapsed: number) => {
+  const handleHeartbeat = async (elapsed: number, positionSeconds: number) => {
     try {
-      const result = await watchSessions.heartbeat(sessionId, elapsed)
+      const result = await watchSessions.heartbeat(sessionId, elapsed, positionSeconds)
       return result.remaining_seconds
     } catch {
       return 0
@@ -32,7 +33,6 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
     router.replace('/child/home')
   }
 
-  // Terminate session saat komponen unmount (cover kasus Back/reload)
   useEffect(() => {
     return () => {
       if (!ended.current) {
@@ -49,6 +49,7 @@ function WatchSessionContent({ sessionId }: { sessionId: string }) {
       videoTitle={videoTitle}
       videoType={videoType}
       allocatedSeconds={allocatedSeconds}
+      startAtSeconds={startAtSeconds}
       onHeartbeat={handleHeartbeat}
       onTimeExpired={handleEnd}
       onBack={handleEnd}

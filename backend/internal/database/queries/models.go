@@ -154,24 +154,26 @@ type Video struct {
 }
 
 type WatchHistory struct {
-	ID              pgtype.UUID        `json:"id"`
-	ChildID         pgtype.UUID        `json:"child_id"`
-	VideoID         pgtype.UUID        `json:"video_id"`
-	SessionID       pgtype.UUID        `json:"session_id"`
-	DurationSeconds int32              `json:"duration_seconds"`
-	WatchedAt       pgtype.Timestamptz `json:"watched_at"`
+	ID                  pgtype.UUID        `json:"id"`
+	ChildID             pgtype.UUID        `json:"child_id"`
+	VideoID             pgtype.UUID        `json:"video_id"`
+	SessionID           pgtype.UUID        `json:"session_id"`
+	DurationSeconds     int32              `json:"duration_seconds"`
+	WatchedAt           pgtype.Timestamptz `json:"watched_at"`
+	LastPositionSeconds int32              `json:"last_position_seconds"`
 }
 
 type WatchSession struct {
-	ID               pgtype.UUID        `json:"id"`
-	ChildID          pgtype.UUID        `json:"child_id"`
-	VideoID          pgtype.UUID        `json:"video_id"`
-	AllocatedSeconds int32              `json:"allocated_seconds"`
-	ConsumedSeconds  *int32             `json:"consumed_seconds"`
-	Status           *string            `json:"status"`
-	StartedAt        pgtype.Timestamptz `json:"started_at"`
-	LastHeartbeatAt  pgtype.Timestamptz `json:"last_heartbeat_at"`
-	EndedAt          pgtype.Timestamptz `json:"ended_at"`
+	ID                  pgtype.UUID        `json:"id"`
+	ChildID             pgtype.UUID        `json:"child_id"`
+	VideoID             pgtype.UUID        `json:"video_id"`
+	AllocatedSeconds    int32              `json:"allocated_seconds"`
+	ConsumedSeconds     *int32             `json:"consumed_seconds"`
+	Status              *string            `json:"status"`
+	StartedAt           pgtype.Timestamptz `json:"started_at"`
+	LastHeartbeatAt     pgtype.Timestamptz `json:"last_heartbeat_at"`
+	EndedAt             pgtype.Timestamptz `json:"ended_at"`
+	LastPositionSeconds int32              `json:"last_position_seconds"`
 }
 
 type WatchWallet struct {

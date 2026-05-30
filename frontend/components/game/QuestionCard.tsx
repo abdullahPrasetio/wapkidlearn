@@ -20,6 +20,7 @@ export function QuestionCard({ question, lastAnswer, phase, onSubmit, onNext, on
   const [elapsed, setElapsed] = useState(0)
   const [canSubmit, setCanSubmit] = useState(false)
   const [countdown, setCountdown] = useState(2)
+  const [shuffledOptions, setShuffledOptions] = useState<string[]>([])
   const startTime = useRef(Date.now())
 
   useEffect(() => {
@@ -28,6 +29,7 @@ export function QuestionCard({ question, lastAnswer, phase, onSubmit, onNext, on
     setCanSubmit(false)
     setCountdown(2)
     startTime.current = Date.now()
+    setShuffledOptions([...question.options].sort(() => Math.random() - 0.5))
 
     const t1 = setTimeout(() => setCountdown(1), 1000)
     const t2 = setTimeout(() => { setCanSubmit(true); setCountdown(0) }, 2000)
@@ -40,6 +42,7 @@ export function QuestionCard({ question, lastAnswer, phase, onSubmit, onNext, on
       clearTimeout(t2)
       clearInterval(ticker)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [question.question_id])
 
   const timeLeft = Math.max(0, question.time_limit_seconds - elapsed)
@@ -97,7 +100,7 @@ export function QuestionCard({ question, lastAnswer, phase, onSubmit, onNext, on
 
       {/* Options */}
       <div className="grid grid-cols-2 gap-3">
-        {question.options.map((option) => {
+        {shuffledOptions.map((option) => {
           const isSelected = selected === option
           const isCorrect = lastAnswer?.correct_answer === option
           const isWrong = isSelected && !lastAnswer?.is_correct

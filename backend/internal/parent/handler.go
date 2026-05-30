@@ -38,6 +38,9 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Get("/videos", h.ListMyVideos)
 	router.Post("/videos", h.AddVideo)
 	router.Get("/videos/global", h.ListGlobalVideos)
+	router.Get("/videos/:id/assignments", h.GetVideoAssignments)
+	router.Post("/videos/:id/assign-child/:childId", h.AssignVideoToChildByVideoID)
+	router.Delete("/videos/:id/assign-child/:childId", h.UnassignVideoFromChildByVideoID)
 }
 
 func (h *Handler) GetChildren(c *fiber.Ctx) error {
@@ -153,6 +156,54 @@ func (h *Handler) UnassignVideoFromChild(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	childID := c.Params("id")
 	videoID := c.Params("videoId")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	if err := h.videoSvc.UnassignVideoFromChild(c.Context(), childID, videoID); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"unassigned": true})
+}
+
+// GetVideoAssignments returns child IDs currently assigned to a parent's video.
+func (h *Handler) GetVideoAssignments(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	videoID := c.Params("id")
+	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	childIDs, err := h.videoSvc.GetAssignedChildIDs(c.Context(), videoID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, childIDs)
+}
+
+// AssignVideoToChildByVideoID assigns a video (by video ID) to a child the parent owns.
+func (h *Handler) AssignVideoToChildByVideoID(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	videoID := c.Params("id")
+	childID := c.Params("childId")
+	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	if err := h.videoSvc.AssignVideoToChild(c.Context(), parentID, childID, videoID); err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, fiber.Map{"assigned": true})
+}
+
+// UnassignVideoFromChildByVideoID removes a video assignment from a child.
+func (h *Handler) UnassignVideoFromChildByVideoID(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	videoID := c.Params("id")
+	childID := c.Params("childId")
+	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
 	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
 		return response.Forbidden(c, err.Error())
 	}

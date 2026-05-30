@@ -13,6 +13,85 @@ function formatMins(secs: number) {
   return `${m} Menit`
 }
 
+function formatPosition(secs: number) {
+  const m = Math.floor(secs / 60)
+  const s = secs % 60
+  return m > 0 ? `${m}:${String(s).padStart(2, '0')}` : `0:${String(s).padStart(2, '0')}`
+}
+
+// ── Resume Dialog ─────────────────────────────────────────────────────────────
+
+function ResumeDialog({
+  video,
+  positionSeconds,
+  onResume,
+  onRestart,
+  onCancel,
+}: {
+  video: Video
+  positionSeconds: number
+  onResume: () => void
+  onRestart: () => void
+  onCancel: () => void
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm px-4">
+      <div className="bg-white rounded-3xl w-full max-w-sm shadow-2xl overflow-hidden">
+        {/* Thumbnail */}
+        <div className="relative h-36 bg-gradient-to-br from-indigo-100 to-purple-100">
+          {video.thumbnail_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-5xl">🎬</div>
+          )}
+          {/* Position badge */}
+          <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs font-bold px-2.5 py-1 rounded-full flex items-center gap-1">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth={2} className="w-3 h-3">
+              <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2" strokeLinecap="round"/>
+            </svg>
+            {formatPosition(positionSeconds)}
+          </div>
+        </div>
+
+        <div className="p-5">
+          <h2 className="font-extrabold text-gray-900 text-base mb-1 line-clamp-2">{video.title}</h2>
+          <p className="text-sm text-gray-500 mb-5">
+            Kamu sudah nonton sampai <span className="font-bold text-orange-500">{formatPosition(positionSeconds)}</span>.
+            Mau lanjut dari sini?
+          </p>
+
+          <div className="space-y-2.5">
+            <button
+              onClick={onResume}
+              className="w-full bg-orange-500 text-white font-extrabold py-3.5 rounded-2xl text-sm hover:bg-orange-600 transition active:scale-95 flex items-center justify-center gap-2"
+            >
+              <svg viewBox="0 0 24 24" fill="white" className="w-5 h-5 translate-x-0.5">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              Lanjutkan dari {formatPosition(positionSeconds)}
+            </button>
+            <button
+              onClick={onRestart}
+              className="w-full bg-gray-100 text-gray-700 font-bold py-3 rounded-2xl text-sm hover:bg-gray-200 transition"
+            >
+              Mulai dari Awal
+            </button>
+            <button
+              onClick={onCancel}
+              className="w-full text-gray-400 text-sm py-2 font-semibold"
+            >
+              Batal
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ── Video Cards ───────────────────────────────────────────────────────────────
+
 function VideoCardH({ video, onWatch, disabled }: { video: Video; onWatch: (v: Video) => void; disabled: boolean }) {
   return (
     <button onClick={() => !disabled && onWatch(video)} disabled={disabled} className="w-44 flex-shrink-0 text-left group">
@@ -73,9 +152,16 @@ function Skeleton() {
   return <div className="animate-pulse bg-gray-200 rounded-2xl h-28 w-44 flex-shrink-0" />
 }
 
+// ── Page ──────────────────────────────────────────────────────────────────────
+
 export default function WatchLibraryPage() {
   const router = useRouter()
   const [search, setSearch] = useState('')
+  // Resume dialog state
+  const [resumeVideo, setResumeVideo] = useState<Video | null>(null)
+  const [resumePosition, setResumePosition] = useState(0)
+  const [starting, setStarting] = useState(false)
+
   const { data: videoList, isError } = useQuery({
     queryKey: ['videos'],
     queryFn: videos.list,
@@ -87,8 +173,29 @@ export default function WatchLibraryPage() {
   const activeVideos = (videoList?.filter((v) => v.status === 'active') ?? [])
     .filter((v) => !search || v.title.toLowerCase().includes(search.toLowerCase()))
 
+  // Cek posisi terakhir, lalu tampilkan dialog atau langsung start
   const handleWatch = async (video: Video) => {
-    if (!hasBalance) return
+    if (!hasBalance || starting) return
+    setStarting(true)
+    try {
+      const { position_seconds } = await watchSessions.getLastPosition(video.id)
+      if (position_seconds > 30) {
+        // Ada posisi tersimpan > 30 detik → tanya user
+        setResumePosition(position_seconds)
+        setResumeVideo(video)
+        setStarting(false)
+      } else {
+        await startSession(video, 0)
+      }
+    } catch {
+      // Gagal cek posisi → mulai dari awal
+      await startSession(video, 0)
+    }
+  }
+
+  const startSession = async (video: Video, startAt: number) => {
+    setStarting(true)
+    setResumeVideo(null)
     try {
       const session = await watchSessions.start(video.id)
       const params = new URLSearchParams({
@@ -96,10 +203,12 @@ export default function WatchLibraryPage() {
         title: session.video_title || video.title,
         type: session.video_type || video.video_type || 'youtube',
         secs: String(session.allocated_seconds),
+        start: String(startAt),
       })
       router.push(`/child/watch/${session.id}?${params.toString()}`)
     } catch (err) {
       alert(err instanceof Error ? err.message : 'Tidak bisa mulai nonton')
+      setStarting(false)
     }
   }
 
@@ -171,7 +280,7 @@ export default function WatchLibraryPage() {
                   </p>
                 )
                 : activeVideos.slice(0, 6).map((v) => (
-                  <VideoCardH key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance} />
+                  <VideoCardH key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance || starting} />
                 ))}
               <div className="w-5 flex-shrink-0" />
             </div>
@@ -185,7 +294,7 @@ export default function WatchLibraryPage() {
                 {!videoList
                   ? [1, 2].map((i) => <div key={i} className="h-20 bg-gray-100 rounded-xl animate-pulse" />)
                   : activeVideos.slice(0, 3).map((v) => (
-                    <VideoCardV key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance} balanceSecs={balanceSecs} />
+                    <VideoCardV key={v.id} video={v} onWatch={handleWatch} disabled={!hasBalance || starting} balanceSecs={balanceSecs} />
                   ))}
               </div>
             </div>
@@ -210,6 +319,17 @@ export default function WatchLibraryPage() {
             </div>
           )}
         </div>
+      )}
+
+      {/* Resume Dialog */}
+      {resumeVideo && (
+        <ResumeDialog
+          video={resumeVideo}
+          positionSeconds={resumePosition}
+          onResume={() => startSession(resumeVideo, resumePosition)}
+          onRestart={() => startSession(resumeVideo, 0)}
+          onCancel={() => { setResumeVideo(null); setStarting(false) }}
+        />
       )}
     </div>
   )

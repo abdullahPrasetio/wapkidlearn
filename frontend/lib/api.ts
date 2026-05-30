@@ -129,13 +129,15 @@ export const watchSessions = {
       method: 'POST',
       body: JSON.stringify({ video_id: videoId }),
     }),
-  heartbeat: (sessionId: string, elapsed: number) =>
+  heartbeat: (sessionId: string, elapsed: number, positionSeconds = 0) =>
     request<{ remaining_seconds: number }>(
       `/child/watch-sessions/${sessionId}/heartbeat`,
-      { method: 'PATCH', body: JSON.stringify({ elapsed_seconds: elapsed }) }
+      { method: 'PATCH', body: JSON.stringify({ elapsed_seconds: elapsed, position_seconds: positionSeconds }) }
     ),
   end: (sessionId: string) =>
     request<void>(`/child/watch-sessions/${sessionId}`, { method: 'DELETE' }),
+  getLastPosition: (videoId: string) =>
+    request<{ position_seconds: number }>(`/child/videos/${videoId}/last-position`),
 }
 
 // ── Parent ────────────────────────────────────────────────────────────────────
@@ -194,6 +196,12 @@ export const parent = {
     request<Video>('/parent/videos', { method: 'POST', body: JSON.stringify(body) }),
   deleteMyVideo: (videoId: string) =>
     request<void>(`/videos/${videoId}`, { method: 'DELETE' }),
+  getVideoAssignments: (videoId: string) =>
+    request<string[]>(`/parent/videos/${videoId}/assignments`),
+  assignVideoToChild: (videoId: string, childId: string) =>
+    request<void>(`/parent/videos/${videoId}/assign-child/${childId}`, { method: 'POST' }),
+  unassignVideoFromChild: (videoId: string, childId: string) =>
+    request<void>(`/parent/videos/${videoId}/assign-child/${childId}`, { method: 'DELETE' }),
 }
 
 // ── Admin ─────────────────────────────────────────────────────────────────────

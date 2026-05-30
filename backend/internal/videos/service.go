@@ -259,6 +259,23 @@ func (s *Service) ListVideosBySubmitter(ctx context.Context, userID string) ([]d
 	return s.q.GetVideosBySubmitter(ctx, uid)
 }
 
+// GetAssignedChildIDs returns the child UUIDs currently assigned to a video.
+func (s *Service) GetAssignedChildIDs(ctx context.Context, videoID string) ([]string, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return nil, errors.New("invalid video_id")
+	}
+	rows, err := s.q.GetAssignedChildIDsForVideo(ctx, vid)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(rows))
+	for _, r := range rows {
+		out = append(out, pgutil.UUIDToString(r))
+	}
+	return out, nil
+}
+
 // VerifyVideoOwnership checks that a video was submitted by the given parent user.
 func (s *Service) VerifyVideoOwnership(ctx context.Context, parentUserID, videoID string) error {
 	vid, err := pgutil.ParseUUID(videoID)
@@ -375,7 +392,7 @@ func (s *Service) StartWatchSession(ctx context.Context, childID, videoID string
 	}, nil
 }
 
-func (s *Service) Heartbeat(ctx context.Context, childID, sessionID string, elapsed int32) (*HeartbeatResponse, error) {
+func (s *Service) Heartbeat(ctx context.Context, childID, sessionID string, elapsed, positionSeconds int32) (*HeartbeatResponse, error) {
 	cid, err := pgutil.ParseUUID(childID)
 	if err != nil {
 		return nil, errors.New("invalid child_id")
@@ -402,13 +419,13 @@ func (s *Service) Heartbeat(ctx context.Context, childID, sessionID string, elap
 		return nil, errors.New("insufficient watch time")
 	}
 
-	// Update session heartbeat
+	// Update session heartbeat + posisi playback
 	var allocatedSeconds, consumedSeconds int32
 	var statusVal *string
 	err = tx.QueryRow(ctx,
-		`UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_heartbeat_at = NOW()
+		`UPDATE watch_sessions SET consumed_seconds = consumed_seconds + $2, last_position_seconds = $3, last_heartbeat_at = NOW()
 		 WHERE id = $1 AND status = 'active' RETURNING allocated_seconds, consumed_seconds, status`,
-		sid, elapsed,
+		sid, elapsed, positionSeconds,
 	).Scan(&allocatedSeconds, &consumedSeconds, &statusVal)
 	if err != nil {
 		return nil, errors.New("session not found or already ended")
@@ -452,19 +469,41 @@ func (s *Service) TerminateSession(ctx context.Context, childID, sessionID strin
 		return err
 	}
 
-	// Create watch history
+	// Create watch history dengan posisi playback terakhir
 	cid, _ := pgutil.ParseUUID(childID)
 	consumed := int32(0)
 	if session.ConsumedSeconds != nil {
 		consumed = *session.ConsumedSeconds
 	}
 	_ = s.q.CreateWatchHistory(ctx, db.CreateWatchHistoryParams{
-		ChildID:         cid,
-		VideoID:         session.VideoID,
-		SessionID:       session.ID,
-		DurationSeconds: consumed,
+		ChildID:             cid,
+		VideoID:             session.VideoID,
+		SessionID:           session.ID,
+		DurationSeconds:     consumed,
+		LastPositionSeconds: session.LastPositionSeconds,
 	})
 	return nil
+}
+
+// GetLastWatchPosition returns the last playback position (in seconds) for a child+video pair.
+// Returns 0 if no history found.
+func (s *Service) GetLastWatchPosition(ctx context.Context, childID, videoID string) (int32, error) {
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return 0, nil
+	}
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return 0, nil
+	}
+	pos, err := s.q.GetLastWatchPosition(ctx, db.GetLastWatchPositionParams{
+		ChildID: cid,
+		VideoID: vid,
+	})
+	if err != nil {
+		return 0, nil // no history = start from beginning
+	}
+	return pos, nil
 }
 
 // parseVideoURL validates and normalises a video URL.
