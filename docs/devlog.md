@@ -2,6 +2,70 @@
 
 ---
 
+## 2026-05-30 — Child Username Login, Parent Navigation, Security F1–F7
+
+### Backend
+
+#### Child Username Login (end-to-end)
+- Migration `011_add_child_username.up.sql`: tambah kolom `username VARCHAR(30) UNIQUE NOT NULL` ke `child_profiles`, backfill dari `display_name` + 4 char UUID prefix, index `idx_child_profiles_username`
+- Migration `012_fix_child_username_backfill.up.sql`: perbaiki baris yang backfill-nya menghasilkan string kosong atau terlalu pendek (display_name all-Unicode) → ganti ke `'child_' + 8 char UUID`
+- `database/queries/auth.sql`: tambah query `GetChildByUsername :one`
+- `sqlc-gen` dijalankan — `models.go` dan `auth.sql.go` diupdate otomatis (semua scan `child_profiles` include `&i.Username`)
+- `auth/service.go`: `ChildLogin` signature diubah dari `(childID, pin)` ke `(username, pin)`, query `GetChildByUsername` menggantikan UUID parse + `GetChildByID`
+- `auth/handler.go`: `childLoginRequest` struct ganti `ChildID` → `Username`; normalize `strings.ToLower(strings.TrimSpace)` sebelum rate limiter key (fix F4 — bypass via casing); tambah import `"strings"`
+- `parent/service.go`: `CreateChildRequest` tambah `Username string`; validasi regex `^[a-z0-9_]{3,30}$` + `strings.ToLower/TrimSpace` (F2); handle `pgconn.PgError` code `23505` → pesan user-friendly bukan raw DB error (F3); INSERT raw SQL sudah include `username` (F1 bypass)
+- `database/queries/parent.sql`: update `CreateChildProfile` query sertakan kolom `username` → `sqlc-gen` dijalankan ulang
+
+#### Activity Feed Fixes
+- `parent/service.go`: dereference `*int32` (CorrectCount, TotalQuestions, PointsEarned) dengan nil-check — sebelumnya dicetak sebagai pointer address
+- Timestamp diformat ke WIB (`+07:00`) dengan `time.FixedZone("WIB", 7*3600)` untuk kedua tipe aktivitas (game & watch)
+
+### Frontend
+
+#### Halaman Tambah Anak (`/parent/children/new`)
+- File baru `parent/children/new/page.tsx`
+- Avatar picker 8 emoji (grid 4 kolom), input nama + username (auto-lowercase, sanitize non-alphanum), pilihan kelas 1–3, numpad PIN 4 digit dengan konfirmasi visual (dot hijau jika cocok, merah jika beda)
+- Validasi: nama wajib, username regex `^[a-z0-9_]+`, PIN 4 digit, konfirmasi cocok
+- `useMutation` → `parent.addChild()` → redirect ke `/parent/dashboard`
+
+#### Parent Sidebar + Bottom Nav
+- `app/(parent)/layout.tsx` diubah dari wrapper kosong ke layout dengan navigasi:
+  - Desktop: sidebar 224px sticky — logo WapKidLearn, nav Anak/Profil, tombol Keluar di bawah
+  - Mobile: bottom nav fixed — Anak / Profil / Keluar
+  - Active state via `usePathname()`, logout via `auth.logout()` + `clearStoredRole()`
+- `parent/dashboard/page.tsx`: hapus tombol logout (sudah di sidebar), hapus unused imports
+
+#### Child Detail Tab Navigation
+- File baru `parent/children/[id]/layout.tsx` — tab bar sticky 5 tab: Profil / Analitik / Pengaturan / Video / Aktivitas
+- Active detection: tab Profil match exact path, tab lain match `path.startsWith(href)`
+- Semua sub-halaman (analytics, settings, videos, activity): hapus header duplikat + logo sidebar sendiri, ubah `max-w-3xl/5xl` → `max-w-2xl mx-auto`
+
+#### Fix `use(params)` — Next.js 14
+- `parent/children/[id]/page.tsx`, `analytics/page.tsx`, `settings/page.tsx`, `videos/page.tsx`, `activity/page.tsx`: hapus `use()` React hook pada params — Next.js 14 params masih plain object, bukan Promise; ubah tipe dari `Promise<{ id: string }>` → `{ id: string }`
+
+#### Avatar Emoji Helper
+- `lib/utils.ts`: tambah `avatarDisplay(av?)` — deteksi emoji via `/^\p{Emoji}/u`, fallback `🦊` untuk teks non-emoji (data lama hasil backfill seperti `"bunny"`)
+- `parent/dashboard/page.tsx` + `parent/children/[id]/page.tsx`: ganti inline regex duplikat dengan `avatarDisplay()` dari utils (fix F6)
+
+#### API + Types Update
+- `lib/types.ts`: `ChildProfile` tambah `username: string`
+- `lib/api.ts`: `childLogin(username, pin)` ganti `child_id` → `username` di body; `addChild` body tambah `username: string`
+- `child-login/page.tsx`: state `childId` → `username`, input placeholder "Masukkan Username kamu", step PIN tampilkan `@username` + logo 🦉 (cosmetic, bukan avatar asli)
+
+### Security Findings F1–F7
+
+| ID | Status | File |
+|----|--------|------|
+| F1 | ✅ | `parent.sql` `CreateChildProfile` diupdate sertakan `username`, `sqlc-gen` dijalankan |
+| F2 | ✅ | `parent/service.go`: regex `^[a-z0-9_]{3,30}$` + `strings.ToLower/TrimSpace` sebelum INSERT |
+| F3 | ✅ | `parent/service.go`: tangkap `pgconn.PgError` code `23505` → pesan "username sudah digunakan" |
+| F4 | ✅ | `auth/handler.go`: normalize username ke lowercase sebelum rate limiter key dibuat |
+| F5 | ✅ | Migration `012_fix_child_username_backfill.up.sql` — perbaiki rows username pendek/kosong |
+| F6 | ✅ | Extract `avatarDisplay()` ke `lib/utils.ts`, hapus duplikat regex di dua halaman |
+| F7 | ✅ | Sudah difix di sesi ini (`Promise<>` → sync params di semua `[id]` sub-pages) |
+
+---
+
 ## 2026-05-30 — Sprint 1–3: Full Flow Selesai
 
 ### Backend

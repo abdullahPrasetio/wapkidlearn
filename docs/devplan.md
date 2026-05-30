@@ -607,8 +607,13 @@ export function ConvertSlider({ balance, rate, dailyRemaining }: Props) {
 - [x] Stitch design token (`wkl-*`) — 35+ color token di `tailwind.config.ts` (primary, secondary, surface variants, error, dll.)
 - [x] Material Symbols Outlined — import via Google Fonts CDN di `globals.css`, CSS class `.material-symbols-outlined`
 - [x] Inter font — `next/font/google` + CSS variable `--font-inter` untuk admin & parent UI
+- [x] Parent layout: sidebar desktop (256px, sticky) + bottom nav mobile — link Anak/Profil/Keluar, active state via `usePathname()`
+- [x] Child detail tab nav — layout `[id]/layout.tsx` dengan 5 tab sticky (Profil/Analitik/Pengaturan/Video/Aktivitas) sehingga bisa pindah antar tab tanpa kembali ke sidebar
+- [x] Halaman tambah anak (`/parent/children/new`) — avatar picker (8 emoji), nama, username, kelas, setup PIN numpad 2-step
+- [x] Child username login — kolom `username` unik di `child_profiles`, anak login pakai username+PIN bukan UUID
+- [x] Security fixes F1–F7: sqlc sync, validasi regex username, user-friendly duplicate error, rate limiter normalize casing, backfill migration fix, avatar helper deduplicated
 
-**Deliverable:** App lengkap dengan UI konsisten Stitch design system di semua role, siap dipakai keluarga.
+**Deliverable:** App lengkap dengan UI konsisten Stitch design system di semua role, navigasi parent sidebar/tab, child login via username, siap dipakai keluarga.
 
 ---
 
