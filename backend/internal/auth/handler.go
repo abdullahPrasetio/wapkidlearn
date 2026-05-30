@@ -95,8 +95,8 @@ func (h *Handler) Refresh(c *fiber.Ctx) error {
 }
 
 func (h *Handler) Logout(c *fiber.Ctx) error {
-	c.Cookie(&fiber.Cookie{Name: "access_token", Value: "", MaxAge: -1, HTTPOnly: true})
-	c.Cookie(&fiber.Cookie{Name: "refresh_token", Value: "", MaxAge: -1, HTTPOnly: true})
+	c.Cookie(&fiber.Cookie{Name: "access_token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: true, SameSite: "None", Domain: ".temancode.my.id"})
+	c.Cookie(&fiber.Cookie{Name: "refresh_token", Value: "", MaxAge: -1, HTTPOnly: true, Secure: true, SameSite: "None", Domain: ".temancode.my.id"})
 	return response.OK(c, fiber.Map{"message": "logged out"})
 }
 
@@ -105,14 +105,18 @@ func setAuthCookies(c *fiber.Ctx, accessToken, refreshToken string) {
 		Name:     "access_token",
 		Value:    accessToken,
 		HTTPOnly: true,
-		SameSite: "Strict",
+		Secure:   true,
+		SameSite: "None",
+		Domain:   ".temancode.my.id",
 		MaxAge:   int((15 * time.Minute).Seconds()),
 	})
 	c.Cookie(&fiber.Cookie{
 		Name:     "refresh_token",
 		Value:    refreshToken,
 		HTTPOnly: true,
-		SameSite: "Strict",
+		Secure:   true,
+		SameSite: "None",
+		Domain:   ".temancode.my.id",
 		MaxAge:   int((7 * 24 * time.Hour).Seconds()),
 	})
 }

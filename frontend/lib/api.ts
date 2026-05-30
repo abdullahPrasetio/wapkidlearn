@@ -4,7 +4,11 @@ import type {
   Question, SessionSummary, Video, WatchSession,
 } from './types'
 
-const BASE = '/api/v1'
+// Server-side (SSR/Server Components) pakai INTERNAL_API_URL via Docker network.
+// Client-side (browser) pakai NEXT_PUBLIC_API_URL yang di-embed saat build.
+const BASE = typeof window === 'undefined'
+  ? `${process.env.INTERNAL_API_URL ?? 'http://localhost:8080'}/api/v1`
+  : (process.env.NEXT_PUBLIC_API_URL ?? '/api/v1')
 
 class ApiError extends Error {
   constructor(public status: number, message: string) {

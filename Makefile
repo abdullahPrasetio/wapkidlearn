@@ -3,14 +3,20 @@
 
 .PHONY: help dev-backend dev-frontend dev build-backend build-frontend \
         migrate migrate-down migrate-status seed \
-        sqlc-gen test lint clean docker-up docker-down docker-logs
+        sqlc-gen test lint clean docker-up docker-down docker-logs \
+        docker-build-backend docker-build-frontend docker-build-all \
+        docker-push-backend docker-push-frontend docker-push-all docker-release
 
 # ─── Config ───────────────────────────────────────────────────────────────────
-BACKEND_DIR  := ./backend
-FRONTEND_DIR := ./frontend
-DB_URL       ?= $(shell grep DATABASE_URL .env 2>/dev/null | cut -d= -f2-)
-MIGRATE_BIN  := migrate  # golang-migrate CLI
-AIR_BIN      := air      # live-reload untuk Go
+BACKEND_DIR   := ./backend
+FRONTEND_DIR  := ./frontend
+DB_URL        ?= $(shell grep DATABASE_URL .env 2>/dev/null | cut -d= -f2-)
+MIGRATE_BIN   := migrate  # golang-migrate CLI
+AIR_BIN       := air      # live-reload untuk Go
+
+BACKEND_IMAGE  := abdullahprasetio/wapkidlearn-backend
+FRONTEND_IMAGE := abdullahprasetio/wapkidlearn-frontend
+TAG            ?= latest
 
 # ─── Help ─────────────────────────────────────────────────────────────────────
 help: ## Tampilkan daftar target
@@ -112,6 +118,30 @@ docker-logs-api: ## Lihat log service api saja
 
 docker-build: ## Build ulang semua Docker image
 	docker compose build --no-cache
+
+docker-build-backend: ## Build & tag Docker image backend (TAG=x.y.z)
+	docker build -t $(BACKEND_IMAGE):$(TAG) $(BACKEND_DIR)
+	@echo "✓ $(BACKEND_IMAGE):$(TAG)"
+
+docker-build-frontend: ## Build & tag Docker image frontend (TAG=x.y.z NEXT_PUBLIC_API_URL=https://...)
+	docker build \
+		--build-arg NEXT_PUBLIC_API_URL=$(NEXT_PUBLIC_API_URL) \
+		--build-arg PORT=$(FRONTEND_PORT) \
+		-t $(FRONTEND_IMAGE):$(TAG) \
+		$(FRONTEND_DIR)
+	@echo "✓ $(FRONTEND_IMAGE):$(TAG)"
+
+docker-build-all: docker-build-backend docker-build-frontend ## Build semua image dengan TAG yang sama
+
+docker-push-backend: ## Push image backend ke Docker Hub (TAG=x.y.z)
+	docker push $(BACKEND_IMAGE):$(TAG)
+
+docker-push-frontend: ## Push image frontend ke Docker Hub (TAG=x.y.z)
+	docker push $(FRONTEND_IMAGE):$(TAG)
+
+docker-push-all: docker-push-backend docker-push-frontend ## Push semua image ke Docker Hub
+
+docker-release: docker-build-all docker-push-all ## Build + push semua image (TAG=x.y.z)
 
 docker-ps: ## Lihat status container
 	docker compose ps
