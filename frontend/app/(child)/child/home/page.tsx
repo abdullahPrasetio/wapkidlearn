@@ -44,31 +44,31 @@ export default function ChildHomePage() {
 
       {/* Greeting */}
       <div className="px-5 pt-3 pb-1">
-        <h1 className="text-2xl font-extrabold text-gray-900">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-gray-900">
           Halo, {data?.display_name ?? '…'}! <span>👋</span>
         </h1>
       </div>
 
       {/* Wallet cards row */}
-      <div className="px-5 pt-3 flex gap-3">
-        <div className="flex-1 bg-orange-50 border border-orange-100 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-            <span className="text-xl">⭐</span>
+      <div className="px-5 pt-3 grid grid-cols-2 gap-3">
+        <div className="bg-orange-50 border border-orange-100 rounded-2xl p-4 sm:p-5 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-14 sm:h-14 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <span className="text-xl sm:text-3xl">⭐</span>
           </div>
           <div>
-            <p className="text-xs text-orange-400 font-semibold">Poin Saya</p>
-            <p className="text-lg font-extrabold text-orange-500">
+            <p className="text-xs sm:text-sm text-orange-400 font-semibold">Poin Saya</p>
+            <p className="text-lg sm:text-2xl font-extrabold text-orange-500">
               {!data ? '…' :formatPoints(data?.point.balance ?? 0)}
             </p>
           </div>
         </div>
-        <div className="flex-1 bg-red-50 border border-red-100 rounded-2xl p-4 flex items-center gap-3">
-          <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
-            <span className="text-xl">🔥</span>
+        <div className="bg-red-50 border border-red-100 rounded-2xl p-4 sm:p-5 flex items-center gap-3">
+          <div className="w-10 h-10 sm:w-14 sm:h-14 bg-red-100 rounded-xl flex items-center justify-center flex-shrink-0">
+            <span className="text-xl sm:text-3xl">🔥</span>
           </div>
           <div>
-            <p className="text-xs text-red-400 font-semibold">Nonton</p>
-            <p className="text-lg font-extrabold text-red-500">
+            <p className="text-xs sm:text-sm text-red-400 font-semibold">Nonton</p>
+            <p className="text-lg sm:text-2xl font-extrabold text-red-500">
               {!data ? '…' :formatWatchMins(data?.watch.balance_seconds ?? 0)}
             </p>
           </div>
@@ -121,39 +121,39 @@ export default function ChildHomePage() {
 
         <Link
           href="/child/watch"
-          className="bg-blue-50 border border-blue-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
+          className="bg-blue-50 border border-blue-100 rounded-3xl p-5 sm:p-7 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
         >
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-            <span className="text-3xl">▶️</span>
+          <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+            <span className="text-3xl sm:text-5xl">▶️</span>
           </div>
-          <p className="font-extrabold text-gray-900 text-center text-sm">Nonton Video</p>
-          <span className="bg-blue-100 text-blue-600 text-xs font-bold px-3 py-1 rounded-full">
+          <p className="font-extrabold text-gray-900 text-center text-sm sm:text-lg">Nonton Video</p>
+          <span className="bg-blue-100 text-blue-600 text-xs sm:text-sm font-bold px-3 py-1 rounded-full whitespace-nowrap">
             Hadiah Belajar
           </span>
         </Link>
 
         <Link
           href="/child/achievements"
-          className="bg-yellow-50 border border-yellow-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
+          className="bg-yellow-50 border border-yellow-100 rounded-3xl p-5 sm:p-7 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
         >
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-            <span className="text-3xl">🏆</span>
+          <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+            <span className="text-3xl sm:text-5xl">🏆</span>
           </div>
-          <p className="font-extrabold text-gray-900 text-center text-sm">Pencapaian</p>
-          <span className="bg-yellow-100 text-yellow-700 text-xs font-bold px-3 py-1 rounded-full">
+          <p className="font-extrabold text-gray-900 text-center text-sm sm:text-lg">Pencapaian</p>
+          <span className="bg-yellow-100 text-yellow-700 text-xs sm:text-sm font-bold px-3 py-1 rounded-full">
             {unlockedCount} Lencana
           </span>
         </Link>
 
         <Link
           href="/child/rewards"
-          className="col-span-2 bg-purple-50 border border-purple-100 rounded-3xl p-5 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
+          className="col-span-2 bg-purple-50 border border-purple-100 rounded-3xl p-5 sm:p-7 flex flex-col items-center gap-3 hover:shadow-md transition active:scale-95"
         >
-          <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm">
-            <span className="text-3xl">🎁</span>
+          <div className="w-14 h-14 sm:w-20 sm:h-20 bg-white rounded-2xl flex items-center justify-center shadow-sm">
+            <span className="text-3xl sm:text-5xl">🎁</span>
           </div>
-          <p className="font-extrabold text-gray-900 text-center text-sm">Tukar Poin</p>
-          <span className="bg-purple-100 text-purple-600 text-xs font-bold px-3 py-1 rounded-full">
+          <p className="font-extrabold text-gray-900 text-center text-sm sm:text-lg">Tukar Poin</p>
+          <span className="bg-purple-100 text-purple-600 text-xs sm:text-sm font-bold px-3 py-1 rounded-full">
             Diskon 10%
           </span>
         </Link>

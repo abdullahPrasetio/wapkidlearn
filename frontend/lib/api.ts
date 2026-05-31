@@ -254,6 +254,10 @@ export const achievements = {
 export const reading = {
   getPassages: (gradeLevel: number) =>
     request<ReadingPassage[]>(`/child/reading/passages?grade_level=${gradeLevel}`),
+  getByType: (type: 'word' | 'sentence') =>
+    request<ReadingPassage[]>(`/child/reading/passages?type=${type}`),
+  getById: (id: string) =>
+    request<ReadingPassage>(`/child/reading/passages/${id}`),
   submit: (data: ReadingSubmitRequest) =>
     request<ReadingSubmitResponse>('/child/reading/sessions', { method: 'POST', body: JSON.stringify(data) }),
 }

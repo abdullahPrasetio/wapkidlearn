@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function ChildLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-white max-w-md mx-auto relative">
+    <div className="min-h-screen bg-white max-w-md sm:max-w-xl md:max-w-2xl mx-auto relative">
       <ChildLockGuard>
         <div className="pb-20">
           {children}

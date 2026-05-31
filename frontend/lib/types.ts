@@ -178,7 +178,9 @@ export interface Achievement {
 export interface ReadingPassage {
   id: string
   grade_level: number
+  type: 'word' | 'sentence' | 'story'
   title: string
+  emoji: string
   body: string
   word_count: number
 }

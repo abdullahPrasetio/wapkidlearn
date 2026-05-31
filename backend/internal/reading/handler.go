@@ -18,24 +18,42 @@ func NewHandler(svc *Service) *Handler {
 
 func (h *Handler) Register(router fiber.Router) {
 	router.Get("/reading/passages", h.GetPassages)
+	router.Get("/reading/passages/:id", h.GetPassageByID)
 	router.Post("/reading/sessions", h.Submit)
 }
 
-// GetPassages returns passages for the child's grade level.
-// Query param: grade_level (optional, defaults to 1)
+// GetPassages returns passages.
+// Query params: type=word|sentence|story, grade_level (for story, defaults to 1)
 func (h *Handler) GetPassages(c *fiber.Ctx) error {
 	childID, ok := c.Locals("childID").(string)
 	if !ok || childID == "" {
 		return response.Forbidden(c, "child access only")
 	}
 
+	t := c.Query("type", "story")
+	if t == "word" || t == "sentence" {
+		return response.OK(c, GetPassagesByType(t))
+	}
+
 	grade, _ := strconv.Atoi(c.Query("grade_level", "1"))
 	if grade < 1 || grade > 6 {
 		grade = 1
 	}
-
 	passages := h.svc.GetPassages(grade)
 	return response.OK(c, passages)
+}
+
+// GetPassageByID returns a single passage by ID.
+func (h *Handler) GetPassageByID(c *fiber.Ctx) error {
+	childID, ok := c.Locals("childID").(string)
+	if !ok || childID == "" {
+		return response.Forbidden(c, "child access only")
+	}
+	p, found := GetPassageByID(c.Params("id"))
+	if !found {
+		return response.NotFound(c, "passage not found")
+	}
+	return response.OK(c, p)
 }
 
 // Submit records a completed reading session and awards points.

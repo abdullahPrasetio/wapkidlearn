@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useQuery, useMutation } from '@tanstack/react-query'
@@ -60,6 +60,24 @@ declare global {
   }
 }
 
+const PRAISE_HIGH = ['Luar biasa! Kamu hebat sekali!', 'Wah, keren banget! Terus semangat!', 'Bagus sekali! Kamu pembaca yang hebat!', 'Mantap! Kamu berhasil membaca dengan baik!']
+const PRAISE_MID = ['Bagus! Terus berlatih ya!', 'Hampir sempurna! Coba sekali lagi!', 'Kamu sudah berusaha dengan baik!', 'Ayo semangat, kamu pasti bisa lebih baik!']
+const PRAISE_LOW = ['Jangan menyerah ya! Coba lagi!', 'Terus berlatih, lama-lama pasti bisa!', 'Semangat! Latihan membuat sempurna!', 'Tidak apa-apa, coba lagi pelan-pelan!']
+
+function speak(text: string) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  window.speechSynthesis.cancel()
+  const utt = new SpeechSynthesisUtterance(text)
+  utt.lang = 'id-ID'
+  utt.rate = 0.9
+  utt.pitch = 1.1
+  window.speechSynthesis.speak(utt)
+}
+
+function pickRandom(arr: string[]) {
+  return arr[Math.floor(Math.random() * arr.length)]
+}
+
 export default function ReadPracticePage() {
   const { passageId } = useParams<{ passageId: string }>()
   const router = useRouter()
@@ -76,17 +94,53 @@ export default function ReadPracticePage() {
   const recognitionRef = useRef<AnySpeechRecognition>(null)
   const startTimeRef = useRef(0)
   const durationRef = useRef(0)
+  const finishedRef = useRef(false)
+  const userStoppedRef = useRef(false)
 
-  const { data: passages, isLoading } = useQuery({
-    queryKey: ['reading-passages-all'],
-    queryFn: async () => {
-      const results = await Promise.all([1,2,3,4,5,6].map((g) => reading.getPassages(g)))
-      return results.flat()
-    },
+  useEffect(() => {
+    if (phase !== 'done') return
+    const phrase = accuracy >= 80
+      ? pickRandom(PRAISE_HIGH)
+      : accuracy >= 50
+      ? pickRandom(PRAISE_MID)
+      : pickRandom(PRAISE_LOW)
+    const delay = setTimeout(() => speak(phrase), 400)
+    return () => clearTimeout(delay)
+  }, [phase, accuracy])
+
+  // Fetch only the specific passage — 1 API call instead of 8
+  const { data: passage, isLoading } = useQuery({
+    queryKey: ['reading-passage', passageId],
+    queryFn: () => reading.getById(passageId),
     staleTime: 300_000,
+    retry: 2,
   })
 
-  const passage = passages?.find((p) => p.id === passageId)
+  // Determine passage type from ID prefix (w-* = word, s-* = sentence, else story)
+  const passageType = passageId.startsWith('w-') ? 'word' : passageId.startsWith('s-') ? 'sentence' : 'story'
+
+  // Reuse the same query keys as the list page so we get cached data
+  const { data: typePassages } = useQuery({
+    queryKey: passageType === 'word'
+      ? ['reading-passages-word']
+      : passageType === 'sentence'
+      ? ['reading-passages-sentence']
+      : ['reading-passages-story', passage?.grade_level ?? 1],
+    queryFn: () =>
+      passageType === 'word'
+        ? reading.getByType('word')
+        : passageType === 'sentence'
+        ? reading.getByType('sentence')
+        : reading.getPassages(passage?.grade_level ?? 1),
+    staleTime: 300_000,
+    enabled: !!passage,
+  })
+
+  const nextPassage = (() => {
+    if (!typePassages || !passage) return null
+    const idx = typePassages.findIndex((p) => p.id === passageId)
+    return idx !== -1 && idx < typePassages.length - 1 ? typePassages[idx + 1] : null
+  })()
 
   const submitMutation = useMutation({
     mutationFn: () => reading.submit({
@@ -102,9 +156,13 @@ export default function ReadPracticePage() {
     const SR = window.SpeechRecognition ?? window.webkitSpeechRecognition
     if (!SR || !passage) return
 
+    finishedRef.current = false
+    userStoppedRef.current = false
+
+    const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent)
     const recognition = new SR()
     recognition.lang = 'id-ID'
-    recognition.continuous = true
+    recognition.continuous = !isMobile
     recognition.interimResults = true
 
     let finalTranscript = ''
@@ -119,6 +177,8 @@ export default function ReadPracticePage() {
     }
 
     const finish = () => {
+      if (finishedRef.current) return
+      finishedRef.current = true
       durationRef.current = Math.floor((Date.now() - startTimeRef.current) / 1000)
       const full = finalTranscript.trim()
       setTranscript(full)
@@ -136,7 +196,10 @@ export default function ReadPracticePage() {
     setPhase('recording')
   }, [passage])
 
-  const stopRecording = useCallback(() => recognitionRef.current?.stop(), [])
+  const stopRecording = useCallback(() => {
+    userStoppedRef.current = true
+    try { recognitionRef.current?.stop() } catch (_) { /* ignore */ }
+  }, [])
 
   const startCountdown = useCallback(() => {
     setPhase('countdown')
@@ -152,6 +215,9 @@ export default function ReadPracticePage() {
   }, [startRecording])
 
   const retry = useCallback(() => {
+    if (typeof window !== 'undefined') window.speechSynthesis?.cancel()
+    finishedRef.current = false
+    userStoppedRef.current = false
     setPhase('idle')
     setTranscript('')
     setInterimTranscript('')
@@ -214,12 +280,21 @@ export default function ReadPracticePage() {
           </div>
 
           <div className="space-y-3">
-            <button
-              onClick={() => router.push('/child/read')}
-              className="w-full bg-green-500 text-white font-extrabold py-4 rounded-2xl text-lg hover:bg-green-600 active:scale-95 transition"
-            >
-              Pilih Cerita Lain
-            </button>
+            {nextPassage ? (
+              <button
+                onClick={() => router.replace(`/child/read/${nextPassage.id}`)}
+                className="w-full bg-green-500 text-white font-extrabold py-4 rounded-2xl text-lg hover:bg-green-600 active:scale-95 transition flex items-center justify-center gap-2"
+              >
+                Lanjut {nextPassage.emoji || '→'} {nextPassage.title}
+              </button>
+            ) : (
+              <button
+                onClick={() => router.push('/child/read')}
+                className="w-full bg-green-500 text-white font-extrabold py-4 rounded-2xl text-lg hover:bg-green-600 active:scale-95 transition"
+              >
+                Pilih Latihan Lain
+              </button>
+            )}
             <Link href="/child/home" className="block text-center text-gray-400 font-bold text-sm py-2">
               Kembali ke Home
             </Link>
@@ -242,8 +317,11 @@ export default function ReadPracticePage() {
           </svg>
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-extrabold text-gray-900 leading-tight truncate">{passage.title}</h1>
-          <p className="text-xs text-gray-400">Kelas {passage.grade_level} · {passage.word_count} kata</p>
+          <h1 className="text-lg font-extrabold text-gray-900 leading-tight truncate">{passage.emoji ? `${passage.emoji} ${passage.title}` : passage.title}</h1>
+          <p className="text-xs text-gray-400">
+            {passage.type === 'word' ? 'Kata' : passage.type === 'sentence' ? 'Kalimat' : `Kelas ${passage.grade_level}`}
+            {' · '}{passage.word_count} kata
+          </p>
         </div>
         <Link href="/child/home" className="text-xs text-gray-400 font-semibold hover:text-gray-600">
           🏠 Home
@@ -271,11 +349,14 @@ export default function ReadPracticePage() {
 
       {/* Text display */}
       <div className="mx-5 mb-4">
-        <div className="bg-orange-50 rounded-3xl px-6 py-8 min-h-[160px] flex items-center justify-center">
+        <div className={`bg-orange-50 rounded-3xl px-6 py-8 flex flex-col items-center justify-center gap-4 ${passage.type === 'word' ? 'min-h-[220px]' : 'min-h-[160px]'}`}>
+          {passage.emoji && passage.type !== 'story' && (
+            <span className="text-7xl sm:text-8xl">{passage.emoji}</span>
+          )}
           {phase === 'done' ? (
             <HighlightedText original={passage.body} transcript={transcript} />
           ) : (
-            <p className="text-2xl font-bold text-gray-900 leading-snug text-center">{passage.body}</p>
+            <p className={`font-bold text-gray-900 leading-snug text-center ${passage.type === 'word' ? 'text-5xl sm:text-6xl' : 'text-2xl'}`}>{passage.body}</p>
           )}
         </div>
         {phase === 'done' && (

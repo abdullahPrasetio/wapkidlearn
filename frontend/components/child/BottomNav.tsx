@@ -62,8 +62,8 @@ export function ChildBottomNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md bg-white border-t border-gray-100 shadow-lg z-40">
-      <div className="grid grid-cols-5 py-1">
+    <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md sm:max-w-xl md:max-w-2xl bg-white border-t border-gray-100 shadow-lg z-40">
+      <div className="grid grid-cols-5 py-1 sm:py-3">
         {NAV_ITEMS.map((item) => {
           const active = item.matchPaths
             ? item.matchPaths.some((p) => pathname.startsWith(p))
@@ -75,7 +75,7 @@ export function ChildBottomNav() {
               className="flex flex-col items-center gap-0.5 py-2"
             >
               {item.icon(active)}
-              <span className={`text-[10px] font-semibold ${active ? 'text-orange-500' : 'text-gray-400'}`}>
+              <span className={`text-[10px] sm:text-xs font-semibold ${active ? 'text-orange-500' : 'text-gray-400'}`}>
                 {item.label}
               </span>
             </Link>
