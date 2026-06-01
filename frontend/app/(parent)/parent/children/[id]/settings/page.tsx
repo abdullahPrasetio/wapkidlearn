@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import { ParentSettings } from '@/lib/types'
@@ -12,29 +12,52 @@ const HOURS = Array.from({ length: 24 }, (_, i) => i)
 function Stepper({ value, onChange, min = 0, max = 200, step = 5 }: {
   value: number; onChange: (v: number) => void; min?: number; max?: number; step?: number
 }) {
+  const [inputVal, setInputVal] = useState(String(value))
+  const prevValue = useRef(value)
+
+  // Sync dari parent hanya jika berubah dari luar (bukan dari typing)
+  useEffect(() => {
+    if (value !== prevValue.current) {
+      prevValue.current = value
+      setInputVal(String(value))
+    }
+  }, [value])
+
+  const commit = (raw: string) => {
+    const v = parseInt(raw, 10)
+    if (!isNaN(v)) {
+      const clamped = Math.min(max, Math.max(min, v))
+      prevValue.current = clamped
+      setInputVal(String(clamped))
+      onChange(clamped)
+    } else {
+      // kembalikan ke nilai sebelumnya jika field dikosongkan tanpa isi
+      setInputVal(String(value))
+    }
+  }
+
   return (
     <div className="flex items-center gap-2 bg-wkl-surface-variant p-2 rounded-lg w-fit">
       <button
         type="button"
-        onClick={() => onChange(Math.max(min, value - step))}
+        onClick={() => { const v = Math.max(min, value - step); onChange(v); prevValue.current = v; setInputVal(String(v)) }}
         className="w-8 h-8 flex items-center justify-center bg-wkl-surface-lowest rounded shadow-sm text-wkl-primary hover:bg-wkl-surface transition-colors"
       >
         <span className="material-symbols-outlined text-xl">remove</span>
       </button>
       <input
         type="number"
-        value={value}
+        value={inputVal}
         min={min}
         max={max}
-        onChange={(e) => {
-          const v = parseInt(e.target.value)
-          if (!isNaN(v)) onChange(v)
-        }}
+        onChange={(e) => setInputVal(e.target.value)}
+        onBlur={(e) => commit(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter') commit(inputVal) }}
         className="w-16 bg-transparent text-xl font-bold text-center text-wkl-on-surface focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
       />
       <button
         type="button"
-        onClick={() => onChange(Math.min(max, value + step))}
+        onClick={() => { const v = Math.min(max, value + step); onChange(v); prevValue.current = v; setInputVal(String(v)) }}
         className="w-8 h-8 flex items-center justify-center bg-wkl-surface-lowest rounded shadow-sm text-wkl-primary hover:bg-wkl-surface transition-colors"
       >
         <span className="material-symbols-outlined text-xl">add</span>

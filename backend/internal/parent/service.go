@@ -72,6 +72,7 @@ type AnalyticsResponse struct {
 	AccuracyPerTopic []AccuracyPerTopic `json:"accuracy_per_topic"`
 	CurrentStreak    int32              `json:"current_streak"`
 	LongestStreak    int32              `json:"longest_streak"`
+	CurrentPoints    int32              `json:"current_points"`
 }
 
 type ActivityItem struct {
@@ -412,12 +413,18 @@ func (s *Service) GetAnalytics(ctx context.Context, parentID, childID string) (*
 		}
 	}
 
+	var currentPoints int32
+	s.pool.QueryRow(ctx, //nolint:errcheck
+		`SELECT COALESCE(balance, 0) FROM point_wallets WHERE child_id = $1`, cid,
+	).Scan(&currentPoints)
+
 	return &AnalyticsResponse{
 		PointsPerDay:     pointsPerDay,
 		WatchTimePerDay:  watchPerDay,
 		AccuracyPerTopic: accuracy,
 		CurrentStreak:    currentStreak,
 		LongestStreak:    longestStreak,
+		CurrentPoints:    currentPoints,
 	}, nil
 }
 
@@ -483,4 +490,80 @@ func (s *Service) GetActivityFeed(ctx context.Context, parentID, childID string)
 	})
 
 	return &ActivityFeedResponse{Activities: items}, nil
+}
+
+type AdjustPointsResult struct {
+	OldBalance int32  `json:"old_balance"`
+	NewBalance int32  `json:"new_balance"`
+	Delta      int32  `json:"delta"`
+	Reason     string `json:"reason"`
+}
+
+// AdjustPoints allows a parent to manually add or deduct points from their child's wallet.
+// delta can be negative (deduct) or positive (add). Balance is floored at 0.
+func (s *Service) AdjustPoints(ctx context.Context, parentID, childID string, delta int32, reason string) (*AdjustPointsResult, error) {
+	if err := s.verifyOwnership(ctx, parentID, childID); err != nil {
+		return nil, err
+	}
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return nil, errors.New("invalid child_id")
+	}
+	if reason == "" {
+		reason = "penyesuaian manual oleh orang tua"
+	}
+
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	defer tx.Rollback(ctx) //nolint:errcheck
+
+	var walletID pgtype.UUID
+	var oldBalance int32
+	err = tx.QueryRow(ctx,
+		`SELECT id, balance FROM point_wallets WHERE child_id = $1 FOR UPDATE`, cid,
+	).Scan(&walletID, &oldBalance)
+	if err != nil {
+		return nil, errors.New("wallet not found")
+	}
+
+	newBalance := oldBalance + delta
+	if newBalance < 0 {
+		newBalance = 0
+	}
+
+	var finalBalance int32
+	err = tx.QueryRow(ctx,
+		`UPDATE point_wallets SET balance = $2 WHERE id = $1 RETURNING balance`,
+		walletID, newBalance,
+	).Scan(&finalBalance)
+	if err != nil {
+		return nil, err
+	}
+
+	txType := "adjust_add"
+	txAmount := delta
+	if delta < 0 {
+		txType = "adjust_deduct"
+		txAmount = -delta
+	}
+	_, err = tx.Exec(ctx,
+		`INSERT INTO point_transactions (wallet_id, type, amount, description) VALUES ($1, $2, $3, $4)`,
+		walletID, txType, txAmount, reason,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return nil, err
+	}
+
+	return &AdjustPointsResult{
+		OldBalance: oldBalance,
+		NewBalance: finalBalance,
+		Delta:      finalBalance - oldBalance,
+		Reason:     reason,
+	}, nil
 }

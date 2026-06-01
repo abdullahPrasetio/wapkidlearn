@@ -5,14 +5,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import type { VideoStatus, Video } from '@/lib/types'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
 
-type Tab = 'active' | 'pending' | 'rejected'
+type Tab = 'active' | 'pending' | 'rejected' | 'catalog'
 
-const TABS: { key: Tab; label: string; status: VideoStatus }[] = [
-  { key: 'active', label: 'Aktif', status: 'active' },
-  { key: 'pending', label: 'Menunggu', status: 'pending' },
-  { key: 'rejected', label: 'Ditolak', status: 'rejected' },
+const VIDEO_TABS: { key: Tab; label: string }[] = [
+  { key: 'active', label: 'Aktif' },
+  { key: 'pending', label: 'Menunggu' },
+  { key: 'rejected', label: 'Ditolak' },
+  { key: 'catalog', label: 'Katalog' },
 ]
 
 const STATUS_BADGE: Record<VideoStatus, { label: string; className: string }> = {
@@ -21,10 +21,9 @@ const STATUS_BADGE: Record<VideoStatus, { label: string; className: string }> = 
   rejected: { label: 'Ditolak', className: 'bg-[#FEE2E2] text-[#991B1B]' },
 }
 
-function VideoThumbnail({ video, size = 'full' }: { video: Video; size?: 'full' | 'small' }) {
-  const cls = size === 'full' ? 'aspect-video' : 'h-16 w-28 flex-shrink-0 rounded-lg overflow-hidden'
+function Thumbnail({ video }: { video: Video }) {
   return (
-    <div className={`${cls} bg-wkl-surface-variant flex items-center justify-center overflow-hidden rounded-t-xl`}>
+    <div className="aspect-video bg-wkl-surface-variant flex items-center justify-center overflow-hidden rounded-t-xl">
       {video.thumbnail_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={video.thumbnail_url} alt={video.title} className="w-full h-full object-cover" />
@@ -46,8 +45,6 @@ export default function ParentVideoPage({ params }: { params: { id: string } }) 
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [formError, setFormError] = useState('')
-
-  // Edit state
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
   const [editUrl, setEditUrl] = useState('')
@@ -56,6 +53,20 @@ export default function ParentVideoPage({ params }: { params: { id: string } }) 
     queryKey: ['parent-videos', childId],
     queryFn: () => parent.listVideos(childId),
   })
+
+  const { data: globalVideos } = useQuery({
+    queryKey: ['global-videos'],
+    queryFn: parent.listGlobalVideos,
+    enabled: tab === 'catalog',
+  })
+
+  const { data: assignedVideoIds } = useQuery({
+    queryKey: ['assigned-video-ids', childId],
+    queryFn: () => parent.getAssignedVideoIds(childId),
+    enabled: tab === 'catalog',
+  })
+
+  const assignedIds = new Set(assignedVideoIds ?? [])
 
   const addMutation = useMutation({
     mutationFn: () => parent.addVideo(childId, { title: title.trim(), url: url.trim() }),
@@ -92,9 +103,38 @@ export default function ParentVideoPage({ params }: { params: { id: string } }) 
     onSuccess: () => qc.invalidateQueries({ queryKey: ['parent-videos', childId] }),
   })
 
-  const currentStatus = TABS.find((t) => t.key === tab)?.status
-  const filtered = (videoList ?? [])
+  const assignMutation = useMutation({
+    mutationFn: (videoId: string) =>
+      fetch(`/api/v1/parent/children/${childId}/videos/${videoId}/assign`, {
+        method: 'POST', credentials: 'include',
+      }).then(r => { if (!r.ok) throw new Error('Gagal assign'); return r.json() }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['assigned-video-ids', childId] })
+      qc.invalidateQueries({ queryKey: ['parent-videos', childId] })
+    },
+    onError: (e) => alert(e instanceof Error ? e.message : 'Gagal assign video'),
+  })
+
+  const unassignMutation = useMutation({
+    mutationFn: (videoId: string) =>
+      fetch(`/api/v1/parent/children/${childId}/videos/${videoId}/assign`, {
+        method: 'DELETE', credentials: 'include',
+      }).then(r => { if (!r.ok) throw new Error('Gagal unassign'); return r.json() }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['assigned-video-ids', childId] })
+      qc.invalidateQueries({ queryKey: ['parent-videos', childId] })
+    },
+    onError: (e) => alert(e instanceof Error ? e.message : 'Gagal unassign video'),
+  })
+
+  const statusMap: Record<string, VideoStatus> = { active: 'active', pending: 'pending', rejected: 'rejected' }
+  const currentStatus = statusMap[tab]
+
+  const filteredOwned = (videoList ?? [])
     .filter((v) => v.status === currentStatus)
+    .filter((v) => !search || v.title.toLowerCase().includes(search.toLowerCase()))
+
+  const filteredCatalog = (globalVideos ?? [])
     .filter((v) => !search || v.title.toLowerCase().includes(search.toLowerCase()))
 
   const startEdit = (v: Video) => {
@@ -113,26 +153,21 @@ export default function ParentVideoPage({ params }: { params: { id: string } }) 
           <span className="material-symbols-outlined text-wkl-on-surface text-[22px]">arrow_back</span>
         </button>
         <h1 className="text-base font-semibold text-wkl-on-surface flex-1">Kelola Video</h1>
-        <Link
-          href={`/parent/children/${childId}/assign-videos`}
-          className="flex items-center gap-1 bg-wkl-surface-container text-wkl-on-surface px-3 py-1.5 rounded-lg text-sm font-semibold border border-wkl-outline-variant"
-        >
-          <span className="material-symbols-outlined text-[18px]">video_library</span>
-          Katalog
-        </Link>
-        <button
-          onClick={() => { setShowForm(!showForm); setFormError('') }}
-          className="flex items-center gap-1 bg-wkl-primary text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
-        >
-          <span className="material-symbols-outlined text-[18px]">add</span>
-          Tambah
-        </button>
+        {tab !== 'catalog' && (
+          <button
+            onClick={() => { setShowForm(!showForm); setFormError('') }}
+            className="flex items-center gap-1 bg-wkl-primary text-white px-3 py-1.5 rounded-lg text-sm font-semibold"
+          >
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Tambah
+          </button>
+        )}
       </div>
 
       <main className="max-w-2xl mx-auto px-4 py-4 md:px-6">
 
         {/* Add form */}
-        {showForm && (
+        {showForm && tab !== 'catalog' && (
           <div className="bg-wkl-surface-container rounded-2xl p-4 mb-4 space-y-3 border border-wkl-outline-variant/30">
             <h2 className="font-semibold text-wkl-on-surface text-sm">Tambah Video Baru</h2>
             <input
@@ -177,116 +212,181 @@ export default function ParentVideoPage({ params }: { params: { id: string } }) 
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-4 bg-wkl-surface-container rounded-xl p-1">
-          {TABS.map((t) => (
+        <div className="flex gap-1 mb-4 bg-wkl-surface-container rounded-xl p-1 overflow-x-auto">
+          {VIDEO_TABS.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors ${
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap ${
                 tab === t.key ? 'bg-wkl-surface text-wkl-primary shadow-sm' : 'text-wkl-on-surface-variant'
               }`}
             >
               {t.label}
-              {videoList && (
-                <span className="ml-1 opacity-60">({videoList.filter((v) => v.status === t.status).length})</span>
+              {t.key !== 'catalog' && videoList && (
+                <span className="ml-1 opacity-60">
+                  ({videoList.filter((v) => v.status === statusMap[t.key]).length})
+                </span>
               )}
             </button>
           ))}
         </div>
 
-        {/* Cards */}
-        {!videoList ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {[1, 2, 3].map((i) => <div key={i} className="h-48 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-wkl-on-surface-variant">
-            <div className="text-5xl mb-4">📺</div>
-            <p className="font-medium">{search ? `Tidak ada video untuk "${search}"` : `Tidak ada video ${TABS.find((t) => t.key === tab)?.label.toLowerCase()}`}</p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {filtered.map((video) => {
-              const badge = STATUS_BADGE[video.status]
-              const isEditing = editingId === video.id
+        {/* Catalog tab */}
+        {tab === 'catalog' && (
+          <>
+            <p className="text-xs text-wkl-on-surface-variant mb-4">
+              Video global yang bisa diakses anak. Tap tombol untuk assign atau unassign.
+            </p>
+            {!globalVideos ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[1, 2, 3, 4].map((i) => <div key={i} className="h-52 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
+              </div>
+            ) : filteredCatalog.length === 0 ? (
+              <div className="text-center py-16 text-wkl-on-surface-variant">
+                <div className="text-5xl mb-4">🎬</div>
+                <p className="font-medium">{search ? `Tidak ada video untuk "${search}"` : 'Belum ada video global'}</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {filteredCatalog.map((video) => {
+                  const isAssigned = assignedIds.has(video.id)
+                  const isPending = assignMutation.isPending || unassignMutation.isPending
+                  return (
+                    <div
+                      key={video.id}
+                      className={`bg-wkl-surface-lowest rounded-2xl border overflow-hidden flex flex-col ${
+                        isAssigned ? 'border-wkl-primary/40' : 'border-wkl-outline-variant/30'
+                      }`}
+                    >
+                      <div className="relative">
+                        <Thumbnail video={video} />
+                        {isAssigned && (
+                          <div className="absolute top-2 right-2 bg-wkl-primary text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                            <span className="material-symbols-outlined text-[12px]">check_circle</span>
+                            Diassign
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-3 flex-1 flex flex-col gap-2">
+                        <p className="font-semibold text-sm text-wkl-on-surface line-clamp-2">{video.title}</p>
+                        <p className="text-xs text-wkl-on-surface-variant">
+                          {video.url?.includes('youtube') ? 'YouTube' : video.url?.includes('vimeo') ? 'Vimeo' : 'MP4'}
+                        </p>
+                        <button
+                          onClick={() => isAssigned ? unassignMutation.mutate(video.id) : assignMutation.mutate(video.id)}
+                          disabled={isPending}
+                          className={`mt-auto w-full py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-50 ${
+                            isAssigned
+                              ? 'bg-red-50 text-red-600 hover:bg-red-100 border border-red-200'
+                              : 'bg-wkl-primary text-white hover:opacity-90'
+                          }`}
+                        >
+                          {isAssigned ? '✕ Unassign' : '+ Assign ke Anak'}
+                        </button>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </>
+        )}
 
-              return (
-                <div key={video.id} className="bg-wkl-surface-lowest rounded-2xl border border-wkl-outline-variant/30 overflow-hidden flex flex-col">
-                  <VideoThumbnail video={video} />
-                  <div className="p-3 flex-1 flex flex-col gap-2">
-                    {isEditing ? (
-                      <>
-                        <input
-                          value={editTitle}
-                          onChange={e => setEditTitle(e.target.value)}
-                          className="w-full border border-wkl-outline-variant rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-wkl-primary bg-wkl-surface"
-                          placeholder="Judul"
-                        />
-                        <input
-                          value={editUrl}
-                          onChange={e => setEditUrl(e.target.value)}
-                          className="w-full border border-wkl-outline-variant rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-wkl-primary bg-wkl-surface"
-                          placeholder="URL"
-                        />
-                        <div className="flex gap-2">
-                          <button onClick={() => setEditingId(null)} className="flex-1 py-1.5 border border-wkl-outline-variant rounded-lg text-xs">Batal</button>
-                          <button
-                            onClick={() => editMutation.mutate({ id: video.id, title: editTitle, url: editUrl })}
-                            disabled={editMutation.isPending}
-                            className="flex-1 py-1.5 bg-wkl-primary text-white rounded-lg text-xs font-semibold disabled:opacity-50"
-                          >
-                            {editMutation.isPending ? '...' : 'Simpan'}
-                          </button>
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="flex items-start justify-between gap-2">
-                          <p className="font-semibold text-sm text-wkl-on-surface line-clamp-2 flex-1">{video.title}</p>
-                          <div className="flex gap-1 shrink-0">
-                            <button onClick={() => startEdit(video)} className="p-1 rounded-lg hover:bg-wkl-surface-container text-wkl-on-surface-variant">
-                              <span className="material-symbols-outlined text-[18px]">edit</span>
-                            </button>
-                            <button
-                              onClick={() => { if (confirm(`Hapus "${video.title}"?`)) deleteMutation.mutate(video.id) }}
-                              disabled={deleteMutation.isPending}
-                              className="p-1 rounded-lg hover:bg-red-50 text-wkl-on-surface-variant hover:text-red-500"
-                            >
-                              <span className="material-symbols-outlined text-[18px]">delete</span>
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between mt-auto">
-                          <span className="text-xs text-wkl-on-surface-variant">
-                            {video.url.includes('youtube') ? 'YouTube' : video.url.includes('vimeo') ? 'Vimeo' : 'MP4'}
-                          </span>
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.className}`}>{badge.label}</span>
-                        </div>
-                        {video.status === 'pending' && (
+        {/* Owned videos tabs */}
+        {tab !== 'catalog' && (
+          !videoList ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[1, 2, 3].map((i) => <div key={i} className="h-48 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
+            </div>
+          ) : filteredOwned.length === 0 ? (
+            <div className="text-center py-16 text-wkl-on-surface-variant">
+              <div className="text-5xl mb-4">📺</div>
+              <p className="font-medium">{search ? `Tidak ada video untuk "${search}"` : `Tidak ada video ${VIDEO_TABS.find((t) => t.key === tab)?.label.toLowerCase()}`}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {filteredOwned.map((video) => {
+                const badge = STATUS_BADGE[video.status]
+                const isEditing = editingId === video.id
+
+                return (
+                  <div key={video.id} className="bg-wkl-surface-lowest rounded-2xl border border-wkl-outline-variant/30 overflow-hidden flex flex-col">
+                    <Thumbnail video={video} />
+                    <div className="p-3 flex-1 flex flex-col gap-2">
+                      {isEditing ? (
+                        <>
+                          <input
+                            value={editTitle}
+                            onChange={e => setEditTitle(e.target.value)}
+                            className="w-full border border-wkl-outline-variant rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-wkl-primary bg-wkl-surface"
+                            placeholder="Judul"
+                          />
+                          <input
+                            value={editUrl}
+                            onChange={e => setEditUrl(e.target.value)}
+                            className="w-full border border-wkl-outline-variant rounded-lg px-2 py-1.5 text-xs focus:outline-none focus:border-wkl-primary bg-wkl-surface"
+                            placeholder="URL"
+                          />
                           <div className="flex gap-2">
-                            <button onClick={() => approveMutation.mutate(video.id)} disabled={approveMutation.isPending}
-                              className="flex-1 bg-green-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-green-600 disabled:opacity-50">
-                              ✓ Approve
-                            </button>
-                            <button onClick={() => rejectMutation.mutate(video.id)} disabled={rejectMutation.isPending}
-                              className="flex-1 bg-wkl-surface-container text-wkl-on-surface text-xs font-bold py-1.5 rounded-lg hover:bg-wkl-surface-high disabled:opacity-50">
-                              ✕ Tolak
+                            <button onClick={() => setEditingId(null)} className="flex-1 py-1.5 border border-wkl-outline-variant rounded-lg text-xs">Batal</button>
+                            <button
+                              onClick={() => editMutation.mutate({ id: video.id, title: editTitle, url: editUrl })}
+                              disabled={editMutation.isPending}
+                              className="flex-1 py-1.5 bg-wkl-primary text-white rounded-lg text-xs font-semibold disabled:opacity-50"
+                            >
+                              {editMutation.isPending ? '...' : 'Simpan'}
                             </button>
                           </div>
-                        )}
-                        {video.status === 'rejected' && (
-                          <button onClick={() => approveMutation.mutate(video.id)} disabled={approveMutation.isPending}
-                            className="w-full bg-green-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-green-600 disabled:opacity-50">
-                            ✓ Approve Sekarang
-                          </button>
-                        )}
-                      </>
-                    )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-start justify-between gap-2">
+                            <p className="font-semibold text-sm text-wkl-on-surface line-clamp-2 flex-1">{video.title}</p>
+                            <div className="flex gap-1 shrink-0">
+                              <button onClick={() => startEdit(video)} className="p-1 rounded-lg hover:bg-wkl-surface-container text-wkl-on-surface-variant">
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                              </button>
+                              <button
+                                onClick={() => { if (confirm(`Hapus "${video.title}"?`)) deleteMutation.mutate(video.id) }}
+                                disabled={deleteMutation.isPending}
+                                className="p-1 rounded-lg hover:bg-red-50 text-wkl-on-surface-variant hover:text-red-500"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between mt-auto">
+                            <span className="text-xs text-wkl-on-surface-variant">
+                              {video.url.includes('youtube') ? 'YouTube' : video.url.includes('vimeo') ? 'Vimeo' : 'MP4'}
+                            </span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.className}`}>{badge.label}</span>
+                          </div>
+                          {video.status === 'pending' && (
+                            <div className="flex gap-2">
+                              <button onClick={() => approveMutation.mutate(video.id)} disabled={approveMutation.isPending}
+                                className="flex-1 bg-green-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-green-600 disabled:opacity-50">
+                                ✓ Approve
+                              </button>
+                              <button onClick={() => rejectMutation.mutate(video.id)} disabled={rejectMutation.isPending}
+                                className="flex-1 bg-wkl-surface-container text-wkl-on-surface text-xs font-bold py-1.5 rounded-lg hover:bg-wkl-surface-high disabled:opacity-50">
+                                ✕ Tolak
+                              </button>
+                            </div>
+                          )}
+                          {video.status === 'rejected' && (
+                            <button onClick={() => approveMutation.mutate(video.id)} disabled={approveMutation.isPending}
+                              className="w-full bg-green-500 text-white text-xs font-bold py-1.5 rounded-lg hover:bg-green-600 disabled:opacity-50">
+                              ✓ Approve Sekarang
+                            </button>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
-                </div>
-              )
-            })}
-          </div>
+                )
+              })}
+            </div>
+          )
         )}
       </main>
     </div>

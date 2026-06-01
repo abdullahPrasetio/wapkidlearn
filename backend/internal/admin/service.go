@@ -189,18 +189,52 @@ func (s *Service) AddGlobalVideo(ctx context.Context, adminUserID, title, url st
 	} else if !strings.Contains(url, "youtube") && !strings.Contains(url, "youtu.be") {
 		videoType = "mp4"
 	}
+
+	thumbnail := extractYouTubeThumbnail(url)
 	v, err := s.q.CreateVideo(ctx, db.CreateVideoParams{
-		SubmittedBy: submittedBy,
-		Title:       title,
-		Url:         url,
-		VideoType:   &videoType,
-		Scope:       &scope,
-		Status:      &status,
+		SubmittedBy:  submittedBy,
+		Title:        title,
+		Url:          url,
+		ThumbnailUrl: pgutil.PtrString(thumbnail),
+		VideoType:    &videoType,
+		Scope:        &scope,
+		Status:       &status,
 	})
 	if err != nil {
 		return nil, err
 	}
 	return &v, nil
+}
+
+// extractYouTubeThumbnail returns the hqdefault thumbnail URL for YouTube links, empty string otherwise.
+func extractYouTubeThumbnail(rawURL string) string {
+	for _, prefix := range []string{
+		"https://www.youtube.com/watch?v=",
+		"https://youtube.com/watch?v=",
+		"http://www.youtube.com/watch?v=",
+		"http://youtube.com/watch?v=",
+	} {
+		if strings.HasPrefix(rawURL, prefix) {
+			videoID := strings.TrimPrefix(rawURL, prefix)
+			if idx := strings.IndexAny(videoID, "&?"); idx != -1 {
+				videoID = videoID[:idx]
+			}
+			return "https://img.youtube.com/vi/" + videoID + "/hqdefault.jpg"
+		}
+	}
+	for _, prefix := range []string{
+		"https://youtu.be/",
+		"http://youtu.be/",
+	} {
+		if strings.HasPrefix(rawURL, prefix) {
+			videoID := strings.TrimPrefix(rawURL, prefix)
+			if idx := strings.IndexAny(videoID, "?&"); idx != -1 {
+				videoID = videoID[:idx]
+			}
+			return "https://img.youtube.com/vi/" + videoID + "/hqdefault.jpg"
+		}
+	}
+	return ""
 }
 
 func (s *Service) DeleteVideo(ctx context.Context, videoID string) error {

@@ -1,6 +1,7 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { parent } from '@/lib/api'
 import Link from 'next/link'
 
@@ -25,10 +26,30 @@ function BarChart({ data, color }: { data: { value: number; label: string }[]; c
 
 export default function ChildAnalyticsPage({ params }: { params: { id: string } }) {
   const { id } = params
+  const qc = useQueryClient()
   const { data } = useQuery({
     queryKey: ['analytics', id],
     queryFn: () => parent.getAnalytics(id),
   })
+
+  const [delta, setDelta] = useState<string>('')
+  const [reason, setReason] = useState('')
+  const [adjustResult, setAdjustResult] = useState<string | null>(null)
+
+  const adjustMut = useMutation({
+    mutationFn: () => parent.adjustPoints(id, parseInt(delta, 10), reason),
+    onSuccess: (res) => {
+      const sign = res.delta >= 0 ? '+' : ''
+      setAdjustResult(`Berhasil: ${res.old_balance} → ${res.new_balance} poin (${sign}${res.delta})`)
+      setDelta('')
+      setReason('')
+      qc.invalidateQueries({ queryKey: ['analytics', id] })
+    },
+    onError: (e) => setAdjustResult(`Gagal: ${e instanceof Error ? e.message : 'error tidak diketahui'}`),
+  })
+
+  const parsedDelta = parseInt(delta, 10)
+  const canAdjust = !isNaN(parsedDelta) && parsedDelta !== 0 && !adjustMut.isPending
 
   const pointsData = data?.points_per_day?.slice(-7).map((d, i) => ({
     value: d.points,
@@ -118,6 +139,44 @@ export default function ChildAnalyticsPage({ params }: { params: { id: string } 
                 </div>
               </div>
             ) : null}
+            {/* Adjust Points */}
+            <div className="border border-wkl-outline-variant rounded-lg p-6 bg-wkl-surface-lowest mb-8">
+              <h2 className="text-base font-semibold text-wkl-on-surface mb-1">Sesuaikan Poin</h2>
+              <p className="text-sm text-wkl-on-surface-variant mb-4">
+                Masukkan angka positif untuk tambah poin, negatif untuk kurangi.
+                Saldo saat ini: <span className="font-bold text-wkl-on-surface">{data?.current_points ?? 0} poin</span>
+              </p>
+              <div className="flex flex-col gap-3">
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    value={delta}
+                    onChange={(e) => { setDelta(e.target.value); setAdjustResult(null) }}
+                    placeholder="cth: -50 atau 100"
+                    className="flex-1 border border-wkl-outline-variant rounded-lg px-3 py-2 text-sm bg-wkl-surface focus:outline-none focus:border-wkl-primary [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                </div>
+                <input
+                  type="text"
+                  value={reason}
+                  onChange={(e) => setReason(e.target.value)}
+                  placeholder="Alasan (opsional)"
+                  className="border border-wkl-outline-variant rounded-lg px-3 py-2 text-sm bg-wkl-surface focus:outline-none focus:border-wkl-primary"
+                />
+                <button
+                  onClick={() => adjustMut.mutate()}
+                  disabled={!canAdjust}
+                  className="self-start px-5 py-2 bg-wkl-primary-container text-white rounded-lg text-sm font-semibold disabled:opacity-50 hover:opacity-90 transition-opacity"
+                >
+                  {adjustMut.isPending ? 'Menyimpan...' : 'Terapkan'}
+                </button>
+                {adjustResult && (
+                  <p className={`text-sm font-medium ${adjustResult.startsWith('Berhasil') ? 'text-green-600' : 'text-wkl-error'}`}>
+                    {adjustResult}
+                  </p>
+                )}
+              </div>
+            </div>
           </>
         )}
       </main>

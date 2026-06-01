@@ -123,6 +123,7 @@ func main() {
 	// Parent routes
 	parentGroup := app.Group("/api/v1/parent", requireAuth, requireParent)
 	parentHandler.Register(parentGroup)
+	parentGroup.Patch("/videos/:id", videosHandler.EditVideo)
 	parentGroup.Patch("/videos/:id/approve", parentHandler.ApproveChildVideo)
 	parentGroup.Patch("/videos/:id/reject", parentHandler.RejectChildVideo)
 
@@ -139,6 +140,7 @@ func main() {
 	adminGroup.Post("/videos", videosHandler.AddVideo)
 	adminGroup.Patch("/videos/:id/approve", videosHandler.ApproveVideo)
 	adminGroup.Patch("/videos/:id/reject", videosHandler.RejectVideo)
+	adminGroup.Patch("/videos/:id", videosHandler.EditVideo)
 	adminGroup.Delete("/videos/:id", videosHandler.DeleteVideo)
 
 	quit := make(chan os.Signal, 1)

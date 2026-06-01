@@ -8,8 +8,7 @@ import type { Video } from '@/lib/types'
 
 function VideoCard({ video, childId, onAssigned }: { video: Video; childId: string; onAssigned: () => void }) {
   const assignMut = useMutation({
-    mutationFn: () =>
-      parent.addVideo(childId, { title: video.title, url: video.url }),
+    mutationFn: () => parent.assignVideoToChild(video.id, childId),
     onSuccess: onAssigned,
     onError: (e) => alert(e instanceof Error ? e.message : 'Gagal menambahkan video'),
   })

@@ -28,9 +28,11 @@ func (h *Handler) Register(router fiber.Router) {
 	router.Delete("/children/:id/lock", h.Unlock)
 	router.Get("/children/:id/analytics", h.GetAnalytics)
 	router.Get("/children/:id/activity", h.GetActivityFeed)
+	router.Patch("/children/:id/points", h.AdjustPoints)
 
 	// Video management per child (assign/unassign)
 	router.Get("/children/:id/videos", h.ListChildVideos)
+	router.Get("/children/:id/assigned-video-ids", h.ListAssignedVideoIDs)
 	router.Post("/children/:id/videos/:videoId/assign", h.AssignVideoToChild)
 	router.Delete("/children/:id/videos/:videoId/assign", h.UnassignVideoFromChild)
 
@@ -152,6 +154,19 @@ func (h *Handler) AssignVideoToChild(c *fiber.Ctx) error {
 	return response.OK(c, fiber.Map{"assigned": true})
 }
 
+func (h *Handler) ListAssignedVideoIDs(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
+		return response.Forbidden(c, err.Error())
+	}
+	ids, err := h.videoSvc.GetAssignedVideoIDs(c.Context(), childID)
+	if err != nil {
+		return response.InternalError(c, err)
+	}
+	return response.OK(c, ids)
+}
+
 func (h *Handler) UnassignVideoFromChild(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	childID := c.Params("id")
@@ -165,12 +180,19 @@ func (h *Handler) UnassignVideoFromChild(c *fiber.Ctx) error {
 	return response.OK(c, fiber.Map{"unassigned": true})
 }
 
-// GetVideoAssignments returns child IDs currently assigned to a parent's video.
+// GetVideoAssignments returns child IDs currently assigned to a video.
+// Works for both parent-owned videos and global videos.
 func (h *Handler) GetVideoAssignments(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	videoID := c.Params("id")
-	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
-		return response.Forbidden(c, err.Error())
+	isGlobal, err := h.videoSvc.IsGlobalVideo(c.Context(), videoID)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	if !isGlobal {
+		if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+			return response.Forbidden(c, err.Error())
+		}
 	}
 	childIDs, err := h.videoSvc.GetAssignedChildIDs(c.Context(), videoID)
 	if err != nil {
@@ -180,15 +202,22 @@ func (h *Handler) GetVideoAssignments(c *fiber.Ctx) error {
 }
 
 // AssignVideoToChildByVideoID assigns a video (by video ID) to a child the parent owns.
+// Global videos can be assigned by any parent; private videos must be owned by the parent.
 func (h *Handler) AssignVideoToChildByVideoID(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	videoID := c.Params("id")
 	childID := c.Params("childId")
-	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
-		return response.Forbidden(c, err.Error())
-	}
 	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
 		return response.Forbidden(c, err.Error())
+	}
+	isGlobal, err := h.videoSvc.IsGlobalVideo(c.Context(), videoID)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	if !isGlobal {
+		if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+			return response.Forbidden(c, err.Error())
+		}
 	}
 	if err := h.videoSvc.AssignVideoToChild(c.Context(), parentID, childID, videoID); err != nil {
 		return response.BadRequest(c, err.Error())
@@ -201,8 +230,14 @@ func (h *Handler) UnassignVideoFromChildByVideoID(c *fiber.Ctx) error {
 	parentID := c.Locals("userID").(string)
 	videoID := c.Params("id")
 	childID := c.Params("childId")
-	if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
-		return response.Forbidden(c, err.Error())
+	isGlobal, err := h.videoSvc.IsGlobalVideo(c.Context(), videoID)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	if !isGlobal {
+		if err := h.videoSvc.VerifyVideoOwnership(c.Context(), parentID, videoID); err != nil {
+			return response.Forbidden(c, err.Error())
+		}
 	}
 	if err := h.svc.verifyOwnership(c.Context(), parentID, childID); err != nil {
 		return response.Forbidden(c, err.Error())
@@ -256,6 +291,28 @@ func (h *Handler) RejectChildVideo(c *fiber.Ctx) error {
 		return response.InternalError(c, err)
 	}
 	return response.OK(c, v)
+}
+
+type adjustPointsRequest struct {
+	Delta  int32  `json:"delta"`
+	Reason string `json:"reason"`
+}
+
+func (h *Handler) AdjustPoints(c *fiber.Ctx) error {
+	parentID := c.Locals("userID").(string)
+	childID := c.Params("id")
+	var req adjustPointsRequest
+	if err := validator.BindAndValidate(c, &req); err != nil {
+		return response.BadRequest(c, "invalid request body")
+	}
+	if req.Delta == 0 {
+		return response.BadRequest(c, "delta tidak boleh 0")
+	}
+	result, err := h.svc.AdjustPoints(c.Context(), parentID, childID, req.Delta, req.Reason)
+	if err != nil {
+		return response.BadRequest(c, err.Error())
+	}
+	return response.OK(c, result)
 }
 
 func (h *Handler) GetAnalytics(c *fiber.Ctx) error {

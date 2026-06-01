@@ -236,6 +236,23 @@ func (s *Service) UnassignVideoFromChild(ctx context.Context, childID, videoID s
 
 // PromoteToGlobal digunakan admin untuk menjadikan video sebagai global.
 
+// GetAssignedVideoIDs returns only video IDs explicitly assigned to a child (from child_video_assignments).
+func (s *Service) GetAssignedVideoIDs(ctx context.Context, childID string) ([]string, error) {
+	cid, err := pgutil.ParseUUID(childID)
+	if err != nil {
+		return nil, errors.New("invalid child_id")
+	}
+	rows, err := s.q.GetAssignedVideoIDs(ctx, cid)
+	if err != nil {
+		return nil, err
+	}
+	ids := make([]string, len(rows))
+	for i, r := range rows {
+		ids[i] = pgutil.UUIDToString(r)
+	}
+	return ids, nil
+}
+
 // ListVideosByChildForParent returns all assigned videos (any status) plus active global videos for a child.
 func (s *Service) ListVideosByChildForParent(ctx context.Context, childID string) ([]db.Video, error) {
 	cid, err := pgutil.ParseUUID(childID)
@@ -274,6 +291,19 @@ func (s *Service) GetAssignedChildIDs(ctx context.Context, videoID string) ([]st
 		out = append(out, pgutil.UUIDToString(r))
 	}
 	return out, nil
+}
+
+// IsGlobalVideo returns true if the video has scope="global" and status="active".
+func (s *Service) IsGlobalVideo(ctx context.Context, videoID string) (bool, error) {
+	vid, err := pgutil.ParseUUID(videoID)
+	if err != nil {
+		return false, errors.New("invalid video_id")
+	}
+	v, err := s.q.GetVideoByID(ctx, vid)
+	if err != nil {
+		return false, errors.New("video not found")
+	}
+	return v.Scope != nil && *v.Scope == "global" && v.Status != nil && *v.Status == "active", nil
 }
 
 // VerifyVideoOwnership checks that a video was submitted by the given parent user.

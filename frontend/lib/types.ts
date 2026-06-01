@@ -150,6 +150,7 @@ export interface ChildAnalytics {
   accuracy_per_topic: { topic: string; accuracy: number }[]
   current_streak: number
   longest_streak: number
+  current_points: number
 }
 
 // Admin

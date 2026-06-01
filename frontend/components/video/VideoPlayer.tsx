@@ -96,6 +96,7 @@ export function VideoPlayer({
     return () => document.removeEventListener('visibilitychange', handleVisibility)
   }, [])
 
+
   // Seek mp4 ke posisi resume saat video siap
   const handleVideoLoaded = () => {
     if (videoRef.current && startAtSeconds > 0) {
@@ -132,13 +133,24 @@ export function VideoPlayer({
     return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
   }
 
-  // Untuk YouTube embed: tambahkan &start=N ke URL
+  // Konversi URL YouTube watch → embed agar bisa di-iframe
   const resolvedUrl = (() => {
-    if (videoType !== 'youtube' || startAtSeconds <= 0) return videoUrl
+    if (videoType !== 'youtube') return videoUrl
     try {
       const u = new URL(videoUrl)
-      u.searchParams.set('start', String(startAtSeconds))
-      return u.toString()
+      let videoId = ''
+      if (u.hostname === 'youtu.be') {
+        videoId = u.pathname.slice(1)
+      } else {
+        videoId = u.searchParams.get('v') ?? ''
+      }
+      if (!videoId) return videoUrl
+      const embed = new URL(`https://www.youtube.com/embed/${videoId}`)
+      embed.searchParams.set('autoplay', '1')
+      embed.searchParams.set('rel', '0')
+      embed.searchParams.set('enablejsapi', '1')
+      if (startAtSeconds > 0) embed.searchParams.set('start', String(startAtSeconds))
+      return embed.toString()
     } catch {
       return videoUrl
     }
@@ -202,14 +214,17 @@ export function VideoPlayer({
               onPause={() => setIsPlaying(false)}
             />
           ) : (
-            <iframe
-              src={resolvedUrl}
-              title={videoTitle}
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-              className="w-full"
-              style={{ height: '50vh', border: 'none' }}
-            />
+            <div className="relative w-full" style={{ height: '50vh' }}>
+              <iframe
+                src={resolvedUrl}
+                title={videoTitle}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen"
+                allowFullScreen
+                referrerPolicy="strict-origin-when-cross-origin"
+                className="w-full h-full"
+                style={{ border: 'none' }}
+              />
+            </div>
           )
         ) : (
           <div className="flex items-center justify-center w-full h-40">

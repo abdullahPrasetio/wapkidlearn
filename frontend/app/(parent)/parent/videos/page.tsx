@@ -178,10 +178,24 @@ export default function ParentVideosPage() {
   // Assign modal state
   const [assignVideo, setAssignVideo] = useState<Video | null>(null)
 
-  const { data: myVideos } = useQuery({
+  const { data: submittedVideos, isLoading: loadingSubmitted } = useQuery({
     queryKey: ['parent-my-videos'],
     queryFn: parent.listMyVideos,
   })
+
+  const { data: globalVideos, isLoading: loadingGlobal } = useQuery({
+    queryKey: ['global-videos'],
+    queryFn: parent.listGlobalVideos,
+  })
+
+  const videosLoading = loadingSubmitted || loadingGlobal
+
+  // Gabungkan video milik parent + video global (dedup by id)
+  const myVideos = (() => {
+    const all = [...(submittedVideos ?? []), ...(globalVideos ?? [])]
+    const seen = new Set<string>()
+    return all.filter((v) => { if (seen.has(v.id)) return false; seen.add(v.id); return true })
+  })()
 
   const { data: children } = useQuery({
     queryKey: ['parent-children'],
@@ -304,7 +318,7 @@ export default function ParentVideosPage() {
               }`}
             >
               {t.label}
-              {myVideos && (
+              {!videosLoading && (
                 <span className="ml-1.5 text-xs opacity-60">({myVideos.filter((v) => v.status === t.key).length})</span>
               )}
             </button>
@@ -312,7 +326,7 @@ export default function ParentVideosPage() {
         </div>
 
         {/* Grid */}
-        {!myVideos ? (
+        {videosLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => <div key={i} className="h-64 bg-wkl-surface-container rounded-2xl animate-pulse" />)}
           </div>
@@ -359,19 +373,21 @@ export default function ParentVideosPage() {
                       <>
                         <div className="flex items-start justify-between gap-2">
                           <h3 className="font-semibold text-sm text-wkl-on-background leading-tight line-clamp-2 flex-1">{v.title}</h3>
-                          <div className="flex gap-1 shrink-0">
-                            <button onClick={() => startEdit(v)} className="p-1 rounded hover:bg-wkl-surface-container text-wkl-on-surface-variant" title="Edit judul/URL">
-                              <span className="material-symbols-outlined text-[18px]">edit</span>
-                            </button>
-                            <button
-                              onClick={() => { if (confirm(`Hapus "${v.title}"?`)) deleteMut.mutate(v.id) }}
-                              disabled={deleteMut.isPending}
-                              className="p-1 rounded hover:bg-red-50 text-wkl-on-surface-variant hover:text-red-500"
-                              title="Hapus video"
-                            >
-                              <span className="material-symbols-outlined text-[18px]">delete</span>
-                            </button>
-                          </div>
+                          {v.scope !== 'global' && (
+                            <div className="flex gap-1 shrink-0">
+                              <button onClick={() => startEdit(v)} className="p-1 rounded hover:bg-wkl-surface-container text-wkl-on-surface-variant" title="Edit judul/URL">
+                                <span className="material-symbols-outlined text-[18px]">edit</span>
+                              </button>
+                              <button
+                                onClick={() => { if (confirm(`Hapus "${v.title}"?`)) deleteMut.mutate(v.id) }}
+                                disabled={deleteMut.isPending}
+                                className="p-1 rounded hover:bg-red-50 text-wkl-on-surface-variant hover:text-red-500"
+                                title="Hapus video"
+                              >
+                                <span className="material-symbols-outlined text-[18px]">delete</span>
+                              </button>
+                            </div>
+                          )}
                         </div>
 
                         {v.status === 'rejected' && (

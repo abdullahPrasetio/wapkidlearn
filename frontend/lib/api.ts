@@ -168,6 +168,11 @@ export const parent = {
     request<void>(`/parent/children/${childId}/lock`, { method: 'DELETE' }),
   getAnalytics: (childId: string) =>
     request<ChildAnalytics>(`/parent/children/${childId}/analytics`),
+  adjustPoints: (childId: string, delta: number, reason?: string) =>
+    request<{ old_balance: number; new_balance: number; delta: number; reason: string }>(
+      `/parent/children/${childId}/points`,
+      { method: 'PATCH', body: JSON.stringify({ delta, reason: reason ?? '' }) }
+    ),
   getActivityFeed: (childId: string) =>
     request<{ activities: ActivityItem[] }>(`/parent/children/${childId}/activity`),
   listVideos: (childId: string) =>
@@ -187,7 +192,7 @@ export const parent = {
       body: JSON.stringify({ reason }),
     }),
   editVideo: (id: string, body: { title: string; url: string }) =>
-    request<Video>(`/videos/${id}`, {
+    request<Video>(`/parent/videos/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),
@@ -197,6 +202,8 @@ export const parent = {
     request<Video>('/parent/videos', { method: 'POST', body: JSON.stringify(body) }),
   deleteMyVideo: (videoId: string) =>
     request<void>(`/videos/${videoId}`, { method: 'DELETE' }),
+  getAssignedVideoIds: (childId: string) =>
+    request<string[]>(`/parent/children/${childId}/assigned-video-ids`),
   getVideoAssignments: (videoId: string) =>
     request<string[]>(`/parent/videos/${videoId}/assignments`),
   assignVideoToChild: (videoId: string, childId: string) =>
@@ -238,7 +245,7 @@ export const admin = {
       body: JSON.stringify(body),
     }),
   editVideo: (id: string, body: { title: string; url: string }) =>
-    request<Video>(`/videos/${id}`, {
+    request<Video>(`/admin/videos/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(body),
     }),
